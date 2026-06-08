@@ -1,3 +1,16 @@
 node_modules/
 venv/
 .env
+
+# Logs
+*.log
+database/*.log
+backend/database/*.log
+
+# Python cache & virtualenvs
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.coverage
+htmlcov/
