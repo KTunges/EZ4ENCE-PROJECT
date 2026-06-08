@@ -2,3 +2,8 @@
 2026-06-09 01:02:47.842 | INFO     | app.main:read_root:39 - Truy cập endpoint /
 2026-06-09 01:05:42.862 | INFO     | app.main:startup_event:35 - Khởi động EZ4ENCE E-Commerce API Server
 2026-06-09 01:13:57.458 | INFO     | app.main:startup_event:35 - Khởi động EZ4ENCE E-Commerce API Server
+2026-06-09 02:05:22.568 | INFO     | app.main:startup_event:35 - Khởi động EZ4ENCE E-Commerce API Server
+2026-06-09 02:05:28.015 | INFO     | app.main:read_root:39 - Truy cập endpoint /
+2026-06-09 02:09:49.156 | INFO     | app.main:startup_event:35 - Khởi động EZ4ENCE E-Commerce API Server
+2026-06-09 02:09:58.635 | INFO     | app.main:read_root:39 - Truy cập endpoint /
+2026-06-09 02:11:17.026 | INFO     | app.main:read_root:39 - Truy cập endpoint /

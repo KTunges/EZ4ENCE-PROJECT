@@ -107,7 +107,11 @@ CREATE DATABASE ez4ence;
 **Bước 2**: Import schema
 
 ```bash
-psql -U postgres -d ez4ence -f database/ez4ence_schema.sql
+# macOS (Postgres.app — không cần user/password)
+psql -d ez4ence -f database/ez4ence_schema.sql
+
+# macOS/Linux (PostgreSQL tiêu chuẩn)
+psql -h localhost -U postgres -d ez4ence -f database/ez4ence_schema.sql
 ```
 
 **Hoặc** dùng Alembic migration (sau khi cấu hình `.env` ở bước Backend):
@@ -149,7 +153,15 @@ pip install -r requirements.txt
 **Bước 4**: Tạo file `.env` trong thư mục `backend/`
 
 ```env
+# macOS dùng Postgres.app (không cần user/password)
+DATABASE_URL=postgresql://localhost:5432/ez4ence
+
+# macOS/Linux dùng PostgreSQL tiêu chuẩn (có password)
 DATABASE_URL=postgresql://postgres:your_password@localhost:5432/ez4ence
+
+# Windows
+DATABASE_URL=postgresql://postgres:your_password@localhost:5432/ez4ence
+
 JWT_SECRET=your_super_secret_key_here
 PORT=8000
 
