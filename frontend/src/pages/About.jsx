@@ -80,7 +80,7 @@ export default function About() {
             style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '800px' }}
           >
             <span className="section-tag" style={{ alignSelf: 'center', marginBottom: '20px' }}>// ARCHIVE.SYS</span>
-            <h1 className="hero-title glitch-text" data-text="THE ORIGIN" style={{ textAlign: 'center', color: '#fff', textShadow: '2px 0 0 #0ff, -2px 0 0 #f0f' }}>THE ORIGIN</h1>
+            <h1 className="hero-title glitch-text" data-text="THE ORIGIN" style={{ textAlign: 'center' }}>THE ORIGIN</h1>
             <motion.h2 
               className="about-subtitle" 
               style={{ textAlign: 'center' }}

@@ -64,7 +64,7 @@
   --pink-dim:      rgba(219, 39, 119, 0.1);
   --pink-glow:     rgba(219, 39, 119, 0.2);
 
-  --text:          #0f172a;
+  --text:          #1e293b;
   --text-muted:    #475569;
   --text-dim:      #94a3b8;
 
@@ -1215,4 +1215,87 @@ h1, h2, h3, h4, h5, h6 {
   60% { clip-path: inset(20% 0 50% 0); transform: translate(-2px, -2px); }
   80% { clip-path: inset(50% 0 30% 0); transform: translate(1px, 1px); }
   100% { clip-path: inset(5% 0 80% 0); transform: translate(-1px, -1px); }
+}
+
+/* =============================
+   LIGHT THEME TEXT OVERRIDES
+   ============================= */
+
+/* Glitch text: deep indigo with subtle neon glow for premium feel */
+[data-theme="light"] .glitch-text {
+  color: #3730a3;
+  text-shadow: 2px 0 0 rgba(0, 102, 204, 0.25), -2px 0 0 rgba(107, 33, 232, 0.25),
+               0 0 30px rgba(107, 33, 232, 0.12);
+}
+
+[data-theme="light"] .glitch-text::before {
+  color: rgba(0, 102, 204, 0.6);
+}
+
+[data-theme="light"] .glitch-text::after {
+  color: rgba(107, 33, 232, 0.5);
+}
+
+/* Hero title highlight gradient — keep gradient but ensure visibility */
+[data-theme="light"] .hero-title .highlight {
+  filter: drop-shadow(0 0 20px rgba(107, 33, 232, 0.3));
+}
+
+/* Hero subtitle — already uses var(--text-muted), OK */
+
+/* Card hover shadow — soften for light bg */
+[data-theme="light"] .card:hover {
+  box-shadow:
+    -5px 0 15px var(--cyan-glow),
+    0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Hero orbs — darken slightly for contrast on light bg */
+[data-theme="light"] .hero::before {
+  background: radial-gradient(circle, rgba(107, 33, 232, 0.1) 0%, transparent 65%);
+}
+
+[data-theme="light"] .hero::after {
+  background: radial-gradient(circle, rgba(0, 102, 204, 0.08) 0%, transparent 65%);
+}
+
+/* Spec header border — use theme-aware color */
+[data-theme="light"] .spec-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Cyber background grid — use theme purple tones */
+[data-theme="light"] .cyber-grid-overlay {
+  background-image:
+    linear-gradient(rgba(107, 33, 232, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(107, 33, 232, 0.04) 1px, transparent 1px);
+}
+
+[data-theme="light"] .cyber-glitch-line {
+  background: var(--purple);
+  opacity: 0.06;
+}
+
+/* Partner cards — ensure text readable */
+[data-theme="light"] .partner-card {
+  border-color: rgba(107, 33, 232, 0.2);
+}
+
+[data-theme="light"] .partner-card:hover {
+  border-color: var(--purple);
+  box-shadow: 0 0 15px rgba(107, 33, 232, 0.15);
+}
+
+/* Timeline — readable lines */
+[data-theme="light"] .timeline-line {
+  background: rgba(107, 33, 232, 0.12);
+}
+
+[data-theme="light"] .timeline-node {
+  border-color: var(--purple);
+}
+
+/* Footer links hover — ensure dark text */
+[data-theme="light"] .footer-links a:hover {
+  color: var(--text);
 }
