@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { Search, ShoppingCart, User, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -13,10 +13,10 @@ export default function Header() {
         </Link>
 
         <nav className="header-nav">
-          <Link to="/" className="header-nav-link active">Trang chủ</Link>
-          <Link to="/products" className="header-nav-link">Sản phẩm</Link>
-          <Link to="/build-pc" className="header-nav-link">Build PC</Link>
-          <Link to="/about" className="header-nav-link">Giới thiệu</Link>
+          <NavLink to="/" className={({ isActive }) => `header-nav-link ${isActive ? 'active' : ''}`} end>Trang chủ</NavLink>
+          <NavLink to="/products" className={({ isActive }) => `header-nav-link ${isActive ? 'active' : ''}`}>Sản phẩm</NavLink>
+          <NavLink to="/build-pc" className={({ isActive }) => `header-nav-link ${isActive ? 'active' : ''}`}>Build PC</NavLink>
+          <NavLink to="/about" className={({ isActive }) => `header-nav-link ${isActive ? 'active' : ''}`}>Giới thiệu</NavLink>
         </nav>
 
         <div className="header-actions">

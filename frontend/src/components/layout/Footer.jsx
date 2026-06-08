@@ -6,23 +6,22 @@ export default function Footer() {
     <footer className="footer">
       <div className="container">
         <div className="footer-grid">
-
-          {/* Brand */}
           <div>
-            <Link to="/" className="footer-logo text-gradient">EZ4ENCE</Link>
+            <Link to="/" className="header-logo text-gradient" style={{ fontSize: '24px' }}>
+              EZ4ENCE
+            </Link>
             <p className="footer-desc">
               Điểm đến lý tưởng cho dân công nghệ và game thủ.
               Cung cấp linh kiện, PC, Laptop và Gaming Gear chính hãng với giá tốt nhất thị trường.
             </p>
-            <div className="social-links">
-              <a href="#" className="icon-btn" aria-label="Website"><Globe size={16} /></a>
-              <a href="#" className="icon-btn" aria-label="Chat"><MessageCircle size={16} /></a>
-              <a href="#" className="icon-btn" aria-label="Telegram"><Send size={16} /></a>
-              <a href="#" className="icon-btn" aria-label="GitHub"><Code2 size={16} /></a>
+            <div className="flex gap-4" style={{ marginTop: '24px' }}>
+              <a href="#" className="icon-btn"><Globe size={18} /></a>
+              <a href="#" className="icon-btn"><MessageCircle size={18} /></a>
+              <a href="#" className="icon-btn"><Send size={18} /></a>
+              <a href="#" className="icon-btn"><Code2 size={18} /></a>
             </div>
           </div>
 
-          {/* Products */}
           <div>
             <h3 className="footer-title">Sản Phẩm</h3>
             <div className="footer-links">
@@ -34,7 +33,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Support */}
           <div>
             <h3 className="footer-title">Hỗ Trợ</h3>
             <div className="footer-links">
@@ -46,20 +44,18 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Contact */}
           <div>
             <h3 className="footer-title">Liên Hệ</h3>
-            <div className="footer-contact">
-              <p>Hotline: 1900 xxxx</p>
-              <p>Email: support@ez4ence.vn</p>
-              <p>123 Đường X, Quận Y, TP.HCM</p>
+            <div className="footer-links">
+              <p style={{ color: 'var(--text-muted)' }}>Hotline: 1900 xxxx</p>
+              <p style={{ color: 'var(--text-muted)' }}>Email: support@ez4ence.vn</p>
+              <p style={{ color: 'var(--text-muted)' }}>Địa chỉ: 123 Đường X, Quận Y, TP.HCM</p>
             </div>
           </div>
-
         </div>
 
         <div className="footer-bottom">
-          &copy; {new Date().getFullYear()} EZ4ENCE — All rights reserved.
+          <p>&copy; {new Date().getFullYear()} EZ4ENCE. All rights reserved.</p>
         </div>
       </div>
     </footer>
