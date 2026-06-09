@@ -8,7 +8,7 @@ export function useHackerText(originalText, trigger = false, speed = 30) {
   const animate = useCallback(() => {
     let iteration = 0;
     let interval = setInterval(() => {
-      setDisplayText(prev => {
+      setDisplayText(() => {
         return originalText
           .split("")
           .map((letter, index) => {
@@ -37,6 +37,7 @@ export function useHackerText(originalText, trigger = false, speed = 30) {
     if (trigger) {
       animate();
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDisplayText(originalText);
     }
   }, [trigger, animate, originalText]);

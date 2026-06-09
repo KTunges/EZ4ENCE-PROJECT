@@ -33,8 +33,11 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
   const [mobileMode, setMobileMode] = useState(initialMode);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsSignUp(initialMode === 'register');
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMobileMode(initialMode);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setShowNamePrompt(false);
   }, [initialMode, isOpen]);
 

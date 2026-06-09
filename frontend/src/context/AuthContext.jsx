@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const AuthContext = createContext(null);
@@ -62,8 +63,6 @@ export const AuthProvider = ({ children }) => {
       setToken(data.access_token);
       setUser(data.user);
       return data.user;
-    } catch (error) {
-      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -88,8 +87,6 @@ export const AuthProvider = ({ children }) => {
       }
 
       return data;
-    } catch (error) {
-      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -117,8 +114,6 @@ export const AuthProvider = ({ children }) => {
       setToken(data.access_token);
       setUser(data.user);
       return data; // Return full data so caller can check data.is_new_user
-    } catch (error) {
-      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -145,8 +140,6 @@ export const AuthProvider = ({ children }) => {
 
       setUser(data);
       return data;
-    } catch (error) {
-      throw error;
     } finally {
       setIsLoading(false);
     }
