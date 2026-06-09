@@ -50,14 +50,19 @@ export default function Header() {
             </Link>
             
             {user ? (
-              <div className="header-user-menu" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span className="user-name" style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-color)' }}>
-                  {user.fullName || user.email}
-                </span>
-                <button className="icon-btn" aria-label="Logout" onClick={logout} title="Đăng xuất">
-                  <LogOut size={18} />
-                </button>
-              </div>
+              <Link to="/profile" className="header-user-pill" title="Quản lý tài khoản">
+                <div className="user-avatar-mini">
+                  {user.picture || user.avatar ? (
+                    <img src={user.picture || user.avatar} alt="Avatar" />
+                  ) : (
+                    <User size={16} />
+                  )}
+                </div>
+                <div className="user-info-mini">
+                  <span className="user-name-mini">{user.fullName || user.email?.split('@')[0]}</span>
+                  <span className="user-badge-mini">EZ4 MEMBER</span>
+                </div>
+              </Link>
             ) : (
               <button className="icon-btn" aria-label="User" onClick={() => setShowAuth(true)}>
                 <User size={18} />

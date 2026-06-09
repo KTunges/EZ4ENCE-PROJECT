@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     # Google Auth
     GOOGLE_CLIENT_ID: Optional[str] = None
 
+    # Facebook Auth
+    FACEBOOK_APP_ID: Optional[str] = None
+    FACEBOOK_APP_SECRET: Optional[str] = None
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
