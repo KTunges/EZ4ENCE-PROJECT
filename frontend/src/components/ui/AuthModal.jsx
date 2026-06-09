@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, LogIn, UserPlus, User, X, Gamepad2, Mouse, Headphones, Cpu, Monitor, Keyboard, Crosshair, Speaker, HardDrive, Terminal } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useGoogleLogin } from '@react-oauth/google';
+import ReactFacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 
 export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
-  const { login, register, loginWithGoogle, updateProfile } = useAuth();
+  const { login, register, loginWithGoogle, loginWithFacebook, updateProfile } = useAuth();
   const [isSignUp, setIsSignUp] = useState(initialMode === 'register');
 
   // Login state
@@ -264,12 +265,24 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                       </svg>
                       Google
                     </button>
-                    <button type="button" className="auth-social-btn-small facebook" onClick={() => alert('Coming Soon')}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                      </svg>
-                      Facebook
-                    </button>
+                    <ReactFacebookLogin
+                      appId={import.meta.env.VITE_FACEBOOK_APP_ID || "123456789"}
+                      autoLoad={false}
+                      fields="name,email,picture"
+                      callback={(response) => {
+                        if (response?.accessToken) {
+                          handleSocialLogin(loginWithFacebook(response.accessToken));
+                        }
+                      }}
+                      render={renderProps => (
+                        <button type="button" className="auth-social-btn-small facebook" onClick={renderProps.onClick}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                          </svg>
+                          Facebook
+                        </button>
+                      )}
+                    />
                   </div>
                   
                   {/* Show on mobile only */}
@@ -330,12 +343,24 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                       </svg>
                       Google
                     </button>
-                    <button type="button" className="auth-social-btn-small facebook" onClick={() => alert('Coming Soon')}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                      </svg>
-                      Facebook
-                    </button>
+                    <ReactFacebookLogin
+                      appId={import.meta.env.VITE_FACEBOOK_APP_ID || "123456789"}
+                      autoLoad={false}
+                      fields="name,email,picture"
+                      callback={(response) => {
+                        if (response?.accessToken) {
+                          handleSocialLogin(loginWithFacebook(response.accessToken));
+                        }
+                      }}
+                      render={renderProps => (
+                        <button type="button" className="auth-social-btn-small facebook" onClick={renderProps.onClick}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                          </svg>
+                          Facebook
+                        </button>
+                      )}
+                    />
                   </div>
 
                   {/* Show on mobile only */}

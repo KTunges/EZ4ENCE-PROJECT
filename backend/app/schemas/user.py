@@ -50,6 +50,9 @@ class TokenResponse(BaseModel):
 class TokenGoogle(BaseModel):
     token: str
 
+class TokenFacebook(BaseModel):
+    token: str
+
 # Schema cho Update Profile (sau khi Google Login)
 class ProfileUpdate(BaseModel):
     fullName: str = Field(..., validation_alias=AliasChoices("fullName", "full_name"))

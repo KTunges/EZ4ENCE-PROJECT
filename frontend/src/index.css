@@ -2376,6 +2376,370 @@ textarea.checkout-input {
   }
   
   /* ==========================================================================
+     PROFILE PAGE (Trang Cá Nhân)
+     ========================================================================== */
+  .profile-page-container {
+    padding-top: 40px;
+    padding-bottom: 60px;
+    min-height: 80vh;
+  }
+  
+  .profile-header {
+    margin-bottom: 30px;
+  }
+  
+  .profile-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 30px;
+    align-items: start;
+  }
+  
+  /* Sidebar */
+  .profile-sidebar {
+    padding: 25px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    position: sticky;
+    top: 100px;
+  }
+  
+  .profile-user-summary {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .profile-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(0, 220, 255, 0.1);
+    border: 2px solid var(--cyan);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .avatar-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .profile-avatar:hover .avatar-overlay {
+    opacity: 1;
+  }
+  
+  .profile-avatar.uploading .avatar-overlay {
+    opacity: 0;
+  }
+
+  .hidden {
+    display: none;
+  }
+  
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  .profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .profile-info h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 170px;
+  }
+  
+  .profile-info p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 170px;
+  }
+  
+  .profile-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .profile-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 15px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  
+  .profile-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text);
+  }
+  
+  .profile-nav-btn.active {
+    background: rgba(0, 220, 255, 0.08);
+    color: var(--cyan);
+    border-left: 3px solid var(--cyan);
+    border-radius: 0 8px 8px 0;
+  }
+  
+  /* Content Area */
+  .profile-content {
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    min-height: 400px;
+  }
+  
+  .profile-input {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(10, 10, 18, 0.3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 0.95rem;
+    outline: none;
+    transition: all var(--transition);
+  }
+  
+  .profile-input:focus:not(:disabled) {
+    border-color: var(--cyan);
+    box-shadow: 0 0 10px rgba(0, 220, 255, 0.1);
+  }
+  
+  .profile-input:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background: rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Order Cards */
+  .orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .order-card {
+    background: rgba(10, 10, 18, 0.4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all var(--transition);
+  }
+  
+  .order-card:hover {
+    border-color: rgba(0, 220, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 220, 255, 0.05);
+  }
+  
+  .order-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.2);
+  }
+  
+  .order-id {
+    font-family: var(--font-mono);
+    font-weight: bold;
+    color: var(--text);
+    font-size: 1.1rem;
+  }
+  
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  
+  .status-warning {
+    background: rgba(255, 170, 0, 0.1);
+    color: #ffaa00;
+    border: 1px solid rgba(255, 170, 0, 0.3);
+  }
+  
+  .status-info {
+    background: rgba(0, 150, 255, 0.1);
+    color: #0096ff;
+    border: 1px solid rgba(0, 150, 255, 0.3);
+  }
+  
+  .status-success {
+    background: rgba(0, 220, 255, 0.1);
+    color: var(--cyan);
+    border: 1px solid rgba(0, 220, 255, 0.3);
+  }
+  
+  .order-card-body {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+  }
+  
+  .order-detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .order-detail-item .label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  
+  .order-card-footer {
+    padding: 15px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  /* Recent Products Grid */
+  .recent-products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+  }
+  
+  .recent-product-card {
+    background: rgba(10, 10, 18, 0.4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all var(--transition);
+  }
+  
+  .recent-product-card:hover {
+    border-color: var(--cyan);
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 220, 255, 0.15);
+  }
+  
+  .recent-img-wrapper {
+    width: 100%;
+    aspect-ratio: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .recent-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .recent-actions {
+    position: absolute;
+    bottom: -50px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    transition: bottom 0.3s ease;
+  }
+  
+  .recent-product-card:hover .recent-actions {
+    bottom: 0;
+  }
+  
+  .recent-info {
+    padding: 15px;
+  }
+  
+  .recent-info h4 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .profile-layout {
+      grid-template-columns: 1fr;
+    }
+    
+    .profile-sidebar {
+      position: static;
+      padding: 15px;
+    }
+    
+    .profile-nav {
+      flex-direction: row;
+      overflow-x: auto;
+      padding-bottom: 5px;
+    }
+    
+    .profile-nav-btn {
+      white-space: nowrap;
+      width: auto;
+    }
+    
+    .profile-nav-btn.active {
+      border-left: none;
+      border-bottom: 3px solid var(--cyan);
+      border-radius: 8px 8px 0 0;
+    }
+    
+    .profile-content {
+      padding: 15px;
+    }
+  }
+  
+  /* ==========================================================================
      HEADER SEARCH BAR
      ========================================================================== */
   .header-search-container {
@@ -2430,5 +2794,96 @@ textarea.checkout-input {
   @media (max-width: 576px) {
     .header-search-container.open .header-search-input {
       width: 140px;
+    }
+  }
+
+  /* ==========================================================================
+     HEADER USER PILL
+     ========================================================================== */
+  .header-user-pill {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 16px 6px 6px;
+    background: rgba(10, 10, 18, 0.4);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    text-decoration: none;
+    transition: all var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .header-user-pill::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(45deg, transparent, rgba(0, 220, 255, 0.05), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
+  }
+  
+  .header-user-pill:hover::before {
+    transform: translateX(100%);
+  }
+
+  .header-user-pill:hover {
+    border-color: var(--cyan);
+    box-shadow: 0 0 15px rgba(0, 220, 255, 0.15);
+    background: rgba(0, 220, 255, 0.05);
+  }
+
+  .user-avatar-mini {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--cyan);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--cyan);
+    overflow: hidden;
+  }
+
+  .user-avatar-mini img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .user-info-mini {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .user-name-mini {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+    white-space: nowrap;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .user-badge-mini {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    line-height: 1;
+    margin-top: 2px;
+  }
+  
+  @media (max-width: 768px) {
+    .user-info-mini {
+      display: none;
+    }
+    .header-user-pill {
+      padding: 4px;
     }
   }

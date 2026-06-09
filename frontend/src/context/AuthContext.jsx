@@ -145,6 +145,62 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Update Avatar handler
+  const updateAvatar = async (file) => {
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('http://localhost:8000/api/auth/profile/avatar', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: formData, // fetch will set the correct multipart/form-data boundary automatically
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.detail || 'Cập nhật ảnh đại diện thất bại.');
+      }
+
+      setUser(data);
+      return data;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Facebook Login handler
+  const loginWithFacebook = async (token) => {
+    setIsLoading(true);
+    try {
+      const res = await fetch('http://localhost:8000/api/auth/facebook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.detail || 'Đăng nhập Facebook thất bại.');
+      }
+
+      localStorage.setItem('token', data.access_token);
+      setToken(data.access_token);
+      setUser(data.user);
+
+      return data;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Logout handler
   const logout = () => {
     localStorage.removeItem('token');
@@ -161,7 +217,9 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         loginWithGoogle,
+        loginWithFacebook,
         updateProfile,
+        updateAvatar,
         logout,
         isAuthenticated: !!user,
       }}
