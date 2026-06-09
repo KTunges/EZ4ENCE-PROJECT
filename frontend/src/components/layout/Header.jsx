@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Search, ShoppingCart, User, Sun, Moon } from 'lucide-react';
+import { Search, ShoppingCart, User, Sun, Moon, LogOut } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 import AuthModal from '../ui/AuthModal';
 
 export default function Header() {
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
@@ -46,9 +48,21 @@ export default function Header() {
             <Link to="/cart" className="icon-btn" aria-label="Cart">
               <ShoppingCart size={18} />
             </Link>
-            <button className="icon-btn" aria-label="User" onClick={() => setShowAuth(true)}>
-              <User size={18} />
-            </button>
+            
+            {user ? (
+              <div className="header-user-menu" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span className="user-name" style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-color)' }}>
+                  {user.fullName || user.email}
+                </span>
+                <button className="icon-btn" aria-label="Logout" onClick={logout} title="Đăng xuất">
+                  <LogOut size={18} />
+                </button>
+              </div>
+            ) : (
+              <button className="icon-btn" aria-label="User" onClick={() => setShowAuth(true)}>
+                <User size={18} />
+              </button>
+            )}
 
             {/* Theme Toggle */}
             <button

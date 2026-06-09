@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, LogIn, UserPlus, User, X, Gamepad2, Mouse, Headphones, Cpu, Monitor, Keyboard, Crosshair, Speaker, HardDrive, Terminal } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { useGoogleLogin } from '@react-oauth/google';
 
 export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
+  const { login, register, loginWithGoogle, updateProfile } = useAuth();
   const [isSignUp, setIsSignUp] = useState(initialMode === 'register');
 
   // Login state
@@ -22,12 +25,17 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // Name Prompt state
+  const [showNamePrompt, setShowNamePrompt] = useState(false);
+  const [displayName, setDisplayName] = useState('');
+
   // Handle switching on mobile where the overlay is hidden
   const [mobileMode, setMobileMode] = useState(initialMode);
 
   useEffect(() => {
     setIsSignUp(initialMode === 'register');
     setMobileMode(initialMode);
+    setShowNamePrompt(false);
   }, [initialMode, isOpen]);
 
   // Lock body scroll when modal is open
@@ -47,23 +55,50 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
     return () => window.removeEventListener('keydown', handleEsc);
   }, [onClose]);
 
+  const handleGoogleSuccess = async (tokenResponse) => {
+    try {
+      setIsLoading(true);
+      setError('');
+      const data = await loginWithGoogle(tokenResponse.access_token);
+      if (data.is_new_user) {
+        setShowNamePrompt(true);
+      } else {
+        onClose();
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: handleGoogleSuccess,
+    onError: () => setError('Đăng nhập Google thất bại.')
+  });
+
+  const handleNameSubmit = async (e) => {
+    e.preventDefault();
+    if (!displayName.trim()) return;
+    try {
+      setIsLoading(true);
+      await updateProfile(displayName);
+      onClose();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://localhost:8000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || 'Đăng nhập thất bại');
-
-      localStorage.setItem('token', data.access_token);
+      await login(loginEmail, loginPassword);
       onClose();
-      window.location.reload();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -81,14 +116,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
 
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: regEmail, password: regPassword, fullName: regName }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || 'Đăng ký thất bại');
-
+      await register(regName, regEmail, regPassword);
       setSuccess('Đăng ký thành công!');
       setTimeout(() => {
         setIsSignUp(false);
@@ -106,6 +134,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
     setMobileMode(isUp ? 'register' : 'login');
     setError('');
     setSuccess('');
+    setShowNamePrompt(false);
   }
 
   return (
@@ -131,6 +160,42 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
             <button className="auth-modal-close" onClick={onClose} aria-label="Đóng">
               <X size={20} />
             </button>
+
+            {/* Display Name Prompt Form */}
+            <AnimatePresence>
+              {showNamePrompt && (
+                <motion.div 
+                  className="auth-name-prompt-overlay"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <div className="auth-form-wrapper" style={{ width: '100%', maxWidth: '450px', margin: '0 auto', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 40px' }}>
+                    <div className="auth-modal-header">
+                        <span className="section-tag">// UPDATE_PROFILE</span>
+                        <h2 className="auth-modal-title glitch-text" data-text="XIN CHÀO">XIN CHÀO</h2>
+                        <p className="auth-form-subtitle">Đây là lần đầu bạn đăng nhập. Vui lòng đặt tên hiển thị.</p>
+                    </div>
+
+                    {error && <div className="auth-error">{error}</div>}
+
+                    <form onSubmit={handleNameSubmit} className="auth-form">
+                        <div className="auth-field">
+                            <label>Tên hiển thị</label>
+                            <div className="auth-input-wrapper">
+                            <User size={18} className="auth-input-icon" />
+                            <input type="text" placeholder="Nguyễn Văn A" value={displayName} onChange={(e) => setDisplayName(e.target.value)} required />
+                            </div>
+                        </div>
+
+                        <button type="submit" className="btn btn-primary auth-submit" disabled={isLoading || !displayName.trim()}>
+                            {isLoading ? <div className="auth-spinner" /> : <><ArrowRight size={18} /><span>Cập Nhật</span></>}
+                        </button>
+                    </form>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Sign Up Form */}
             <div className="auth-form-container sign-up-container">
@@ -187,7 +252,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                   
                   <div className="auth-social-compact">
                     <span>Hoặc qua</span>
-                    <button type="button" className="auth-social-btn-small google" onClick={() => alert('Coming Soon')}>
+                    <button type="button" className="auth-social-btn-small google" onClick={() => googleLogin()}>
                       <svg width="16" height="16" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
                         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -253,7 +318,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
 
                   <div className="auth-social-compact">
                     <span>Hoặc qua</span>
-                    <button type="button" className="auth-social-btn-small google" onClick={() => alert('Coming Soon')}>
+                    <button type="button" className="auth-social-btn-small google" onClick={() => googleLogin()}>
                       <svg width="16" height="16" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
                         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>

@@ -21,10 +21,10 @@ class CartItem(Base):
 
     id = Column(String, primary_key=True, index=True)
     cart_id = Column(String, ForeignKey("carts.id"), nullable=False)
-    product_id = Column(String, ForeignKey("products.id"), nullable=False)
+    sku_id = Column(String, ForeignKey("product_skus.id"), nullable=False)
     quantity = Column(Integer, default=1, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationships
     cart = relationship("Cart", back_populates="items")
-    product = relationship("Product", back_populates="cart_items")
+    sku = relationship("ProductSKU", back_populates="cart_items")

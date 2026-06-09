@@ -1,19 +1,25 @@
 from datetime import datetime, timedelta
 from typing import Any, Union
 import jwt
-from passlib.context import CryptContext
+import bcrypt
 from app.config import settings
 
-# Cấu hình mã hóa mật khẩu (passlib dùng bcrypt)
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 def hash_password(password: str) -> str:
-    """Mã hóa mật khẩu sử dụng bcrypt"""
-    return pwd_context.hash(password)
+    """Mã hóa mật khẩu sử dụng bcrypt trực tiếp"""
+    password_bytes = password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    return hashed.decode('utf-8')
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Kiểm tra mật khẩu thô và mật khẩu đã mã hóa"""
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        return bcrypt.checkpw(
+            plain_password.encode('utf-8'),
+            hashed_password.encode('utf-8')
+        )
+    except Exception:
+        return False
 
 def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
     """Tạo JWT access token"""

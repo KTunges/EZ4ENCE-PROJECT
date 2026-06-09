@@ -1,13 +1,11 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from loguru import logger
 
 from app.config import settings
-from app.routers import auth, products
+from app.routers import auth, products, categories, brands, marketing
 
-# Lưu log ra file trong thư mục database, tự động cắt file nếu quá 10MB
 logger.add("../database/app.log", rotation="10 MB", level="INFO")
 
 app = FastAPI(
@@ -17,22 +15,19 @@ app = FastAPI(
     openapi_url="/api/openapi.json"
 )
 
-# Cấu hình CORS để Frontend (ví dụ React chạy ở port 5173) có thể gọi API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Hoặc cấu hình địa chỉ cụ thể như ["http://localhost:5173"]
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Định tuyến (Routing)
 app.include_router(auth.router, prefix="/api")
 app.include_router(products.router, prefix="/api")
-
-@app.on_event("startup")
-async def startup_event():
-    logger.info("Khởi động EZ4ENCE E-Commerce API Server")
+app.include_router(categories.router, prefix="/api")
+app.include_router(brands.router, prefix="/api")
+app.include_router(marketing.router, prefix="/api")
 
 @app.get("/")
 def read_root():
