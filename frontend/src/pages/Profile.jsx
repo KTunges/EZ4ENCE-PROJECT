@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User, Package, Clock, LogOut, Edit3, CheckCircle, Clock3, Truck, Star } from 'lucide-react';
+import { User, Package, Clock, LogOut, Edit3, CheckCircle, Clock3, Truck, ShoppingCart } from 'lucide-react';
 
 const mockOrders = [
   {
@@ -50,6 +50,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData(prev => ({
         ...prev,
         fullName: user.fullName || ''
