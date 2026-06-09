@@ -17,7 +17,6 @@
     "lucide-react": "^1.17.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "react-facebook-login": "^4.1.1",
     "react-router-dom": "^7.17.0",
     "three": "^0.184.0"
   },
