@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, CreditCard, Truck, Zap, ShieldCheck, Smartphone, QrCode, Globe } from 'lucide-react';
+import CustomSelect from '../components/ui/CustomSelect';
 
 const mockCartItems = [
   {
@@ -22,6 +23,8 @@ const mockCartItems = [
 export default function Checkout() {
   const [shippingMethod, setShippingMethod] = useState('standard');
   const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [city, setCity] = useState('');
+  const [district, setDistrict] = useState('');
 
   const subtotal = mockCartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const shippingFee = shippingMethod === 'express' ? 50000 : 0;
@@ -65,18 +68,26 @@ export default function Checkout() {
                 
                 <div className="form-group col-span-2 md-col-span-1">
                   <label>Tỉnh/Thành phố</label>
-                  <select className="checkout-input">
-                    <option value="">Chọn Tỉnh/Thành phố</option>
-                    <option value="sg">TP. Hồ Chí Minh</option>
-                    <option value="hn">Hà Nội</option>
-                    <option value="dn">Đà Nẵng</option>
-                  </select>
+                  <CustomSelect
+                    value={city}
+                    onChange={setCity}
+                    options={[
+                      { value: '', label: 'Chọn Tỉnh/Thành phố' },
+                      { value: 'sg', label: 'TP. Hồ Chí Minh' },
+                      { value: 'hn', label: 'Hà Nội' },
+                      { value: 'dn', label: 'Đà Nẵng' }
+                    ]}
+                  />
                 </div>
                 <div className="form-group col-span-2 md-col-span-1">
                   <label>Quận/Huyện</label>
-                  <select className="checkout-input">
-                    <option value="">Chọn Quận/Huyện</option>
-                  </select>
+                  <CustomSelect
+                    value={district}
+                    onChange={setDistrict}
+                    options={[
+                      { value: '', label: 'Chọn Quận/Huyện' }
+                    ]}
+                  />
                 </div>
                 <div className="form-group col-span-2">
                   <label>Địa chỉ cụ thể (Số nhà, đường...)</label>
