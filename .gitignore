@@ -14,3 +14,7 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# IDE configs
+.vscode/
+pyrightconfig.json

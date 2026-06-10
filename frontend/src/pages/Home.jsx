@@ -31,6 +31,37 @@ function HackerFeatureCard({ feature, index }) {
 
 const GamepadScene = lazy(() => import('../components/3d/GamepadScene'));
 
+const MOCK_NEWS = [
+  {
+    id: 1,
+    title: 'NVIDIA RTX 5090 rò rỉ thông số khủng, mạnh gấp đôi RTX 4090?',
+    image: 'https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=400&q=80',
+    date: '10/06/2026',
+    category: 'Phần Cứng'
+  },
+  {
+    id: 2,
+    title: 'Intel Core Ultra 200 series chính thức ra mắt, thiết lập tiêu chuẩn mới',
+    image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=400&q=80',
+    date: '08/06/2026',
+    category: 'CPU'
+  },
+  {
+    id: 3,
+    title: 'Apple hé lộ chip M4 Max cực mạnh trên MacBook Pro thế hệ mới',
+    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=400&q=80',
+    date: '05/06/2026',
+    category: 'Laptop'
+  },
+  {
+    id: 4,
+    title: 'Top 5 bàn phím cơ Custom đáng mua nhất tầm giá dưới 2 triệu',
+    image: 'https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=400&q=80',
+    date: '01/06/2026',
+    category: 'Đánh Giá'
+  }
+];
+
 const stats = [
   { number: '10,000+', label: 'Sản phẩm' },
   { number: '50,000+', label: 'Khách hàng' },
@@ -176,6 +207,45 @@ export default function Home() {
               transition={{ duration: 0.4, delay: index * 0.1 }}
             >
               [Product {item}]
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+
+      {/* ── TECHNOLOGY NEWS ── */}
+      <section className="container relative z-10" style={{ padding: '0 28px 100px' }}>
+        <motion.div 
+          className="section-header"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
+          <span className="section-tag">// LATEST NEWS</span>
+          <h2 className="section-title glitch-text" data-text="Tin Tức Công Nghệ">Tin Tức Công Nghệ</h2>
+          <Link to="#" className="view-all-btn">Xem tất cả tin <ChevronRight size={16} /></Link>
+        </motion.div>
+        
+        <div className="news-grid-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
+          {MOCK_NEWS.map((news, index) => (
+            <motion.div
+              key={news.id}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+            >
+              <Link to="#" className="news-card glass-panel" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '12px', transition: 'all 0.3s ease', height: '100%' }}>
+                <div className="news-image-wrapper" style={{ height: '160px', overflow: 'hidden', position: 'relative' }}>
+                  <img src={news.image} alt={news.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }} />
+                  <span className="news-category-badge" style={{ position: 'absolute', bottom: '10px', left: '10px', background: 'var(--cyan)', color: '#000', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>{news.category}</span>
+                </div>
+                <div className="news-content" style={{ padding: '16px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                  <span className="news-date" style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '8px' }}>{news.date}</span>
+                  <h3 className="news-title" style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-color)', lineHeight: '1.4', marginBottom: '12px', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{news.title}</h3>
+                </div>
+              </Link>
             </motion.div>
           ))}
         </div>

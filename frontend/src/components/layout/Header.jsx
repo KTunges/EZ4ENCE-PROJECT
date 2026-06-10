@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Search, ShoppingCart, User, Sun, Moon, LogOut } from 'lucide-react';
+import { Search, ShoppingCart, User, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import AuthModal from '../ui/AuthModal';
 
 export default function Header() {
   const { theme, toggleTheme } = useTheme();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
