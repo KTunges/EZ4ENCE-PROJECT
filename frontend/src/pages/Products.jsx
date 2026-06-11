@@ -6,119 +6,6 @@ import CyberBackground from '../components/ui/CyberBackground';
 import ProductCard from '../components/ui/ProductCard';
 import CustomSelect from '../components/ui/CustomSelect';
 import CategorySidebar from '../components/layout/CategorySidebar';
-/* ─── MOCK DATA ─── */
-
-const MOCK_PRODUCTS = [
-  {
-    id: '1', slug: 'vga-asus-rog-strix-rtx-4090',
-    name: 'VGA ASUS ROG Strix GeForce RTX 4090 OC Edition 24GB GDDR6X',
-    brand: 'ASUS', category: 'VGA', categorySlug: 'vga',
-    price: 55000000, originalPrice: 62000000,
-    image: 'https://product.hstatic.net/200000722513/product/thumb-web-asus-rog-strix-rtx4090_65bed05f84f04c65b0cca5efdcf5e3fd_1024x1024.png',
-    rating: 5, reviewCount: 128, badge: 'HOT',
-    specs: ['24GB GDDR6X', '384-bit', 'PCIE 4.0', 'Tản nhiệt 3 quạt']
-  },
-  {
-    id: '2', slug: 'chuot-logitech-g-pro-x-superlight-2',
-    name: 'Chuột Logitech G Pro X Superlight 2 Wireless',
-    brand: 'Logitech', category: 'Chuột', categorySlug: 'chuot',
-    price: 3200000, originalPrice: 3500000,
-    image: 'https://product.hstatic.net/200000722513/product/thumbweb_superlight_2_white_b01eaed5e34e4e5fb000b731f61f4430_1024x1024.png',
-    rating: 5, reviewCount: 256, badge: 'HOT',
-    specs: ['Hero 2 Sensor', '60g', 'LIGHTSPEED Wireless']
-  },
-  {
-    id: '3', slug: 'ban-phim-razer-huntsman-v3-pro',
-    name: 'Bàn Phím Cơ Razer Huntsman V3 Pro TKL',
-    brand: 'Razer', category: 'Bàn phím', categorySlug: 'ban-phim',
-    price: 4500000, originalPrice: 5200000,
-    image: 'https://product.hstatic.net/200000722513/product/huntsman-v3-pro-tkl-1_d8f5be6db21e41ac833c1e5e0bb2b1cd_1024x1024.png',
-    rating: 4, reviewCount: 89, badge: 'NEW',
-    specs: ['Analog Optical Switch', 'TKL', 'PBT Keycaps']
-  },
-  {
-    id: '4', slug: 'tai-nghe-steelseries-arctis-nova-pro',
-    name: 'Tai Nghe SteelSeries Arctis Nova Pro Wireless',
-    brand: 'SteelSeries', category: 'Tai nghe', categorySlug: 'tai-nghe',
-    price: 9200000, originalPrice: 10500000,
-    image: 'https://product.hstatic.net/200000722513/product/thumbweb_arctis_nova_pro_wireless_47e9e52c6c2b444aa89e70d5a6c39e94_1024x1024.png',
-    rating: 5, reviewCount: 67, badge: 'HOT',
-    specs: ['ANC', 'Hi-Res Audio', 'Dual Battery']
-  },
-  {
-    id: '5', slug: 'cpu-intel-core-i9-14900k',
-    name: 'CPU Intel Core i9-14900K 3.2GHz 24 Cores 32 Threads',
-    brand: 'Intel', category: 'CPU', categorySlug: 'cpu',
-    price: 14500000, originalPrice: 16000000,
-    image: 'https://product.hstatic.net/200000722513/product/cpu-intel-core-i9-14900k_afef37e07d704ee0a70c201497a8b26a_1024x1024.png',
-    rating: 5, reviewCount: 203, badge: 'HOT',
-    specs: ['24 Cores', '32 Threads', 'Max 6.0 GHz']
-  },
-  {
-    id: '6', slug: 'mainboard-msi-mag-z790-tomahawk',
-    name: 'Mainboard MSI MAG Z790 Tomahawk WiFi DDR5',
-    brand: 'MSI', category: 'Mainboard', categorySlug: 'mainboard',
-    price: 8900000, originalPrice: 9500000,
-    image: 'https://product.hstatic.net/200000722513/product/thumbweb_z790_tomahawk_wifi_14e35a0f71fe437a93d4a3e9f69fcbb2_1024x1024.png',
-    rating: 4, reviewCount: 45, badge: null,
-    specs: ['LGA 1700', 'DDR5 7200MHz+', 'WiFi 6E']
-  },
-  {
-    id: '7', slug: 'ram-gskill-trident-z5-rgb-ddr5',
-    name: 'RAM G.Skill Trident Z5 RGB 32GB (2x16GB) DDR5-6000',
-    brand: 'G.Skill', category: 'RAM', categorySlug: 'ram',
-    price: 3800000, originalPrice: 4200000,
-    image: 'https://product.hstatic.net/200000722513/product/thumbweb_ram_gskill_trident_z5_rgb_0abc8a3e0b134fa09a1f5b1b2f6e1e1f_1024x1024.png',
-    rating: 5, reviewCount: 112, badge: 'NEW',
-    specs: ['2x16GB', 'DDR5 6000MHz', 'CL36', 'RGB']
-  },
-  {
-    id: '8', slug: 'ssd-samsung-990-pro-2tb',
-    name: 'SSD Samsung 990 Pro 2TB PCIe NVMe M.2',
-    brand: 'Samsung', category: 'Lưu trữ', categorySlug: 'luu-tru',
-    price: 5200000, originalPrice: 5800000,
-    image: 'https://product.hstatic.net/200000722513/product/samsung-990-pro-thumb_ecd40e7c35814f0c9ed389b3cf01c8d8_1024x1024.png',
-    rating: 5, reviewCount: 178, badge: null,
-    specs: ['2TB', 'PCIe 4.0 x4', 'Đọc 7450 MB/s']
-  },
-  {
-    id: '9', slug: 'man-hinh-lg-27gp850-b',
-    name: 'Màn Hình LG 27GP850-B 27" QHD 165Hz Nano IPS',
-    brand: 'LG', category: 'Màn hình', categorySlug: 'man-hinh',
-    price: 9500000, originalPrice: 11000000,
-    image: 'https://product.hstatic.net/200000722513/product/thumbweb_lg_27gp850_b_8e7b10e49c044c8e981e49e5fa7ee5c3_1024x1024.png',
-    rating: 4, reviewCount: 93, badge: 'HOT',
-    specs: ['27"', '2K QHD', 'Nano IPS', '165Hz', '1ms']
-  },
-  {
-    id: '10', slug: 'psu-corsair-rm1000x-shift',
-    name: 'Nguồn Corsair RM1000x SHIFT 1000W 80 Plus Gold',
-    brand: 'Corsair', category: 'Nguồn', categorySlug: 'nguon',
-    price: 4800000, originalPrice: 5500000,
-    image: 'https://product.hstatic.net/200000722513/product/thumbweb_corsair_rm1000x_shift_a8e7b57e5e2b4b6fb43fe1c1a94e7d74_1024x1024.png',
-    rating: 5, reviewCount: 56, badge: null,
-    specs: ['1000W', '80 Plus Gold', 'Full Modular']
-  },
-  {
-    id: '11', slug: 'case-nzxt-h9-flow',
-    name: 'Case NZXT H9 Flow ATX Mid Tower Tempered Glass',
-    brand: 'NZXT', category: 'Case', categorySlug: 'case',
-    price: 4200000, originalPrice: 4600000,
-    image: 'https://product.hstatic.net/200000722513/product/thumbweb_nzxt_h9_flow_white_86d8b4e7b5e6469e91b30fb55282a06a_1024x1024.png',
-    rating: 4, reviewCount: 34, badge: 'NEW',
-    specs: ['ATX Mid Tower', 'Kính cường lực', 'Airflow tốt']
-  },
-  {
-    id: '12', slug: 'lot-chuot-artisan-hayate-otsu',
-    name: 'Lót Chuột Artisan Hayate Otsu V2 XL Soft',
-    brand: 'Artisan', category: 'Phụ kiện', categorySlug: 'phu-kien',
-    price: 1800000, originalPrice: null,
-    image: 'https://product.hstatic.net/200000722513/product/artisan-hayate-otsu-thumb_f4f3d0da06d040a5a6f1e7d0ad9e8c1b_1024x1024.png',
-    rating: 5, reviewCount: 421, badge: 'HOT',
-    specs: ['Size XL', 'Bề mặt Soft', 'Made in Japan']
-  },
-];
-
 const CATEGORIES = ['Tất cả', 'VGA', 'CPU', 'Mainboard', 'RAM', 'Lưu trữ', 'Màn hình', 'Chuột', 'Bàn phím', 'Tai nghe', 'Nguồn', 'Case', 'Phụ kiện'];
 const BRANDS = ['Tất cả', 'ASUS', 'Logitech', 'Razer', 'SteelSeries', 'Intel', 'MSI', 'G.Skill', 'Samsung', 'LG', 'Corsair', 'NZXT', 'Artisan'];
 const SORT_OPTIONS = [
@@ -153,6 +40,39 @@ const PRICE_RANGES = [
 const ITEMS_PER_PAGE = 8;
 
 export default function Products() {
+
+  const [productsList, setProductsList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('http://localhost:8000/api/products')
+      .then(res => res.json())
+      .then(data => {
+        // Map backend schema to frontend schema
+        const mapped = data.map(item => ({
+          id: item.id,
+          slug: item.slug,
+          name: item.name,
+          brand: item.brand?.name || 'Unknown',
+          category: item.category?.name || 'Unknown',
+          categorySlug: item.category?.slug || '',
+          price: item.skus?.[0]?.price || 0,
+          originalPrice: item.skus?.[0]?.promotional_price || null,
+          image: item.images?.[0]?.url || '',
+          rating: 5, // Mock rating for now
+          reviewCount: Math.floor(Math.random() * 100) + 10,
+          badge: item.skus?.[0]?.promotional_price > item.skus?.[0]?.price ? 'HOT' : null,
+          specs: item.specifications?.key_features || []
+        }));
+        setProductsList(mapped);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to fetch products", err);
+        setIsLoading(false);
+      });
+  }, []);
+
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const urlCategory = searchParams.get('category');
@@ -178,7 +98,7 @@ export default function Products() {
 
   // Filter & sort products
   const filteredProducts = useMemo(() => {
-    let result = [...MOCK_PRODUCTS];
+    let result = [...productsList];
 
     // Search
     if (searchQuery.trim()) {
@@ -250,8 +170,8 @@ export default function Products() {
 
   const isFiltering = activeFilterCount > 0;
   const showDashboard = !isFiltering;
-  const promoProducts = MOCK_PRODUCTS.filter(p => p.originalPrice > p.price).slice(0, 5);
-  const hotProducts = MOCK_PRODUCTS.filter(p => p.badge === 'HOT').slice(0, 5);
+  const promoProducts = productsList.filter(p => p.originalPrice > p.price).slice(0, 5);
+  const hotProducts = productsList.filter(p => p.badge === 'HOT').slice(0, 5);
 
   return (
     <div className="products-page">

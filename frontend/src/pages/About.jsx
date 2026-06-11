@@ -159,17 +159,42 @@ export default function About() {
         </motion.div>
 
         <div className="partners-grid">
-          {["NVIDIA", "AMD", "INTEL", "ASUS ROG", "GIGABYTE", "CORSAIR"].map((brand, i) => (
+          {[
+            { name: "NVIDIA", bg: "https://cdn.simpleicons.org/nvidia/76B900", color: "#76B900", showText: true },
+            { name: "AMD", bg: "https://cdn.simpleicons.org/amd/ED1C24", color: "#ED1C24" },
+            { name: "INTEL", bg: "https://cdn.simpleicons.org/intel/0071C5", color: "#0071C5" },
+            { name: "ASUS ROG", bg: "https://cdn.simpleicons.org/asus/E51015", color: "#E51015" },
+            { name: "RAZER", bg: "https://cdn.simpleicons.org/razer/00FF00", color: "#00FF00", showText: true },
+            { name: "CORSAIR", bg: "https://cdn.simpleicons.org/corsair/00dcff", color: "#000000", showText: true }
+          ].map((brand, i) => (
             <motion.div
-              key={brand}
+              key={brand.name}
               className="partner-card"
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: i * 0.1 }}
+              style={{ position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '120px' }}
             >
+              <div 
+                style={{
+                  position: 'absolute',
+                  inset: brand.showText ? '15px 15px 40px 15px' : '20px',
+                  backgroundImage: `url(${brand.bg})`,
+                  backgroundSize: 'contain',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                  opacity: 1,
+                  zIndex: 1,
+                  filter: 'drop-shadow(0 0 15px rgba(255,255,255,0.1))'
+                }}
+              />
+              {brand.showText && (
+                <span style={{ position: 'absolute', bottom: '10px', zIndex: 2, fontWeight: '800', fontSize: '18px', color: 'var(--text)', textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>
+                  {brand.name}
+                </span>
+              )}
               <div className="partner-glitch"></div>
-              <span>{brand}</span>
             </motion.div>
           ))}
         </div>

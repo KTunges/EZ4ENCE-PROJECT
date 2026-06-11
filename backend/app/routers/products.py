@@ -10,7 +10,7 @@ from app.schemas.product import ProductListResponse, ProductDetailResponse
 
 router = APIRouter(tags=["Products"])
 
-@router.get("/products", response_model=List[ProductListResponse])
+@router.get("/products", response_model=List[ProductDetailResponse])
 def get_products(
     db: Session = Depends(get_db),
     skip: int = Query(0, ge=0),
@@ -40,7 +40,8 @@ def get_products(
     query = query.options(
         joinedload(Product.category),
         joinedload(Product.brand),
-        joinedload(Product.images)
+        joinedload(Product.images),
+        joinedload(Product.skus)
     )
     
     products = query.offset(skip).limit(limit).all()

@@ -12,6 +12,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
+import BuildPC from './pages/BuildPC';
 
 // Google Client ID (đọc từ file .env)
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -28,6 +29,7 @@ function App() {
                 <Route path="about" element={<About />} />
                 <Route path="products" element={<Products />} />
                 <Route path="products/:slug" element={<ProductDetail />} />
+                <Route path="build-pc" element={<BuildPC />} />
                 <Route path="cart" element={<Cart />} />
                 <Route path="checkout" element={<Checkout />} />
                 <Route path="profile" element={<Profile />} />
