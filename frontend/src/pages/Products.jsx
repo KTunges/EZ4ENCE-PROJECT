@@ -6,6 +6,8 @@ import CyberBackground from '../components/ui/CyberBackground';
 import ProductCard from '../components/ui/ProductCard';
 import CustomSelect from '../components/ui/CustomSelect';
 import CategorySidebar from '../components/layout/CategorySidebar';
+import BentoBanners from '../components/ui/BentoBanners';
+
 const CATEGORIES = ['Tất cả', 'VGA', 'CPU', 'Mainboard', 'RAM', 'Lưu trữ', 'Màn hình', 'Chuột', 'Bàn phím', 'Tai nghe', 'Nguồn', 'Case', 'Phụ kiện'];
 const BRANDS = ['Tất cả', 'ASUS', 'Logitech', 'Razer', 'SteelSeries', 'Intel', 'MSI', 'G.Skill', 'Samsung', 'LG', 'Corsair', 'NZXT', 'Artisan'];
 const SORT_OPTIONS = [
@@ -72,6 +74,8 @@ export default function Products() {
         setIsLoading(false);
       });
   }, []);
+
+
 
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -203,6 +207,9 @@ export default function Products() {
             </h1>
             <p className="text-muted">{filteredProducts.length} sản phẩm được tìm thấy</p>
           </section>
+
+          {/* ── BENTO BANNERS ── */}
+          <BentoBanners />
 
           {/* ── PROMO & HOT BLOCKS OR FILTER & GRID ── */}
           {showDashboard ? (

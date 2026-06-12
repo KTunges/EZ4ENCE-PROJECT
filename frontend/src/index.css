@@ -89,7 +89,7 @@ body {
   color: var(--text);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  overflow-x: clip; /* clip prevents horizontal scroll without breaking position: sticky */
 }
 
 /* Hardware accelerated animated grid */
@@ -373,7 +373,10 @@ h1, h2, h3, h4, h5, h6 {
   flex-shrink: 0;
   position: sticky;
   top: 90px; /* offset from fixed header */
-  z-index: 999;
+  z-index: 99;
+  height: calc(100vh - 110px);
+  overflow-y: auto;
+  padding-right: 8px; /* For scrollbar spacing */
 }
 
 .home-main {
