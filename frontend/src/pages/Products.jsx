@@ -92,7 +92,6 @@ export default function Products() {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedCategory(urlCategory);
     } else {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedCategory('Tất cả');
     }
   }, [urlCategory]);
