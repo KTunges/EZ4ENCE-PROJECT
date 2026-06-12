@@ -38,7 +38,7 @@ export default function Checkout() {
   const handleSpecificCheckout = async (method) => {
     if (method === 'vnpay') {
       try {
-        const response = await fetch("http://localhost:3000/api/payment/vnpay/create-url", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/payment/vnpay/create-url`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ amount_vnd: total }),
@@ -279,7 +279,7 @@ export default function Checkout() {
                   style={{ layout: "vertical", color: "blue", shape: "rect", label: "pay" }}
                   createOrder={async (data, actions) => {
                     try {
-                      const response = await fetch("http://localhost:3000/api/payment/paypal/create-order", {
+                      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/payment/paypal/create-order`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ amount_vnd: total }),
@@ -299,7 +299,7 @@ export default function Checkout() {
                   }}
                   onApprove={async (data, actions) => {
                     try {
-                      const response = await fetch(`http://localhost:3000/api/payment/paypal/capture-order`, {
+                      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/payment/paypal/capture-order`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ order_id: data.orderID }),
