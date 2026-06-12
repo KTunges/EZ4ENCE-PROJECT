@@ -6,7 +6,6 @@ import {
   Check, Trash2, RefreshCw, ShoppingCart, 
   Settings2, LucideFan, ChevronRight
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import CyberBackground from '../components/ui/CyberBackground';
 import CustomSelect from '../components/ui/CustomSelect';
 

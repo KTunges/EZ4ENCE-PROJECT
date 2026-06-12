@@ -1,31 +1,38 @@
 # ⚡ EZ4ENCE — Gaming & Tech E-Commerce Platform
 
-> Nền tảng thương mại điện tử chuyên về linh kiện máy tính, Gaming Gear và Custom PC cao cấp. Được xây dựng với giao diện **Cyberpunk / Sci-Fi** kết hợp mô hình 3D tương tác và nhiều hiệu ứng thị giác tiên tiến.
+> Nền tảng thương mại điện tử chuyên về linh kiện máy tính, Gaming Gear và Custom PC cao cấp. Được xây dựng với giao diện **Cyberpunk / Sci-Fi** kết hợp mô hình 3D tương tác, Layout Bento Box hiện đại và hệ thống CI tự động.
 
 ---
 
 ## 📋 Mục Lục
 
 - [Tổng Quan](#tổng-quan)
+- [Tính Năng Nổi Bật](#tính-năng-nổi-bật)
 - [Tech Stack](#tech-stack)
 - [Cấu Trúc Dự Án](#cấu-trúc-dự-án)
-- [Yêu Cầu Hệ Thống](#yêu-cầu-hệ-thống)
 - [Cài Đặt & Chạy](#cài-đặt--chạy)
-  - [Database (PostgreSQL)](#1-database-postgresql)
-  - [Backend (FastAPI)](#2-backend-fastapi)
-  - [Frontend (React + Vite)](#3-frontend-react--vite)
-- [API Endpoints](#api-endpoints)
+- [CI / CD Pipeline](#ci--cd-pipeline)
 - [Biến Môi Trường](#biến-môi-trường)
 
 ---
 
 ## Tổng Quan
 
-**EZ4ENCE** là hệ thống e-commerce full-stack bao gồm:
+**EZ4ENCE** là hệ thống e-commerce full-stack được thiết kế dành riêng cho game thủ và những người đam mê công nghệ:
 
-- 🖥️ **Frontend**: Giao diện Cyberpunk với hiệu ứng Glitch, Chromatic Aberration, Cyber Particle Background, Hacker Text Decrypt, Glowing Timeline và mô hình 3D DualSense tương tác.
-- ⚙️ **Backend**: RESTful API xác thực JWT, quản lý sản phẩm, đơn hàng, giỏ hàng và người dùng.
-- 🗄️ **Database**: PostgreSQL với schema đầy đủ cho hệ thống e-commerce.
+- 🖥️ **Frontend**: Trải nghiệm UI/UX mang hơi hướng tương lai với hiệu ứng Glitch, Cyber Particle Background, hệ thống Banner hiển thị theo phong cách **Bento Box**, Thanh thông báo chạy ngang (Marquee) bám dính (Sticky), và mô hình 3D Gamepad tương tác.
+- ⚙️ **Backend**: RESTful API mạnh mẽ, tốc độ cao được tối ưu bằng FastAPI, xử lý xác thực JWT, quản lý sản phẩm, giỏ hàng.
+- 🗄️ **Database**: PostgreSQL với kiến trúc dữ liệu chuẩn thương mại điện tử.
+
+---
+
+## Tính Năng Nổi Bật
+
+- **Bento Banners**: Hệ thống lưới banner quảng cáo hiện đại (Grid 3x3) tích hợp slider chuyển ảnh siêu mượt bằng `framer-motion`.
+- **Sticky Top Marquee**: Dải băng chuyền Flash Sale chạy ngang màn hình, luôn bám dính lấy thanh điều hướng khi cuộn chuột.
+- **Sticky Sidebar**: Thanh danh mục sản phẩm (Category Sidebar) thông minh, tự động cuộn độc lập khi nội dung quá dài.
+- **3D Product Viewer**: Hiển thị mô hình thiết bị 3D trực tiếp trên trình duyệt web bằng Three.js.
+- **Automated CI/CD**: Tích hợp GitHub Actions tự động chạy ESLint (Frontend) và Pytest (Backend) trên mỗi lần Push hoặc tạo Pull Request.
 
 ---
 
@@ -33,14 +40,12 @@
 
 | Layer     | Công Nghệ                                      |
 |-----------|------------------------------------------------|
-| Frontend  | React 19, Vite, React Router DOM, Framer Motion |
-| 3D        | Three.js, @react-three/fiber, @react-three/drei |
-| Backend   | Python, FastAPI, Uvicorn                        |
-| ORM       | SQLAlchemy 2.0, Alembic                         |
-| Database  | PostgreSQL                                      |
-| Auth      | JWT (PyJWT), Passlib + Bcrypt                   |
-| Logging   | Loguru                                          |
-| Testing   | Pytest, HTTPX                                   |
+| Frontend  | React 19, Vite, React Router DOM, Framer Motion|
+| UI / 3D   | Vanilla CSS Modules, Three.js, React Three Fiber|
+| Backend   | Python 3.13, FastAPI, Uvicorn                  |
+| ORM       | SQLAlchemy 2.0, Alembic                        |
+| Database  | PostgreSQL                                     |
+| CI/CD     | GitHub Actions (Lint, Pytest, Build check)     |
 
 ---
 
@@ -48,6 +53,7 @@
 
 ```
 EZ4ENCE/
+├── .github/workflows/         # File cấu hình CI/CD (ci.yml, cd.yml)
 ├── frontend/                  # React + Vite App
 │   ├── public/
 │   │   └── models/            # File mô hình 3D (.glb)
@@ -55,23 +61,17 @@ EZ4ENCE/
 │       ├── components/
 │       │   ├── 3d/            # GamepadScene, GamepadModel
 │       │   ├── layout/        # Header, Footer, MainLayout
-│       │   └── ui/            # CyberBackground, CyberTimeline, MarqueeBanner
-│       ├── context/           # ThemeContext
-│       ├── hooks/             # useHackerText
-│       ├── pages/             # Home, About
-│       └── utils/             # api.js — helper gọi API
+│       │   └── ui/            # BentoBanners, TopMarquee, CyberBackground...
+│       ├── pages/             # Home, Products, BuildPC...
+│       └── utils/             # api.js
 │
 ├── backend/                   # FastAPI App
 │   ├── app/
-│   │   ├── core/              # security.py (JWT, hashing)
-│   │   ├── models/            # SQLAlchemy models (User, Product, Order...)
-│   │   ├── routers/           # auth.py, products.py
-│   │   ├── schemas/           # Pydantic schemas
-│   │   ├── config.py          # Cấu hình từ .env
-│   │   ├── database.py        # Kết nối PostgreSQL
+│   │   ├── models/            # SQLAlchemy models
+│   │   ├── routers/           # API endpoints
 │   │   └── main.py            # Entry point FastAPI
 │   ├── alembic/               # Database migrations
-│   ├── tests/                 # Pytest test suite
+│   ├── tests/                 # Unit tests với Pytest
 │   └── requirements.txt
 │
 └── database/
@@ -80,193 +80,70 @@ EZ4ENCE/
 
 ---
 
-## Yêu Cầu Hệ Thống
-
-- **Node.js** >= 18
-- **Python** >= 3.10
-- **PostgreSQL** >= 14
-- **pip** hoặc **pipenv**
-
----
-
 ## Cài Đặt & Chạy
 
 ### 1. Database (PostgreSQL)
 
-**Bước 1**: Tạo database
-
 ```bash
+# Đăng nhập PostgreSQL
 psql -U postgres
-```
-
-```sql
+# Tạo Database
 CREATE DATABASE ez4ence;
 \q
-```
 
-**Bước 2**: Import schema
-
-```bash
-# macOS (Postgres.app — không cần user/password)
-psql -d ez4ence -f database/ez4ence_schema.sql
-
-# macOS/Linux (PostgreSQL tiêu chuẩn)
+# Import dữ liệu mẫu
 psql -h localhost -U postgres -d ez4ence -f database/ez4ence_schema.sql
 ```
 
-**Hoặc** dùng Alembic migration (sau khi cấu hình `.env` ở bước Backend):
-
-```bash
-cd backend
-alembic upgrade head
-```
-
----
-
 ### 2. Backend (FastAPI)
 
-**Bước 1**: Di chuyển vào thư mục backend
-
 ```bash
 cd backend
-```
-
-**Bước 2**: Tạo và kích hoạt virtual environment
-
-```bash
-# Tạo venv
 python -m venv venv
-
-# Kích hoạt (macOS/Linux)
-source venv/bin/activate
-
-# Kích hoạt (Windows)
-venv\Scripts\activate
-```
-
-**Bước 3**: Cài đặt dependencies
-
-```bash
+source venv/bin/activate    # Hoặc venv\Scripts\activate trên Windows
 pip install -r requirements.txt
+
+# Tạo file .env và điền DATABASE_URL (xem phần Biến Môi Trường)
+
+# Khởi động server (Chạy tại port 8000)
+uvicorn app.main:app --reload --port 8000
 ```
-
-**Bước 4**: Tạo file `.env` trong thư mục `backend/`
-
-```env
-# macOS dùng Postgres.app (không cần user/password)
-DATABASE_URL=postgresql://localhost:5432/ez4ence
-
-# macOS/Linux dùng PostgreSQL tiêu chuẩn (có password)
-DATABASE_URL=postgresql://postgres:your_password@localhost:5432/ez4ence
-
-# Windows
-DATABASE_URL=postgresql://postgres:your_password@localhost:5432/ez4ence
-
-JWT_SECRET=your_super_secret_key_here
-PORT=8000
-
-# Redis (tuỳ chọn)
-REDIS_HOST=127.0.0.1
-REDIS_PORT=6379
-
-# Cloudinary (tuỳ chọn, dùng để upload ảnh)
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
-```
-
-**Bước 5**: Chạy server
-
-```bash
-python -m app.main
-```
-
-Hoặc dùng Uvicorn trực tiếp:
-
-```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-✅ Server chạy tại: `http://localhost:8000`  
-📄 Swagger UI Docs: `http://localhost:8000/api/docs`
-
----
+*(Swagger UI Docs: `http://localhost:8000/api/docs`)*
 
 ### 3. Frontend (React + Vite)
 
-**Bước 1**: Di chuyển vào thư mục frontend
-
 ```bash
 cd frontend
-```
-
-**Bước 2**: Cài đặt dependencies
-
-```bash
 npm install
-```
 
-**Bước 3**: Chạy dev server
-
-```bash
+# Khởi động Frontend
 npm run dev
 ```
 
-✅ App chạy tại: `http://localhost:5173`
-
-> **Lưu ý**: Frontend mặc định gọi API tại `http://localhost:8000/api`. Nếu bạn thay đổi port backend, cập nhật lại file `frontend/src/utils/api.js`.
-
 ---
 
-## API Endpoints
+## CI / CD Pipeline
 
-### Authentication (`/api/auth`)
+Dự án này sử dụng **GitHub Actions** để đảm bảo chất lượng code:
+- **Frontend Job**: Cài đặt dependencies, chạy `npm run lint` để kiểm tra chuẩn React Hooks, và chạy `npm run build` để kiểm tra lỗi biên dịch.
+- **Backend Job**: Thiết lập Python 3.13, kiểm tra Syntax, và chạy toàn bộ unit tests bằng `pytest`.
 
-| Method | Endpoint             | Mô tả                         |
-|--------|----------------------|-------------------------------|
-| POST   | `/api/auth/register` | Đăng ký tài khoản mới         |
-| POST   | `/api/auth/login`    | Đăng nhập, trả về JWT token   |
-| GET    | `/api/auth/me`       | Lấy thông tin user hiện tại   |
-
-### Products (`/api/products`)
-
-| Method | Endpoint                  | Mô tả                    |
-|--------|---------------------------|--------------------------|
-| GET    | `/api/products/`          | Lấy danh sách sản phẩm   |
-| POST   | `/api/products/`          | Tạo sản phẩm mới         |
-| GET    | `/api/products/{id}`      | Lấy chi tiết sản phẩm    |
+> *Quy trình CI sẽ tự động kích hoạt mỗi khi có code mới được đẩy lên nhánh `main` hoặc `develop`.*
 
 ---
 
 ## Biến Môi Trường
 
-| Biến                    | Bắt buộc | Mô tả                                         |
-|-------------------------|----------|-----------------------------------------------|
-| `DATABASE_URL`          | ✅       | Chuỗi kết nối PostgreSQL                      |
-| `JWT_SECRET`            | ✅       | Khoá bí mật để ký JWT token                   |
-| `PORT`                  | ❌       | Port chạy server (mặc định: `8000`)           |
-| `REDIS_HOST`            | ❌       | Host Redis (mặc định: `127.0.0.1`)            |
-| `REDIS_PORT`            | ❌       | Port Redis (mặc định: `6379`)                 |
-| `CLOUDINARY_CLOUD_NAME` | ❌       | Cloud name Cloudinary (upload ảnh)            |
-| `CLOUDINARY_API_KEY`    | ❌       | API Key Cloudinary                            |
-| `CLOUDINARY_API_SECRET` | ❌       | API Secret Cloudinary                         |
+Tạo file `.env` tại thư mục `backend/`:
 
----
+```env
+# Chuỗi kết nối Database
+DATABASE_URL=postgresql://postgres:your_password@localhost:5432/ez4ence
 
-## 🔬 Chạy Tests (Backend)
-
-```bash
-cd backend
-pytest
+# Chuẩn bảo mật
+JWT_SECRET=your_super_secret_key_here
+PORT=8000
 ```
-
----
-
-## 📝 Ghi Chú
-
-- Logs backend được ghi vào file `database/app.log` và tự động rotate khi đạt 10MB.
-- CORS hiện tại được cấu hình `allow_origins=["*"]` — chỉ phù hợp cho môi trường dev. Khi deploy production cần đổi lại thành domain cụ thể.
-- Mô hình 3D DualSense (`.glb`) nằm tại `frontend/public/models/dualsense.glb`.
 
 ---
 
