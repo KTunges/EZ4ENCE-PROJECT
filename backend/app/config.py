@@ -29,6 +29,17 @@ class Settings(BaseSettings):
     FACEBOOK_APP_ID: Optional[str] = None
     FACEBOOK_APP_SECRET: Optional[str] = None
 
+    # PayPal
+    PAYPAL_CLIENT_ID: Optional[str] = None
+    PAYPAL_CLIENT_SECRET: Optional[str] = None
+    PAYPAL_ENVIRONMENT: str = "sandbox"
+
+    # VNPAY
+    VNPAY_TMN_CODE: Optional[str] = None
+    VNPAY_HASH_SECRET: Optional[str] = None
+    VNPAY_URL: str = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+    VNPAY_RETURN_URL: str = "http://localhost:5173/checkout/vnpay-return"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

@@ -7,6 +7,8 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import CheckoutSuccess from './pages/CheckoutSuccess';
+import CheckoutVnpayReturn from './pages/CheckoutVnpayReturn';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -32,6 +34,8 @@ function App() {
                 <Route path="build-pc" element={<BuildPC />} />
                 <Route path="cart" element={<Cart />} />
                 <Route path="checkout" element={<Checkout />} />
+                <Route path="checkout/success" element={<CheckoutSuccess />} />
+                <Route path="checkout/vnpay-return" element={<CheckoutVnpayReturn />} />
                 <Route path="profile" element={<Profile />} />
               </Route>
               <Route path="/login" element={<Login />} />

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ChevronRight, Laptop, Gamepad2, Monitor, Cpu, Box, HardDrive, Speaker, Keyboard, Mouse, Headphones, AppWindow, Gamepad, Cable, Gift } from 'lucide-react';
 
 const categories = [
-  { 
+  {
     icon: <Laptop size={18} />, label: 'Laptop', slug: 'Laptop',
     subMenu: [
       { title: 'Thương hiệu', items: ['Laptop ASUS', 'Laptop Acer', 'Laptop MSI', 'Laptop Lenovo', 'Laptop Dell', 'Laptop HP', 'Macbook'] },
@@ -11,7 +11,7 @@ const categories = [
       { title: 'Mức giá', items: ['Dưới 15 triệu', '15 - 20 triệu', '20 - 25 triệu', 'Trên 25 triệu'] }
     ]
   },
-  { 
+  {
     icon: <Gamepad2 size={18} />, label: 'Laptop Gaming', slug: 'Laptop Gaming',
     subMenu: [
       { title: 'Thương hiệu', items: ['ASUS ROG/TUF', 'Acer Nitro/Predator', 'MSI Gaming', 'Lenovo Legion', 'Dell Alienware/G-Series', 'HP Omen/Victus'] },
@@ -19,7 +19,7 @@ const categories = [
       { title: 'Tần số quét', items: ['120Hz', '144Hz', '165Hz', '240Hz', 'Trên 240Hz'] }
     ]
   },
-  { 
+  {
     icon: <Monitor size={18} />, label: 'PC EZ4ENCE', slug: 'PC',
     subMenu: [
       { title: 'Theo Nhu Cầu', items: ['PC Gaming', 'PC Đồ họa - Render', 'PC Văn phòng', 'PC Mini', 'PC Custom Nước'] },
@@ -27,7 +27,7 @@ const categories = [
       { title: 'Cấu Hình Nổi Bật', items: ['PC Intel Core i5 / i7', 'PC AMD Ryzen 5 / 7', 'PC Full Trắng', 'PC RGB'] }
     ]
   },
-  { 
+  {
     icon: <Cpu size={18} />, label: 'Main, CPU, VGA', slug: 'Mainboard',
     subMenu: [
       { title: 'Bo Mạch Chủ (Mainboard)', items: ['Mainboard Intel', 'Mainboard AMD', 'Mainboard ASUS', 'Mainboard MSI', 'Mainboard Gigabyte'] },
@@ -35,7 +35,7 @@ const categories = [
       { title: 'Card Màn Hình (VGA)', items: ['VGA NVIDIA (RTX)', 'VGA AMD (Radeon)', 'VGA ASUS', 'VGA Gigabyte', 'VGA MSI'] }
     ]
   },
-  { 
+  {
     icon: <Box size={18} />, label: 'Case, Nguồn, Tản', slug: 'Case',
     subMenu: [
       { title: 'Case - Theo hãng', items: ['Case ASUS', 'Case Corsair', 'Case Lianli', 'Case NZXT', 'Case Jonsbo', 'Xem tất cả'] },
@@ -46,7 +46,7 @@ const categories = [
       { title: 'Loại tản nhiệt', items: ['Tản nhiệt AIO 240mm', 'Tản nhiệt AIO 280mm', 'Tản nhiệt AIO 360mm', 'Tản nhiệt AIO 420mm', 'Tản nhiệt khí', 'Fan RGB', 'Xem tất cả'] }
     ]
   },
-  { 
+  {
     icon: <HardDrive size={18} />, label: 'Ổ cứng, RAM', slug: 'RAM',
     subMenu: [
       { title: 'RAM Máy Tính', items: ['RAM DDR4', 'RAM DDR5', 'RAM Laptop', 'RAM Có LED RGB'] },
@@ -54,7 +54,7 @@ const categories = [
       { title: 'Ổ Cứng Cơ (HDD)', items: ['HDD 1TB', 'HDD 2TB', 'HDD 4TB+'] }
     ]
   },
-  { 
+  {
     icon: <Speaker size={18} />, label: 'Loa, Webcam', slug: 'Loa',
     subMenu: [
       { title: 'Loa', items: ['Loa Bluetooth', 'Loa Soundbar', 'Loa Vi Tính 2.0/2.1', 'Loa Gaming'] },
@@ -62,7 +62,7 @@ const categories = [
       { title: 'Microphone', items: ['Microphone USB', 'Microphone Condenser', 'Arm/Stand Kẹp Mic'] }
     ]
   },
-  { 
+  {
     icon: <Monitor size={18} />, label: 'Màn hình', slug: 'Màn hình',
     subMenu: [
       { title: 'Thương hiệu', items: ['Màn hình ASUS', 'Màn hình LG', 'Màn hình Samsung', 'Màn hình Dell', 'Màn hình MSI'] },
@@ -70,7 +70,7 @@ const categories = [
       { title: 'Thông số', items: ['Màn hình 144Hz+', 'Màn hình 240Hz+', 'Màn hình 4K', 'Màn hình Ultrawide'] }
     ]
   },
-  { 
+  {
     icon: <Keyboard size={18} />, label: 'Bàn phím', slug: 'Bàn phím',
     subMenu: [
       { title: 'Thương hiệu', items: ['Bàn phím Akko', 'Bàn phím Razer', 'Bàn phím Corsair', 'Bàn phím Logitech', 'Bàn phím Keychron'] },
@@ -78,7 +78,7 @@ const categories = [
       { title: 'Size', items: ['Fullsize (104 phím)', 'TKL (87 phím)', 'Mini (60-65%)'] }
     ]
   },
-  { 
+  {
     icon: <Mouse size={18} />, label: 'Chuột + Lót chuột', slug: 'Chuột',
     subMenu: [
       { title: 'Chuột Gaming', items: ['Logitech G', 'Razer', 'Corsair', 'Zowie', 'Pulsar'] },
@@ -86,7 +86,7 @@ const categories = [
       { title: 'Lót chuột', items: ['Lót chuột Size nhỏ', 'Lót chuột Size lớn (Deskmat)', 'Lót chuột RGB', 'Lót chuột Kính/Nhôm'] }
     ]
   },
-  { 
+  {
     icon: <Headphones size={18} />, label: 'Tai Nghe', slug: 'Tai nghe',
     subMenu: [
       { title: 'Loại Tai Nghe', items: ['Tai nghe Over-ear', 'Tai nghe In-ear', 'Tai nghe True Wireless', 'Tai nghe Có dây'] },
@@ -94,14 +94,14 @@ const categories = [
       { title: 'Thương Hiệu', items: ['HyperX', 'Logitech', 'Razer', 'Sony', 'Corsair'] }
     ]
   },
-  { 
+  {
     icon: <AppWindow size={18} />, label: 'Phần mềm, mạng', slug: 'Phần mềm',
     subMenu: [
       { title: 'Thiết bị mạng', items: ['Router Wifi', 'Bộ phát Wifi Mesh', 'Switch', 'USB Thu Wifi'] },
       { title: 'Phần mềm', items: ['Windows Bản quyền', 'Microsoft Office', 'Phần mềm Diệt Virus', 'Phần mềm Đồ họa'] }
     ]
   },
-  { 
+  {
     icon: <Gamepad size={18} />, label: 'Handheld, Console', slug: 'Console',
     subMenu: [
       { title: 'Máy chơi game', items: ['PS5', 'Xbox Series X/S', 'Nintendo Switch', 'Steam Deck', 'ASUS ROG Ally'] },
@@ -109,14 +109,14 @@ const categories = [
       { title: 'Đĩa Game', items: ['Game PS5', 'Game Nintendo Switch'] }
     ]
   },
-  { 
+  {
     icon: <Cable size={18} />, label: 'Phụ kiện', slug: 'Phụ kiện',
     subMenu: [
       { title: 'Phụ kiện Laptop/PC', items: ['Balo/Túi chống sốc', 'Cáp chuyển đổi (Hub)', 'Đế tản nhiệt Laptop', 'Giá đỡ màn hình (Arm)'] },
       { title: 'Phụ kiện khác', items: ['USB/Thẻ nhớ', 'Pin dự phòng', 'Cáp sạc điện thoại'] }
     ]
   },
-  { 
+  {
     icon: <Gift size={18} />, label: 'Dịch vụ khác', slug: 'Dịch vụ',
     subMenu: [
       { title: 'Dịch vụ', items: ['Vệ sinh PC/Laptop', 'Cài đặt Windows/Phần mềm', 'Bảo hành mở rộng', 'Thu cũ đổi mới'] },
@@ -132,8 +132,8 @@ export default function CategorySidebar() {
     <div className="category-sidebar glass-panel">
       <ul className="category-list">
         {categories.map((cat, idx) => (
-          <li 
-            key={idx} 
+          <li
+            key={idx}
             className="category-item"
             onMouseLeave={() => setHiddenMenuIdx(null)}
           >
@@ -142,10 +142,10 @@ export default function CategorySidebar() {
               <span className="category-label">{cat.label}</span>
               <ChevronRight size={16} className="category-arrow" />
             </Link>
-            
+
             {/* Mega Menu Flyout */}
             {cat.subMenu && (
-              <div 
+              <div
                 className="mega-menu glass-panel"
                 style={hiddenMenuIdx === idx ? { display: 'none' } : {}}
               >
@@ -156,8 +156,8 @@ export default function CategorySidebar() {
                       <ul className="mega-menu-list">
                         {column.items.map((item, itemIdx) => (
                           <li key={itemIdx}>
-                            <Link 
-                              to={`/products?category=${cat.slug}&sub=${encodeURIComponent(item)}`} 
+                            <Link
+                              to={`/products?category=${cat.slug}&sub=${encodeURIComponent(item)}`}
                               className="mega-menu-item"
                               onClick={() => setHiddenMenuIdx(idx)}
                             >

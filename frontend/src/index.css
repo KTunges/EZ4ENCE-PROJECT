@@ -2196,7 +2196,7 @@ h1, h2, h3, h4, h5, h6 {
 .checkout-input {
   width: 100%;
   padding: 12px 15px;
-  background: rgba(10, 10, 18, 0.5);
+  background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: 6px;
   color: var(--text);
@@ -2239,7 +2239,7 @@ textarea.checkout-input {
   padding: 20px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: rgba(10, 10, 18, 0.4);
+  background: var(--bg-surface);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -2252,9 +2252,9 @@ textarea.checkout-input {
 }
 
 .option-card.selected .option-content {
-  border-color: var(--cyan);
-  background: rgba(0, 220, 255, 0.05);
-  box-shadow: 0 0 15px rgba(0, 220, 255, 0.15);
+  border-color: #007bff;
+  background: rgba(0, 123, 255, 0.05);
+  box-shadow: 0 0 15px rgba(0, 123, 255, 0.15);
 }
 
 /* Specific colors for selected payment options */
