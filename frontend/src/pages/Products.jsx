@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, SlidersHorizontal, Home, Grid3X3, List, ChevronLeft, ChevronRight, X, Filter } from 'lucide-react';
+import { SlidersHorizontal, Grid3X3, List, ChevronLeft, ChevronRight, X, Filter } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CyberBackground from '../components/ui/CyberBackground';
 import ProductCard from '../components/ui/ProductCard';
@@ -44,7 +44,6 @@ const ITEMS_PER_PAGE = 8;
 export default function Products() {
 
   const [productsList, setProductsList] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetch('http://localhost:8000/api/products')
@@ -67,11 +66,9 @@ export default function Products() {
           specs: item.specifications?.key_features || []
         }));
         setProductsList(mapped);
-        setIsLoading(false);
       })
       .catch(err => {
         console.error("Failed to fetch products", err);
-        setIsLoading(false);
       });
   }, []);
 
@@ -147,7 +144,7 @@ export default function Products() {
     }
 
     return result;
-  }, [searchQuery, selectedCategory, selectedBrand, selectedPrice, sortBy]);
+  }, [searchQuery, selectedCategory, selectedBrand, selectedPrice, sortBy, productsList]);
 
   // Pagination
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
