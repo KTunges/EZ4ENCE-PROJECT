@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronLeft, CreditCard, Truck, Zap, ShieldCheck, Smartphone, QrCode, Globe } from 'lucide-react';
+import { ChevronLeft, Truck, Zap, ShieldCheck } from 'lucide-react';
 import CustomSelect from '../components/ui/CustomSelect';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
@@ -277,7 +277,7 @@ export default function Checkout() {
                   <PayPalScriptProvider options={{ "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID || "test", currency: "USD" }}>
                 <PayPalButtons
                   style={{ layout: "vertical", color: "blue", shape: "rect", label: "pay" }}
-                  createOrder={async (data, actions) => {
+                  createOrder={async () => {
                     try {
                       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/payment/paypal/create-order`, {
                         method: "POST",
