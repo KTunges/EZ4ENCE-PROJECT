@@ -45,6 +45,9 @@ class ProductBase(BaseModel):
 class ProductListResponse(ProductBase):
     id: str
     created_at: datetime
+    # Computed fields
+    rating: float
+    review_count: int
     # Trả về kèm một ảnh đại diện (ảnh chính) và giá min/max của các SKU nếu cần ở list
     images: List[ProductImageResponse] = []
     category: Optional[CategoryResponse] = None

@@ -374,9 +374,7 @@ h1, h2, h3, h4, h5, h6 {
   position: sticky;
   top: 90px; /* offset from fixed header */
   z-index: 99;
-  height: calc(100vh - 110px);
-  overflow-y: auto;
-  padding-right: 8px; /* For scrollbar spacing */
+  /* height and overflow removed to prevent clipping of mega menu */
 }
 
 .home-main {
@@ -4435,7 +4433,8 @@ textarea.checkout-input {
   gap: 10px;
 }
 
-.mega-menu-link {
+.mega-menu-link,
+.mega-menu-item {
   color: var(--text-color);
   text-decoration: none;
   font-size: 14px;
@@ -4443,7 +4442,8 @@ textarea.checkout-input {
   opacity: 0.8;
 }
 
-.mega-menu-link:hover {
+.mega-menu-link:hover,
+.mega-menu-item:hover {
   color: var(--neon-accent);
   opacity: 1;
 }

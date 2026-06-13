@@ -37,6 +37,7 @@ class Order(Base):
     payment_transaction_id = Column(String, nullable=True)
     total_amount = Column(Float, nullable=False)
     shipping_fee = Column(Float, default=0, nullable=False)
+    shipping_provider = Column(String, nullable=True)
     discount_amount = Column(Float, default=0, nullable=False) # Tiền được giảm
     note = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

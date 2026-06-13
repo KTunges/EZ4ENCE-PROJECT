@@ -1,62 +1,58 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Trash2, Plus, Minus, Tag, ShieldCheck, Truck, ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
-
-const initialCartItems = [
-  {
-    id: 1,
-    name: 'VGA ASUS ROG Strix GeForce RTX 4090 OC Edition 24GB GDDR6X',
-    variant: 'Màu: Đen | Bản: OC Edition',
-    price: 55000000,
-    quantity: 1,
-    stock: true,
-    image: 'https://via.placeholder.com/150/1a1a2e/00d2ff?text=RTX+4090',
-  },
-  {
-    id: 2,
-    name: 'Chuột Logitech G Pro X Superlight 2 Wireless',
-    variant: 'Màu: Trắng | Switch: Quang học',
-    price: 3200000,
-    quantity: 2,
-    stock: true,
-    image: 'https://via.placeholder.com/150/1a1a2e/ff0055?text=Superlight',
-  },
-  {
-    id: 3,
-    name: 'Bàn phím cơ Razer Huntsman V2 Analog',
-    variant: 'Layout: US | Switch: Analog Optical',
-    price: 4500000,
-    quantity: 1,
-    stock: true,
-    image: 'https://via.placeholder.com/150/1a1a2e/7000ff?text=Huntsman',
-  }
-];
+import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function Cart() {
-  const [items, setItems] = useState(initialCartItems);
+  const { cart, updateQuantity, removeItem, loading } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [promoCode, setPromoCode] = useState('');
 
-  const handleQuantityChange = (id, change) => {
-    setItems(items.map(item => {
-      if (item.id === id) {
-        const newQuantity = Math.max(1, item.quantity + change);
-        return { ...item, quantity: newQuantity };
-      }
-      return item;
-    }));
+  // Redirect to login if not logged in
+  useEffect(() => {
+    if (!user && !loading) {
+      // Optional: uncomment below to auto redirect to login
+      // navigate('/login');
+    }
+  }, [user, loading, navigate]);
+
+  const handleQuantityChange = (id, change, currentQty, maxStock) => {
+    const newQuantity = Math.max(1, currentQty + change);
+    if (newQuantity <= maxStock) {
+      updateQuantity(id, newQuantity);
+    }
   };
 
   const handleRemove = (id) => {
-    setItems(items.filter(item => item.id !== id));
+    removeItem(id);
   };
 
-  const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const items = cart?.items || [];
+  const subtotal = cart?.total_amount || 0;
   const shipping = items.length > 0 ? 0 : 0; // Free shipping
   const total = subtotal + shipping;
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
+
+  if (!user) {
+    return (
+      <div className="cart-page-container fade-in">
+        <div className="container" style={{ textAlign: 'center', paddingTop: '100px' }}>
+          <h2 className="glitch-text text-3xl font-bold" data-text="VUI LÒNG ĐĂNG NHẬP">VUI LÒNG ĐĂNG NHẬP</h2>
+          <p className="text-muted mt-4">Bạn cần đăng nhập để quản lý giỏ hàng của mình.</p>
+          <Link to="/login" className="btn btn-primary mt-6">Đăng nhập ngay</Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading && !cart) {
+    return <div style={{ height: '50vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Đang tải...</div>;
+  }
 
   return (
     <div className="cart-page-container fade-in">
@@ -79,23 +75,29 @@ export default function Cart() {
             {/* Left Column: Cart Items */}
             <div className="cart-items-list">
               {items.map(item => (
-                <div key={item.id} className={`cart-page-item glass ${!item.stock ? 'out-of-stock' : ''}`}>
+                <div key={item.id} className={`cart-page-item glass ${item.stock_quantity === 0 ? 'out-of-stock' : ''}`}>
                   <div className="item-image-wrapper">
-                    <img src={item.image} alt={item.name} />
+                    {item.image_url ? (
+                      <img src={item.image_url} alt={item.product_name} />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ color: 'var(--text-dim)', fontSize: '10px' }}>No Img</span>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="item-details">
                     <div className="item-title-row">
-                      <Link to={`/products/${item.id}`} className="item-name">{item.name}</Link>
+                      <Link to={`/products/${item.product_slug}`} className="item-name">{item.product_name}</Link>
                       <button className="item-remove-btn" onClick={() => handleRemove(item.id)} title="Xoá khỏi giỏ hàng">
                         <Trash2 size={20} />
                       </button>
                     </div>
                     
-                    <p className="item-variant">{item.variant}</p>
+                    <p className="item-variant">Mã SKU: {item.sku_code}</p>
                     
                     <div className="item-status">
-                      {item.stock ? (
+                      {item.stock_quantity > 0 ? (
                         <span className="status-in-stock"><ShieldCheck size={14} /> Còn hàng</span>
                       ) : (
                         <span className="status-out-stock">Hết hàng</span>
@@ -108,9 +110,9 @@ export default function Cart() {
                       </div>
                       
                       <div className="item-quantity">
-                        <button onClick={() => handleQuantityChange(item.id, -1)} disabled={!item.stock}><Minus size={16} /></button>
+                        <button onClick={() => handleQuantityChange(item.id, -1, item.quantity, item.stock_quantity)} disabled={item.stock_quantity === 0}><Minus size={16} /></button>
                         <span>{item.quantity}</span>
-                        <button onClick={() => handleQuantityChange(item.id, 1)} disabled={!item.stock}><Plus size={16} /></button>
+                        <button onClick={() => handleQuantityChange(item.id, 1, item.quantity, item.stock_quantity)} disabled={item.quantity >= item.stock_quantity}><Plus size={16} /></button>
                       </div>
                       
                       <div className="item-total-price">

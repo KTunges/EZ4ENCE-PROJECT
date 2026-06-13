@@ -24,7 +24,26 @@ class Product(Base):
     category = relationship("Category", back_populates="products")
     brand = relationship("Brand", back_populates="products")
     skus = relationship("ProductSKU", back_populates="product", cascade="all, delete-orphan")
-    images = relationship("ProductImage", back_populates="product", cascade="all, delete-orphan")
+    images = relationship("ProductImage", back_populates="product", cascade="all, delete-orphan", order_by="ProductImage.is_primary.desc()")
+
+    @property
+    def review_count(self) -> int:
+        count = 0
+        for sku in self.skus:
+            count += len(sku.reviews)
+        return count
+
+    @property
+    def rating(self) -> float:
+        total_rating = 0
+        count = 0
+        for sku in self.skus:
+            for review in sku.reviews:
+                total_rating += review.rating
+                count += 1
+        
+        # Mặc định 5.0 sao nếu chưa có đánh giá
+        return round(total_rating / count, 1) if count > 0 else 5.0
 
 
 class ProductSKU(Base):

@@ -1,5 +1,6 @@
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import MainLayout from './components/layout/MainLayout';
@@ -24,24 +25,26 @@ function App() {
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <ThemeProvider>
         <AuthProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<MainLayout />}>
-                <Route index element={<Home />} />
-                <Route path="about" element={<About />} />
-                <Route path="products" element={<Products />} />
-                <Route path="products/:slug" element={<ProductDetail />} />
-                <Route path="build-pc" element={<BuildPC />} />
-                <Route path="cart" element={<Cart />} />
-                <Route path="checkout" element={<Checkout />} />
-                <Route path="checkout/success" element={<CheckoutSuccess />} />
-                <Route path="checkout/vnpay-return" element={<CheckoutVnpayReturn />} />
-                <Route path="profile" element={<Profile />} />
-              </Route>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-            </Routes>
-          </BrowserRouter>
+          <CartProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<MainLayout />}>
+                  <Route index element={<Home />} />
+                  <Route path="about" element={<About />} />
+                  <Route path="products" element={<Products />} />
+                  <Route path="products/:slug" element={<ProductDetail />} />
+                  <Route path="build-pc" element={<BuildPC />} />
+                  <Route path="cart" element={<Cart />} />
+                  <Route path="checkout" element={<Checkout />} />
+                  <Route path="checkout/success" element={<CheckoutSuccess />} />
+                  <Route path="checkout/vnpay-return" element={<CheckoutVnpayReturn />} />
+                  <Route path="profile" element={<Profile />} />
+                </Route>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+              </Routes>
+            </BrowserRouter>
+          </CartProvider>
         </AuthProvider>
       </ThemeProvider>
     </GoogleOAuthProvider>

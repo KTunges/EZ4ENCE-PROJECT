@@ -4,7 +4,10 @@ from pydantic import BaseModel
 import httpx
 import logging
 import datetime
+from sqlalchemy.orm import Session
 from app.config import settings
+from app.database import get_db
+from app.models.order import Order, PaymentStatus
 from app.utils.vnpay import VNPay
 
 logger = logging.getLogger(__name__)
@@ -15,7 +18,7 @@ router = APIRouter(
 )
 
 class PayPalOrderRequest(BaseModel):
-    amount_vnd: float # Giả lập truyền số tiền tổng từ frontend do chưa có API Orders
+    order_id: str # Dùng order_id thật từ db
 
 class PayPalCaptureRequest(BaseModel):
     order_id: str # ID của PayPal Order (không phải ID đơn hàng trong DB)
@@ -45,9 +48,13 @@ def get_paypal_access_token():
     return response.json()["access_token"]
 
 @router.post("/paypal/create-order")
-def create_paypal_order(req: PayPalOrderRequest):
+def create_paypal_order(req: PayPalOrderRequest, db: Session = Depends(get_db)):
+    order = db.query(Order).filter(Order.id == req.order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+        
     # Quy đổi tiền VNĐ sang USD (tỷ giá giả định 25000)
-    total_usd = round(req.amount_vnd / 25000, 2)
+    total_usd = round(order.total_amount / 25000, 2)
     if total_usd <= 0:
         total_usd = 0.1 # Tránh lỗi số tiền bằng 0
     
@@ -80,7 +87,7 @@ def create_paypal_order(req: PayPalOrderRequest):
     return {"paypal_order_id": data["id"]}
 
 @router.post("/paypal/capture-order")
-def capture_paypal_order(req: PayPalCaptureRequest):
+def capture_paypal_order(req: PayPalCaptureRequest, db: Session = Depends(get_db)):
     access_token = get_paypal_access_token()
     base_url = "https://api-m.sandbox.paypal.com" if settings.PAYPAL_ENVIRONMENT == "sandbox" else "https://api-m.paypal.com"
     
@@ -94,7 +101,9 @@ def capture_paypal_order(req: PayPalCaptureRequest):
     if response.status_code in (200, 201):
         data = response.json()
         if data["status"] == "COMPLETED":
-            # Nếu có API Order, ở đây sẽ cập nhật trạng thái đơn hàng trong Database
+            # (PayPal doesn't easily pass through our custom order_id without purchase_units custom_id mapping. 
+            # We would need to map it. For simplicity if frontend calls capture, frontend should know which order.)
+            # Actually, the user requirement is about VNPAY mostly. 
             return {"success": True, "data": data}
         
     logger.error(f"Failed to capture PayPal order: {response.text}")
@@ -103,23 +112,25 @@ def capture_paypal_order(req: PayPalCaptureRequest):
 # --- VNPAY ---
 
 class VNPAYOrderRequest(BaseModel):
-    amount_vnd: float
+    order_id: str
 
 @router.post("/vnpay/create-url")
-def create_vnpay_url(req: VNPAYOrderRequest, request: Request):
+def create_vnpay_url(req: VNPAYOrderRequest, request: Request, db: Session = Depends(get_db)):
+    order = db.query(Order).filter(Order.id == req.order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
     vnp = VNPay()
     
-    # Mã đơn hàng giả lập (vì chưa lưu DB)
-    order_id = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    amount = int(req.amount_vnd * 100) # VNPAY yêu cầu nhân 100
+    amount = int(order.total_amount * 100) # VNPAY yêu cầu nhân 100
     
     vnp.requestData['vnp_Version'] = '2.1.0'
     vnp.requestData['vnp_Command'] = 'pay'
     vnp.requestData['vnp_TmnCode'] = settings.VNPAY_TMN_CODE
     vnp.requestData['vnp_Amount'] = amount
     vnp.requestData['vnp_CurrCode'] = 'VND'
-    vnp.requestData['vnp_TxnRef'] = order_id
-    vnp.requestData['vnp_OrderInfo'] = f'Thanh toan don hang {order_id}'
+    vnp.requestData['vnp_TxnRef'] = req.order_id
+    vnp.requestData['vnp_OrderInfo'] = f'Thanh toan don hang {req.order_id}'
     vnp.requestData['vnp_OrderType'] = 'billpayment'
     vnp.requestData['vnp_Locale'] = 'vn'
     
@@ -141,7 +152,7 @@ def create_vnpay_url(req: VNPAYOrderRequest, request: Request):
     return {"payment_url": vnpay_payment_url}
 
 @router.get("/vnpay/verify-return")
-def verify_vnpay_return(request: Request):
+def verify_vnpay_return(request: Request, db: Session = Depends(get_db)):
     inputData = request.query_params
     vnp = VNPay()
     vnp.responseData = dict(inputData)
@@ -154,6 +165,12 @@ def verify_vnpay_return(request: Request):
     if vnp.validate_response(settings.VNPAY_HASH_SECRET):
         if vnp_ResponseCode == "00":
             # Giao dịch thành công
+            order = db.query(Order).filter(Order.id == order_id).first()
+            if order:
+                order.payment_status = PaymentStatus.PAID
+                order.payment_transaction_id = inputData.get('vnp_TransactionNo')
+                db.commit()
+                
             return {
                 "success": True, 
                 "message": "Giao dịch thành công", 

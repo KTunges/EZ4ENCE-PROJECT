@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Heart, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useCart } from '../../context/CartContext';
 
 export default function ProductCard({ product, index = 0 }) {
+  const { addToCart } = useCart();
   const [isWishlisted, setIsWishlisted] = useState(false);
 
   const formatPrice = (price) =>
@@ -23,7 +25,13 @@ export default function ProductCard({ product, index = 0 }) {
     >
       {/* Image */}
       <Link to={`/products/${product.slug}`} className="product-card-img-wrapper">
-        <img src={product.image} alt={product.name} loading="lazy" />
+        {product.image ? (
+          <img src={product.image} alt={product.name} loading="lazy" />
+        ) : (
+          <div style={{ width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ color: 'var(--text-dim)', fontSize: '14px' }}>Chưa có hình</span>
+          </div>
+        )}
         <div className="product-card-overlay" />
 
         {/* Badges */}
@@ -44,7 +52,14 @@ export default function ProductCard({ product, index = 0 }) {
           </button>
           <button
             className="card-action-btn cart-btn"
-            onClick={(e) => { e.preventDefault(); /* TODO: Add to cart */ }}
+            onClick={(e) => { 
+              e.preventDefault(); 
+              if (product.skus && product.skus.length > 0) {
+                addToCart(product.skus[0].id, 1);
+              } else {
+                console.warn('No SKU found for product', product.id);
+              }
+            }}
             aria-label="Thêm giỏ hàng"
           >
             <ShoppingCart size={16} />
@@ -62,9 +77,9 @@ export default function ProductCard({ product, index = 0 }) {
 
         {/* Specs Pills */}
         {product.specs && product.specs.length > 0 && (
-          <div className="product-card-specs">
+          <div className="product-card-specs" style={{ maxHeight: '60px', overflow: 'hidden' }}>
             {product.specs.slice(0, 4).map((spec, idx) => (
-              <span key={idx} className="spec-pill">{spec}</span>
+              <span key={idx} className="spec-pill" style={{ display: 'inline-block', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{spec}</span>
             ))}
           </div>
         )}
@@ -84,12 +99,17 @@ export default function ProductCard({ product, index = 0 }) {
           )}
         </div>
 
-        {/* Price */}
-        <div className="product-card-price-row">
-          <span className="product-card-price">{formatPrice(product.price)}</span>
-          {product.originalPrice && product.originalPrice > product.price && (
-            <span className="product-card-original-price">{formatPrice(product.originalPrice)}</span>
-          )}
+        {/* Price & Stock */}
+        <div className="product-card-price-row" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: '8px' }}>
+            <span className="product-card-price">{formatPrice(product.price)}</span>
+            {product.originalPrice && product.originalPrice > product.price && (
+              <span className="product-card-original-price">{formatPrice(product.originalPrice)}</span>
+            )}
+          </div>
+          <div className="product-card-stock" style={{ fontSize: '0.8rem', color: product.stock > 0 ? 'var(--cyan)' : 'var(--text-dim)', whiteSpace: 'nowrap' }}>
+            {product.stock > 0 ? 'Còn hàng' : 'Hết hàng'}
+          </div>
         </div>
       </div>
     </motion.div>

@@ -5,89 +5,78 @@ import { motion, AnimatePresence } from 'framer-motion';
 import CyberBackground from '../components/ui/CyberBackground';
 import ProductCard from '../components/ui/ProductCard';
 import ImageMagnifier from '../components/ui/ImageMagnifier';
-
-/* ─── MOCK PRODUCT DETAIL ─── */
-const MOCK_DETAIL = {
-  'vga-asus-rog-strix-rtx-4090': {
-    id: '1',
-    name: 'VGA ASUS ROG Strix GeForce RTX 4090 OC Edition 24GB GDDR6X',
-    slug: 'vga-asus-rog-strix-rtx-4090',
-    brand: 'ASUS',
-    category: 'VGA',
-    categorySlug: 'vga',
-    rating: 5,
-    reviewCount: 128,
-    description: `Card đồ họa ASUS ROG Strix GeForce RTX 4090 OC Edition mang đến hiệu năng gaming đỉnh cao với kiến trúc Ada Lovelace mới nhất từ NVIDIA. Được trang bị 24GB bộ nhớ GDDR6X siêu tốc, card đáp ứng mọi nhu cầu từ gaming 4K 144Hz đến render đồ họa chuyên nghiệp.
-
-Hệ thống tản nhiệt Axial-tech thế hệ mới với 3 quạt lớn cùng thiết kế heatsink khổng lồ giúp giữ nhiệt độ luôn ở mức tối ưu ngay cả khi hoạt động ở hiệu năng tối đa. LED Aura Sync RGB tích hợp cho phép đồng bộ ánh sáng với toàn bộ hệ thống.`,
-    specifications: {
-      'GPU': 'NVIDIA GeForce RTX 4090',
-      'Kiến trúc': 'Ada Lovelace',
-      'CUDA Cores': '16,384',
-      'Bộ nhớ': '24GB GDDR6X',
-      'Bus': '384-bit',
-      'Xung nhịp Boost': '2,610 MHz (OC Mode)',
-      'TDP': '450W',
-      'Cổng xuất hình': '3x DisplayPort 1.4a, 2x HDMI 2.1',
-      'Kích thước': '357.6 x 149.3 x 70.1 mm',
-      'Nguồn yêu cầu': '850W trở lên',
-      'Cổng nguồn phụ': '1x 16-pin (12VHPWR)',
-    },
-    images: [
-      'https://product.hstatic.net/200000722513/product/thumb-web-asus-rog-strix-rtx4090_65bed05f84f04c65b0cca5efdcf5e3fd_1024x1024.png',
-      'https://product.hstatic.net/200000722513/product/rog-strix-rtx4090-2_f5d8c0b3b3f64c3fa7bf1e8e7c0f95d6_1024x1024.jpg',
-      'https://product.hstatic.net/200000722513/product/rog-strix-rtx4090-3_a1c5b37fa5e24b7893b2c8d4e3f6a9e1_1024x1024.jpg',
-      'https://product.hstatic.net/200000722513/product/rog-strix-rtx4090-4_d2e6f8a1b3c54d7e9f0a1b2c3d4e5f6a_1024x1024.jpg',
-    ],
-    skus: [
-      { id: 'sku-1', label: 'OC Edition', price: 55000000, originalPrice: 62000000, stock: 5 },
-      { id: 'sku-2', label: 'Standard Edition', price: 50000000, originalPrice: 55000000, stock: 12 },
-      { id: 'sku-3', label: 'White Edition', price: 58000000, originalPrice: 65000000, stock: 0 },
-    ],
-    reviews: [
-      { id: 'r1', user: 'ProGamer_VN', avatar: null, rating: 5, date: '2026-05-20', content: 'Card quá mạnh, chơi 4K max setting mượt mà. Tản nhiệt rất tốt, nhiệt độ chỉ khoảng 65°C khi full load. Xứng đáng đồng tiền bát gạo!' },
-      { id: 'r2', user: 'TechReviewer', avatar: null, rating: 5, date: '2026-05-15', content: 'Render video 4K nhanh gấp 3 lần card cũ. Build quality xuất sắc, LED RGB đẹp. Hơi nặng nhưng hiệu năng bù lại tất cả.' },
-      { id: 'r3', user: 'SetupKing', avatar: null, rating: 4, date: '2026-05-10', content: 'Card rất tốt nhưng cần lưu ý nguồn phải đủ 850W trở lên. Mình dùng nguồn 750W bị shutdown liên tục. Sau khi nâng nguồn thì mọi thứ hoàn hảo.' },
-    ],
-  },
-};
-
-/* ─── FALLBACK DETAIL (cho tất cả slug khác) ─── */
-const FALLBACK_DETAIL = {
-  id: '99',
-  name: 'Sản phẩm Gaming Premium',
-  slug: 'san-pham-gaming-premium',
-  brand: 'EZ4ENCE',
-  category: 'Gaming Gear',
-  categorySlug: 'gaming-gear',
-  rating: 4,
-  reviewCount: 42,
-  description: 'Sản phẩm gaming cao cấp, chính hãng 100%. Bảo hành 36 tháng, giao hàng siêu tốc trong 2 giờ tại TP.HCM và Hà Nội.',
-  specifications: {
-    'Thương hiệu': 'Premium',
-    'Bảo hành': '36 tháng',
-    'Xuất xứ': 'Chính hãng',
-  },
-  images: [
-    'https://product.hstatic.net/200000722513/product/thumb-web-asus-rog-strix-rtx4090_65bed05f84f04c65b0cca5efdcf5e3fd_1024x1024.png',
-  ],
-  skus: [
-    { id: 'sku-f1', label: 'Standard', price: 5000000, originalPrice: 6000000, stock: 10 },
-  ],
-  reviews: [],
-};
-
-/* ─── RELATED PRODUCTS ─── */
-const RELATED_PRODUCTS = [
-  { id: '2', slug: 'chuot-logitech-g-pro-x-superlight-2', name: 'Chuột Logitech G Pro X Superlight 2', brand: 'Logitech', price: 3200000, originalPrice: 3500000, image: 'https://product.hstatic.net/200000722513/product/thumbweb_superlight_2_white_b01eaed5e34e4e5fb000b731f61f4430_1024x1024.png', rating: 5, reviewCount: 256, badge: 'HOT' },
-  { id: '3', slug: 'ban-phim-razer-huntsman-v3-pro', name: 'Bàn Phím Cơ Razer Huntsman V3 Pro TKL', brand: 'Razer', price: 4500000, originalPrice: 5200000, image: 'https://product.hstatic.net/200000722513/product/huntsman-v3-pro-tkl-1_d8f5be6db21e41ac833c1e5e0bb2b1cd_1024x1024.png', rating: 4, reviewCount: 89, badge: 'NEW' },
-  { id: '4', slug: 'tai-nghe-steelseries-arctis-nova-pro', name: 'Tai Nghe SteelSeries Arctis Nova Pro Wireless', brand: 'SteelSeries', price: 9200000, originalPrice: 10500000, image: 'https://product.hstatic.net/200000722513/product/thumbweb_arctis_nova_pro_wireless_47e9e52c6c2b444aa89e70d5a6c39e94_1024x1024.png', rating: 5, reviewCount: 67, badge: 'HOT' },
-  { id: '5', slug: 'cpu-intel-core-i9-14900k', name: 'CPU Intel Core i9-14900K', brand: 'Intel', price: 14500000, originalPrice: 16000000, image: 'https://product.hstatic.net/200000722513/product/cpu-intel-core-i9-14900k_afef37e07d704ee0a70c201497a8b26a_1024x1024.png', rating: 5, reviewCount: 203, badge: 'HOT' },
-];
+import { useCart } from '../context/CartContext';
 
 export default function ProductDetail() {
   const { slug } = useParams();
-  const product = MOCK_DETAIL[slug] || { ...FALLBACK_DETAIL, slug };
+  const { addToCart } = useCart();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+
+  useEffect(() => {
+    // Fetch product detail
+    setLoading(true);
+    fetch(`http://localhost:8000/api/products/${slug}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Không tìm thấy sản phẩm');
+        return res.json();
+      })
+      .then(data => {
+        // Map backend detail to frontend schema
+        const mappedProduct = {
+          id: data.id,
+          name: data.name,
+          slug: data.slug,
+          brand: data.brand?.name || 'Unknown',
+          category: data.category?.name || 'Unknown',
+          rating: data.rating || 5,
+          reviewCount: data.review_count || 0,
+          description: data.description || '',
+          specifications: data.specifications || {},
+          images: data.images?.length > 0 ? data.images.map(img => img.url) : [],
+          skus: data.skus?.length > 0 ? data.skus.map(sku => ({
+            id: sku.id,
+            label: sku.sku_code || 'Tiêu chuẩn',
+            price: sku.price || 0,
+            originalPrice: sku.promotional_price,
+            stock: sku.stock_quantity || 0
+          })) : [{ id: 'default', label: 'Tiêu chuẩn', price: 0, originalPrice: null, stock: 0 }],
+          reviews: [] // mock reviews for now as backend doesn't have it
+        };
+        setProduct(mappedProduct);
+        setLoading(false);
+
+        // Fetch related products (same category)
+        fetch(`http://localhost:8000/api/products?category_slug=${data.category?.slug}`)
+          .then(r => r.json())
+          .then(list => {
+            const mappedList = list
+              .filter(item => item.id !== data.id)
+              .map(item => ({
+                id: item.id,
+                slug: item.slug,
+                name: item.name,
+                brand: item.brand?.name || 'Unknown',
+                category: item.category?.name || 'Unknown',
+                price: item.skus?.[0]?.price || 0,
+                originalPrice: item.skus?.[0]?.promotional_price || null,
+                image: item.images?.[0]?.url || '',
+                rating: item.rating || 5,
+                reviewCount: item.review_count || 0,
+                badge: item.skus?.[0]?.promotional_price > item.skus?.[0]?.price ? 'HOT' : null,
+                specs: Object.values(item.specifications || {}).slice(0, 4),
+                stock: item.skus?.[0]?.stock_quantity || 0
+              })).slice(0, 4);
+            setRelatedProducts(mappedList);
+          });
+      })
+      .catch(err => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [slug]);
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSku, setSelectedSku] = useState(0);
@@ -110,16 +99,22 @@ export default function ProductDetail() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const currentSku = product.skus[selectedSku];
+  const currentSku = product?.skus?.[selectedSku];
 
   const formatPrice = (price) =>
     new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 
-  const discount = currentSku.originalPrice
+  const discount = currentSku?.originalPrice
     ? Math.round((1 - currentSku.price / currentSku.originalPrice) * 100)
     : 0;
 
-  const relatedProducts = RELATED_PRODUCTS.filter(p => p.id !== product.id).slice(0, 4);
+  if (loading) {
+    return <div className="product-detail-page"><div className="container" style={{paddingTop: 100}}>Đang tải thông tin sản phẩm...</div></div>;
+  }
+
+  if (error || !product) {
+    return <div className="product-detail-page"><div className="container" style={{paddingTop: 100}}>Lỗi: {error || 'Không tìm thấy sản phẩm'}</div></div>;
+  }
 
   return (
     <div className="product-detail-page">
@@ -149,13 +144,19 @@ export default function ProductDetail() {
             transition={{ duration: 0.6 }}
           >
             <div className="gallery-main-wrapper glass">
-              <ImageMagnifier 
-                src={product.images[selectedImage]} 
-                alt={product.name} 
-                zoomLevel={2}
-                magnifierWidth={200}
-                magnifierHeight={200}
-              />
+              {product.images.length > 0 ? (
+                <ImageMagnifier 
+                  src={product.images[selectedImage] || product.images[0]} 
+                  alt={product.name} 
+                  zoomLevel={2}
+                  magnifierWidth={200}
+                  magnifierHeight={200}
+                />
+              ) : (
+                <div style={{ width: '100%', minHeight: '400px', backgroundColor: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ color: 'var(--text-dim)', fontSize: '18px' }}>Chưa có hình</span>
+                </div>
+              )}
               {discount > 0 && <span className="gallery-discount-badge">-{discount}%</span>}
             </div>
             {product.images.length > 1 && (
@@ -245,7 +246,7 @@ export default function ProductDetail() {
             {/* Stock Status */}
             <div className="product-stock-status">
               {currentSku.stock > 0 ? (
-                <span className="stock-available"><Check size={14} /> Còn hàng ({currentSku.stock} sản phẩm)</span>
+                <span className="stock-available"><Check size={14} /> Còn hàng</span>
               ) : (
                 <span className="stock-unavailable">Hết hàng</span>
               )}
@@ -288,9 +289,13 @@ export default function ProductDetail() {
                 </button>
               </div>
 
-              <button className="btn btn-primary btn-add-cart" disabled={currentSku.stock === 0}>
+              <button 
+                className="btn btn-primary btn-add-cart" 
+                disabled={currentSku.stock === 0}
+                onClick={() => addToCart(currentSku.id, quantity)}
+              >
                 <ShoppingCart size={18} />
-                <span>Thêm Vào Giỏ Hàng</span>
+                {currentSku.stock > 0 ? 'Thêm Vào Giỏ Hàng' : 'Tạm Hết Hàng'}
               </button>
 
               <button
@@ -353,16 +358,26 @@ export default function ProductDetail() {
           >
             <div className="container sticky-cart-inner">
               <div className="sticky-cart-info">
-                <img src={product.images[0]} alt={product.name} />
+                {product.images.length > 0 ? (
+                  <img src={product.images[0]} alt={product.name} />
+                ) : (
+                  <div style={{ width: '50px', height: '50px', backgroundColor: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px' }}>
+                    <span style={{ color: 'var(--text-dim)', fontSize: '10px' }}>No img</span>
+                  </div>
+                )}
                 <div className="sticky-cart-text">
                   <div className="sticky-cart-name">{product.name}</div>
                   <div className="sticky-cart-price">{formatPrice(currentSku.price)}</div>
                 </div>
               </div>
               <div className="sticky-cart-actions">
-                <button className="btn btn-primary btn-add-cart" disabled={currentSku.stock === 0}>
+                <button 
+                  className="btn btn-primary btn-add-cart" 
+                  disabled={currentSku.stock === 0}
+                  onClick={() => addToCart(currentSku.id, quantity)}
+                >
                   <ShoppingCart size={18} />
-                  <span>Thêm Vào Giỏ</span>
+                  Thêm Vào Giỏ
                 </button>
               </div>
             </div>

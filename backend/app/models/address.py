@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, func
+from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, func, Integer
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -14,6 +14,9 @@ class Address(Base):
     ward = Column(String, nullable=True)  # Phường/Xã
     district = Column(String, nullable=False)  # Quận/Huyện
     city = Column(String, nullable=False)  # Tỉnh/Thành phố
+    province_id = Column(Integer, nullable=True) # ID Tỉnh theo GHN
+    district_id = Column(Integer, nullable=True) # ID Quận theo GHN
+    ward_code = Column(String, nullable=True) # Mã Phường theo GHN
     is_default = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User, Package, Clock, LogOut, Edit3, CheckCircle, Clock3, Truck, ShoppingCart } from 'lucide-react';
+import { User, Package, Clock, LogOut, Edit3, CheckCircle, Clock3, Truck, ShoppingCart, MapPin } from 'lucide-react';
+import AddressBook from '../components/profile/AddressBook';
 
 const mockOrders = [
   {
@@ -175,6 +176,12 @@ export default function Profile() {
                 <Package size={18} /> Đơn hàng của tôi
               </button>
               <button 
+                className={`profile-nav-btn ${activeTab === 'addresses' ? 'active' : ''}`}
+                onClick={() => setActiveTab('addresses')}
+              >
+                <MapPin size={18} /> Sổ địa chỉ
+              </button>
+              <button 
                 className={`profile-nav-btn ${activeTab === 'recent' ? 'active' : ''}`}
                 onClick={() => setActiveTab('recent')}
               >
@@ -270,6 +277,11 @@ export default function Profile() {
                   )}
                 </form>
               </div>
+            )}
+
+            {/* Tab: ADDRESS BOOK */}
+            {activeTab === 'addresses' && (
+              <AddressBook />
             )}
 
             {/* Tab: ORDERS */}

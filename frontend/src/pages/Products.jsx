@@ -43,10 +43,41 @@ const ITEMS_PER_PAGE = 8;
 
 export default function Products() {
 
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const urlCategory = searchParams.get('category');
+  const urlSub = searchParams.get('sub');
+
   const [productsList, setProductsList] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(urlCategory || 'Tất cả');
+  const [selectedBrand, setSelectedBrand] = useState('Tất cả');
+  const [selectedPrice, setSelectedPrice] = useState('all');
+  const [sortBy, setSortBy] = useState('popular');
+  const [viewMode, setViewMode] = useState('grid');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [activeSpecsFilters, setActiveSpecsFilters] = useState({});
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/products')
+    // Build query params
+    const params = new URLSearchParams();
+    if (selectedCategory !== 'Tất cả') params.append('category_slug', selectedCategory.toLowerCase().replace(/ /g, '-'));
+    if (selectedBrand !== 'Tất cả') params.append('brand_slug', selectedBrand.toLowerCase());
+    if (searchQuery.trim()) params.append('search', searchQuery.trim());
+    
+    // Add dynamic specs filtering from state
+    Object.entries(activeSpecsFilters).forEach(([key, val]) => {
+      if (val) params.append(key, val);
+    });
+    // Handle urlSub from Sidebar
+    if (urlSub && Object.keys(activeSpecsFilters).length === 0) {
+      if (urlSub.includes('RTX') || urlSub.includes('GTX')) params.append('VGA', urlSub);
+      else if (urlSub.includes('Hz')) params.append('Màn hình', urlSub);
+      else if (urlSub.includes('Core') || urlSub.includes('Ryzen')) params.append('CPU', urlSub);
+    }
+
+    fetch(`http://localhost:8000/api/products?${params.toString()}`)
       .then(res => res.json())
       .then(data => {
         // Map backend schema to frontend schema
@@ -60,41 +91,41 @@ export default function Products() {
           price: item.skus?.[0]?.price || 0,
           originalPrice: item.skus?.[0]?.promotional_price || null,
           image: item.images?.[0]?.url || '',
-          rating: 5, // Mock rating for now
-          reviewCount: Math.floor(Math.random() * 100) + 10,
+          rating: item.rating || 5,
+          reviewCount: item.review_count || 0,
           badge: item.skus?.[0]?.promotional_price > item.skus?.[0]?.price ? 'HOT' : null,
-          specs: item.specifications?.key_features || []
+          specs: Object.values(item.specifications || {}).slice(0, 4),
+          fullSpecs: item.specifications || {},
+          stock: item.skus?.[0]?.stock_quantity || 0,
+          skus: item.skus || []
         }));
         setProductsList(mapped);
       })
       .catch(err => {
         console.error("Failed to fetch products", err);
       });
-  }, []);
-
-
-
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const urlCategory = searchParams.get('category');
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(urlCategory || 'Tất cả');
-  const [selectedBrand, setSelectedBrand] = useState('Tất cả');
-  const [selectedPrice, setSelectedPrice] = useState('all');
-  const [sortBy, setSortBy] = useState('popular');
-  const [viewMode, setViewMode] = useState('grid');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  }, [selectedCategory, selectedBrand, searchQuery, urlSub, activeSpecsFilters]);
 
   useEffect(() => {
     if (urlCategory) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedCategory(urlCategory);
+      setActiveSpecsFilters({}); // reset specs when category changes via url
     } else {
       setSelectedCategory('Tất cả');
     }
-  }, [urlCategory]);
+
+    if (urlSub) {
+      const foundBrand = BRANDS.find(b => b !== 'Tất cả' && urlSub.toLowerCase().includes(b.toLowerCase()));
+      if (foundBrand) {
+        setSelectedBrand(foundBrand);
+      } else {
+        // Fallback for sub-categories that aren't brands (e.g. price ranges or specs)
+        setSelectedBrand('Tất cả');
+      }
+    } else {
+      setSelectedBrand('Tất cả');
+    }
+  }, [urlCategory, urlSub]);
 
   // Filter & sort products
   const filteredProducts = useMemo(() => {
@@ -108,15 +139,9 @@ export default function Products() {
       );
     }
 
-    // Category
-    if (selectedCategory !== 'Tất cả') {
-      result = result.filter(p => p.category === selectedCategory);
-    }
-
-    // Brand
-    if (selectedBrand !== 'Tất cả') {
-      result = result.filter(p => p.brand === selectedBrand);
-    }
+    // Category and Brand are already filtered by the API, so we skip exact string match here
+    // to avoid mismatch between "Tất cả" and actual category names.
+    // We only filter by price range and sort below.
 
     // Price range
     if (selectedPrice !== 'all') {
@@ -164,7 +189,16 @@ export default function Products() {
     setSelectedCategory('Tất cả');
     setSelectedBrand('Tất cả');
     setSelectedPrice('all');
+    setActiveSpecsFilters({});
     setSortBy('popular');
+    setCurrentPage(1);
+  };
+
+  const handleSpecFilterChange = (specKey, value) => {
+    setActiveSpecsFilters(prev => ({
+      ...prev,
+      [specKey]: value
+    }));
     setCurrentPage(1);
   };
 
@@ -207,8 +241,8 @@ export default function Products() {
           {/* ── BENTO BANNERS ── */}
           <BentoBanners />
 
-          {/* ── PROMO & HOT BLOCKS OR FILTER & GRID ── */}
-          {showDashboard ? (
+          {/* ── PROMO & HOT BLOCKS ── */}
+          {showDashboard && (
             <div className="products-dashboard-blocks" style={{ marginBottom: '40px' }}>
               <section className="home-section">
                 <div className="section-header">
@@ -238,11 +272,10 @@ export default function Products() {
                 </div>
               </section>
             </div>
+          )}
 
-          ) : (
-            <>
-              {/* ── FILTER BAR ── */}
-              <section className="products-filter-section" style={{ padding: 0 }}>
+          {/* ── FILTER BAR ── */}
+          <section className="products-filter-section" style={{ padding: 0 }}>
         <div className="products-filter-bar glass">
           {/* Desktop Filters */}
           <div className="filter-controls-desktop" style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
@@ -269,14 +302,21 @@ export default function Products() {
                 options={BRANDS.map(b => ({ value: b, label: b === 'Tất cả' ? 'Hãng' : b }))}
               />
 
-              {CATEGORY_FILTERS_CONFIG[selectedCategory]?.map((filterName, idx) => (
-                <CustomSelect
-                  key={idx}
-                  value={filterName}
-                  onChange={() => {}}
-                  options={[{value: filterName, label: filterName}]}
-                />
-              ))}
+              {CATEGORY_FILTERS_CONFIG[selectedCategory]?.map((filterName, idx) => {
+                // Extract unique values for this spec from loaded products
+                const uniqueValues = [...new Set(productsList.map(p => p.fullSpecs?.[filterName]).filter(Boolean))];
+                return (
+                  <CustomSelect
+                    key={idx}
+                    value={activeSpecsFilters[filterName] || filterName}
+                    onChange={(val) => handleSpecFilterChange(filterName, val === filterName ? null : val)}
+                    options={[
+                      {value: filterName, label: filterName},
+                      ...uniqueValues.map(v => ({value: v, label: v.length > 25 ? v.substring(0,25) + '...' : v}))
+                    ]}
+                  />
+                );
+              })}
             </div>
 
             <div className="filter-group-right">
@@ -431,8 +471,6 @@ export default function Products() {
           </div>
         )}
       </section>
-            </>
-          )}
         </main>
       </div>
     </div>

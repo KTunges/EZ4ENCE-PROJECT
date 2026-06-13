@@ -3,11 +3,13 @@ import { Link, NavLink } from 'react-router-dom';
 import { Search, ShoppingCart, User, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 import AuthModal from '../ui/AuthModal';
 
 export default function Header() {
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
+  const { cart } = useCart();
   const [showAuth, setShowAuth] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
@@ -45,8 +47,17 @@ export default function Header() {
                 <Search size={18} />
               </button>
             </div>
-            <Link to="/cart" className="icon-btn" aria-label="Cart">
+            <Link to="/cart" className="icon-btn header-cart-btn" aria-label="Cart" style={{position: 'relative'}}>
               <ShoppingCart size={18} />
+              {cart?.total_items > 0 && (
+                <span style={{
+                  position: 'absolute', top: '-5px', right: '-8px', background: 'var(--cyan)', 
+                  color: '#000', fontSize: '10px', fontWeight: 'bold', padding: '2px 5px', 
+                  borderRadius: '10px', minWidth: '18px', textAlign: 'center'
+                }}>
+                  {cart.total_items}
+                </span>
+              )}
             </Link>
             
             {user ? (
