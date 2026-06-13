@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, User, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -12,6 +12,25 @@ export default function Header() {
   const { cart } = useCart();
   const [showAuth, setShowAuth] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+      setIsSearchOpen(false);
+    } else {
+      setIsSearchOpen(!isSearchOpen);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch(e);
+    }
+  };
 
   return (
     <>
@@ -34,6 +53,9 @@ export default function Header() {
                 type="text" 
                 className="header-search-input" 
                 placeholder="Tìm kiếm linh kiện, gear..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
                 onBlur={() => {
                   // Small delay to allow clicking the search icon itself to toggle
                   setTimeout(() => setIsSearchOpen(false), 200);
@@ -42,7 +64,7 @@ export default function Header() {
               <button 
                 className="icon-btn search-btn" 
                 aria-label="Search"
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
+                onClick={handleSearch}
               >
                 <Search size={18} />
               </button>

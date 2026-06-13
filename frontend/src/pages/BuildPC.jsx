@@ -71,7 +71,11 @@ export default function BuildPC() {
     let products = BUILD_PC_PRODUCTS.filter(p => p.category === activeModalSlot);
     
     if (searchQuery) {
-      products = products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.brand.toLowerCase().includes(searchQuery.toLowerCase()));
+      const keywords = searchQuery.toLowerCase().trim().split(/\s+/);
+      products = products.filter(p => {
+        const textToSearch = (p.name + " " + p.brand).toLowerCase();
+        return keywords.every(kw => textToSearch.includes(kw));
+      });
     }
     
     if (inStockOnly) {

@@ -64,14 +64,18 @@ def get_products(
         
     # Search by name
     if search:
-        query = query.filter(Product.name.ilike(f"%{search}%"))
+        keywords = search.strip().split()
+        for kw in keywords:
+            query = query.filter(Product.name.ilike(f"%{kw}%"))
         
     # Lọc động dựa trên specifications (tất cả query params ngoài các tham số chuẩn)
     standard_params = {"skip", "limit", "category_slug", "brand_slug", "search"}
     for key, value in request.query_params.items():
         if key not in standard_params and value:
-            # Lọc linh hoạt: nếu value là chuỗi, tìm gần đúng trong JSON
-            query = query.filter(Product.specifications[key].astext.ilike(f"%{value}%"))
+            # Lọc linh hoạt: cắt từng từ để tìm gần đúng trong JSON
+            spec_keywords = value.strip().split()
+            for skw in spec_keywords:
+                query = query.filter(Product.specifications[key].astext.ilike(f"%{skw}%"))
 
     # Tối ưu truy vấn: load sẵn brand, category và images chính
     query = query.options(

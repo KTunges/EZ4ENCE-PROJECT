@@ -47,9 +47,10 @@ export default function Products() {
   const searchParams = new URLSearchParams(location.search);
   const urlCategory = searchParams.get('category');
   const urlSub = searchParams.get('sub');
+  const urlSearch = searchParams.get('search');
 
   const [productsList, setProductsList] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(urlSearch || '');
   const [selectedCategory, setSelectedCategory] = useState(urlCategory || 'Tất cả');
   const [selectedBrand, setSelectedBrand] = useState('Tất cả');
   const [selectedPrice, setSelectedPrice] = useState('all');
@@ -127,16 +128,23 @@ export default function Products() {
     }
   }, [urlCategory, urlSub]);
 
+  useEffect(() => {
+    if (urlSearch !== null) {
+      setSearchQuery(urlSearch);
+    }
+  }, [urlSearch]);
+
   // Filter & sort products
   const filteredProducts = useMemo(() => {
     let result = [...productsList];
 
     // Search
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(p =>
-        p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q)
-      );
+      const keywords = searchQuery.toLowerCase().trim().split(/\s+/);
+      result = result.filter(p => {
+        const textToSearch = (p.name + " " + p.brand).toLowerCase();
+        return keywords.every(kw => textToSearch.includes(kw));
+      });
     }
 
     // Category and Brand are already filtered by the API, so we skip exact string match here

@@ -21,10 +21,9 @@ while true; do
     echo "Vui lòng chọn chức năng:"
     echo " [1] Setup Database (Tạo DB, Import Schema, Tạo .env)"
     echo " [2] Seed Data (Cài Python env, thư viện và đổ dữ liệu)"
-    echo " [3] Cập nhật ảnh sản phẩm (Sync Cloudinary URLs)"
-    echo " [4] Thoát"
+    echo " [3] Thoát"
     echo ""
-    read -p "Chọn [1-4]: " MENU_CHOICE
+    read -p "Chọn [1-3]: " MENU_CHOICE
 
     case $MENU_CHOICE in
         1)
@@ -258,45 +257,6 @@ EOF
             ;;
 
         3)
-            # --- UPDATE IMAGES ---
-            clear
-            echo ""
-            echo -e "${CYAN}${BOLD}================================================${NC}"
-            echo -e "${CYAN}${BOLD}   ⚡  Cập nhật link ảnh lên Cloudinary vào Database ${NC}"
-            echo -e "${CYAN}${BOLD}================================================${NC}"
-            echo ""
-
-            SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-            cd "$SCRIPT_DIR/../backend" || exit
-
-            echo -e "${CYAN}Kiểm tra virtual environment...${NC}"
-            if [ ! -d ".venv" ] && [ ! -d "venv" ]; then
-                echo -e "${RED}[LỖI]${NC} Vui lòng chạy Seed Data [Option 2] trước để tạo môi trường Python."
-                cd "$SCRIPT_DIR" || exit
-                read -p "Nhấn Enter để quay lại..." dummy
-                continue
-            fi
-
-            if [ -f ".venv/bin/activate" ]; then
-                source .venv/bin/activate
-            elif [ -f "venv/bin/activate" ]; then
-                source venv/bin/activate
-            fi
-            
-            echo -e "${CYAN}Đang thực thi cập nhật...${NC}"
-            python3 seed_db.py --update-images
-            if [ $? -eq 0 ]; then
-                echo -e "${GREEN}[OK]${NC} Cập nhật hình ảnh thành công!"
-            else
-                echo -e "${RED}[LỖI]${NC} Có lỗi xảy ra khi cập nhật."
-            fi
-
-            cd "$SCRIPT_DIR" || exit
-            echo ""
-            read -p "Nhấn Enter để quay lại..." dummy
-            ;;
-
-        4)
             # --- EXIT ---
             echo -e "${GREEN}Tạm biệt!${NC}"
             exit 0

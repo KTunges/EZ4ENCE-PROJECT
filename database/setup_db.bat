@@ -16,15 +16,13 @@ echo.
 echo Vui long chon chuc nang:
 echo [1] Setup Database (Tao DB, Import Schema, Tao .env)
 echo [2] Seed Data (Cai Python env, thu vien va do du lieu)
-echo [3] Cap nhat anh san pham (Sync Cloudinary URLs)
-echo [4] Thoat
+echo [3] Thoat
 echo.
-set /p MENU_CHOICE="Chon [1-4]: "
+set /p MENU_CHOICE="Chon [1-3]: "
 
 if "!MENU_CHOICE!"=="1" goto SETUP_DB
 if "!MENU_CHOICE!"=="2" goto SEED_DATA
-if "!MENU_CHOICE!"=="3" goto UPDATE_IMAGES
-if "!MENU_CHOICE!"=="4" exit /b 0
+if "!MENU_CHOICE!"=="3" exit /b 0
 goto MENU
 
 
@@ -237,37 +235,6 @@ if %errorlevel% equ 0 (
     echo [OK] Seed du lieu thanh cong!
 ) else (
     echo [LOI] Co loi xay ra khi seed du lieu.
-)
-
-cd /d "!SCRIPT_DIR!"
-pause
-goto MENU
-
-:UPDATE_IMAGES
-cls
-echo.
-echo ================================================
-echo    ^  Cap nhat link anh len Cloudinary vao Database
-echo ================================================
-echo.
-set SCRIPT_DIR=%~dp0
-cd /d "!SCRIPT_DIR!..\backend"
-
-echo Kiem tra virtual environment...
-if not exist .venv\Scripts\activate (
-    echo [LOI] Vui long chay Seed Data [Option 2] truoc de tao moi truong Python.
-    cd /d "!SCRIPT_DIR!"
-    pause
-    goto MENU
-)
-
-call .venv\Scripts\activate
-echo Dang thuc thi cap nhat...
-python seed_db.py --update-images
-if %errorlevel% equ 0 (
-    echo [OK] Cap nhat hinh anh thanh cong!
-) else (
-    echo [LOI] Co loi xay ra khi cap nhat.
 )
 
 cd /d "!SCRIPT_DIR!"
