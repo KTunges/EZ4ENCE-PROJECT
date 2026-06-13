@@ -458,7 +458,7 @@ export default function Checkout() {
                   <div className="flex gap-2">
                     <input 
                       type="text" 
-                      className="profile-input flex-1 uppercase" 
+                      className="checkout-input flex-1 uppercase" 
                       placeholder="Mã giảm giá (VD: EZ4ENCE)" 
                       value={promoCode}
                       onChange={(e) => setPromoCode(e.target.value.toUpperCase())}

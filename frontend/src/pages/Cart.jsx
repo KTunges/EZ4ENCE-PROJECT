@@ -41,10 +41,10 @@ export default function Cart() {
   if (!user) {
     return (
       <div className="cart-page-container fade-in">
-        <div className="container" style={{ textAlign: 'center', paddingTop: '100px' }}>
+        <div className="container" style={{ textAlign: 'center', paddingTop: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
           <h2 className="glitch-text text-3xl font-bold" data-text="VUI LÒNG ĐĂNG NHẬP">VUI LÒNG ĐĂNG NHẬP</h2>
-          <p className="text-muted mt-4">Bạn cần đăng nhập để quản lý giỏ hàng của mình.</p>
-          <Link to="/login" className="btn btn-primary mt-6">Đăng nhập ngay</Link>
+          <p className="text-muted" style={{ fontSize: '1.1rem' }}>Bạn cần đăng nhập để quản lý giỏ hàng của mình.</p>
+          <Link to="/login" className="btn btn-primary" style={{ padding: '12px 30px', fontSize: '1.1rem' }}>ĐĂNG NHẬP NGAY</Link>
         </div>
       </div>
     );
@@ -64,10 +64,10 @@ export default function Cart() {
         </div>
 
         {items.length === 0 ? (
-          <div className="cart-page-empty glass">
-            <h2>Giỏ hàng của bạn đang trống!</h2>
-            <p className="text-muted">Có vẻ như bạn chưa chọn sản phẩm nào để nâng cấp góc máy của mình.</p>
-            <Link to="/products" className="btn btn-primary mt-4">Tiếp Tục Mua Sắm</Link>
+          <div className="cart-page-empty glass" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', padding: '60px 20px', textAlign: 'center' }}>
+            <h2 className="text-3xl font-bold">Giỏ hàng của bạn đang trống!</h2>
+            <p className="text-muted" style={{ fontSize: '1.1rem' }}>Có vẻ như bạn chưa chọn sản phẩm nào để nâng cấp góc máy của mình.</p>
+            <Link to="/products" className="btn btn-primary" style={{ padding: '12px 30px', fontSize: '1.1rem' }}>TIẾP TỤC MUA SẮM</Link>
           </div>
         ) : (
           <div className="cart-grid">

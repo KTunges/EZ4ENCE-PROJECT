@@ -4,7 +4,6 @@ import { ShoppingCart, Heart, Star, Minus, Plus, ChevronRight, Shield, Truck, Ro
 import { motion, AnimatePresence } from 'framer-motion';
 import CyberBackground from '../components/ui/CyberBackground';
 import ProductCard from '../components/ui/ProductCard';
-import ImageMagnifier from '../components/ui/ImageMagnifier';
 import { useCart } from '../context/CartContext';
 
 export default function ProductDetail() {
@@ -84,7 +83,17 @@ export default function ProductDetail() {
   const [activeTab, setActiveTab] = useState('description');
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showStickyCart, setShowStickyCart] = useState(false);
-  const [deliveryRegion, setDeliveryRegion] = useState('hcm');
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  useEffect(() => {
+    if (!product || product.images?.length <= 1 || !isAutoPlaying) return;
+    
+    const timer = setInterval(() => {
+      setSelectedImage((prev) => (prev === product.images.length - 1 ? 0 : prev + 1));
+    }, 4000);
+
+    return () => clearInterval(timer);
+  }, [product, selectedImage, isAutoPlaying]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -145,13 +154,39 @@ export default function ProductDetail() {
           >
             <div className="gallery-main-wrapper glass">
               {product.images.length > 0 ? (
-                <ImageMagnifier 
-                  src={product.images[selectedImage] || product.images[0]} 
-                  alt={product.name} 
-                  zoomLevel={2}
-                  magnifierWidth={200}
-                  magnifierHeight={200}
-                />
+                <div className="gallery-slider-container" style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <AnimatePresence mode="wait">
+                    <motion.img 
+                      key={selectedImage}
+                      src={product.images[selectedImage] || product.images[0]} 
+                      alt={product.name} 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    />
+                  </AnimatePresence>
+                  
+                  {product.images.length > 1 && (
+                    <>
+                      <button 
+                        className="slider-arrow prev" 
+                        onClick={() => { setIsAutoPlaying(false); setSelectedImage((prev) => (prev === 0 ? product.images.length - 1 : prev - 1)); }}
+                        style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '50%', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
+                      >
+                        <ChevronRight size={24} style={{ transform: 'rotate(180deg)' }} />
+                      </button>
+                      <button 
+                        className="slider-arrow next" 
+                        onClick={() => { setIsAutoPlaying(false); setSelectedImage((prev) => (prev === product.images.length - 1 ? 0 : prev + 1)); }}
+                        style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '50%', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
+                      >
+                        <ChevronRight size={24} />
+                      </button>
+                    </>
+                  )}
+                </div>
               ) : (
                 <div style={{ width: '100%', minHeight: '400px', backgroundColor: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <span style={{ color: 'var(--text-dim)', fontSize: '18px' }}>Chưa có hình</span>
@@ -165,7 +200,7 @@ export default function ProductDetail() {
                   <button
                     key={idx}
                     className={`gallery-thumb ${selectedImage === idx ? 'active' : ''}`}
-                    onClick={() => setSelectedImage(idx)}
+                    onClick={() => { setIsAutoPlaying(false); setSelectedImage(idx); }}
                   >
                     <img src={img} alt={`${product.name} ${idx + 1}`} />
                   </button>
@@ -252,30 +287,7 @@ export default function ProductDetail() {
               )}
             </div>
 
-            {/* Delivery Estimation */}
-            <div className="delivery-estimation">
-              <div className="delivery-header">
-                <MapPin size={16} className="text-cyan" />
-                <span>Giao hàng tới:</span>
-                <select 
-                  className="delivery-select"
-                  value={deliveryRegion}
-                  onChange={(e) => setDeliveryRegion(e.target.value)}
-                >
-                  <option value="hcm">Hồ Chí Minh</option>
-                  <option value="hn">Hà Nội</option>
-                  <option value="other">Tỉnh thành khác</option>
-                </select>
-              </div>
-              <div className="delivery-result">
-                <Truck size={14} />
-                <span>
-                  {deliveryRegion === 'hcm' && 'Giao siêu tốc 2H (Nội thành)'}
-                  {deliveryRegion === 'hn' && 'Giao siêu tốc 2H (Nội thành)'}
-                  {deliveryRegion === 'other' && 'Giao hàng tiêu chuẩn 2-4 ngày'}
-                </span>
-              </div>
-            </div>
+
 
             {/* Quantity + Add to Cart */}
             <div className="product-action-row">

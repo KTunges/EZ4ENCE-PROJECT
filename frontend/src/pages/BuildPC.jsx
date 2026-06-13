@@ -188,7 +188,7 @@ export default function BuildPC() {
                 </span>
               </div>
 
-              <div className="summary-actions">
+              <div className="summary-actions" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
                 <button 
                   className="btn btn-primary w-full"
                   disabled={componentsCount === 0}
@@ -196,7 +196,7 @@ export default function BuildPC() {
                   <ShoppingCart size={18} /> Thêm Vào Giỏ Hàng
                 </button>
                 <button 
-                  className="btn btn-outline w-full mt-3"
+                  className="btn btn-outline w-full"
                   onClick={() => setSelectedComponents({})}
                   disabled={componentsCount === 0}
                 >

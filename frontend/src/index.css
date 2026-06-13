@@ -2311,6 +2311,7 @@ textarea.checkout-input {
   max-height: 300px;
   overflow-y: auto;
   padding-right: 5px;
+  padding-top: 10px;
 }
 
 .checkout-items-mini::-webkit-scrollbar { width: 4px; }
@@ -2827,6 +2828,7 @@ textarea.checkout-input {
     margin-bottom: 8px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -3505,6 +3507,7 @@ textarea.checkout-input {
 .product-card-name {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   font-size: 14px;
@@ -4088,6 +4091,7 @@ textarea.checkout-input {
   color: var(--text);
   display: -webkit-box;
   -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

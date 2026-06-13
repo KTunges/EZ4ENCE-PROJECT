@@ -28,7 +28,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     )
     try:
         payload = jwt.decode(token, settings.JWT_SECRET, algorithms=["HS256"])
-        user_id: str = payload.get("sub")
+        user_id = payload.get("sub")
         if user_id is None:
             raise credentials_exception
     except jwt.InvalidTokenError:
@@ -87,7 +87,7 @@ def get_me(current_user: User = Depends(get_current_user)):
 def google_auth(token_in: TokenGoogle, db: Session = Depends(get_db)):
     try:
         # Use Google access_token to get user info from Google's UserInfo API
-        import requests as req
+        import requests as req  # type: ignore
         userinfo_response = req.get(
             "https://www.googleapis.com/oauth2/v3/userinfo",
             headers={"Authorization": f"Bearer {token_in.token}"}
@@ -138,7 +138,7 @@ def google_auth(token_in: TokenGoogle, db: Session = Depends(get_db)):
 @router.post("/facebook", response_model=TokenResponse)
 def facebook_auth(token_in: TokenFacebook, db: Session = Depends(get_db)):
     try:
-        import requests as req
+        import requests as req  # type: ignore
         # Lấy thông tin user từ Graph API của Facebook
         url = f"https://graph.facebook.com/me?fields=id,name,email,picture.type(large)&access_token={token_in.token}"
         res = req.get(url)
@@ -184,7 +184,7 @@ def facebook_auth(token_in: TokenFacebook, db: Session = Depends(get_db)):
 
 @router.put("/profile", response_model=UserResponse)
 def update_profile(profile_in: ProfileUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    current_user.full_name = profile_in.fullName
+    current_user.full_name = profile_in.fullName  # type: ignore
     db.commit()
     db.refresh(current_user)
     return current_user

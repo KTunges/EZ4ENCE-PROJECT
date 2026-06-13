@@ -202,6 +202,19 @@ export default function Products() {
     setCurrentPage(1);
   };
 
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    setTimeout(() => {
+      const filterElement = document.getElementById('products-filter-bar');
+      if (filterElement) {
+        const y = filterElement.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 50);
+  };
+
   const handleSpecFilterChange = (specKey, value) => {
     setActiveSpecsFilters(prev => ({
       ...prev,
@@ -247,7 +260,7 @@ export default function Products() {
           </section>
 
           {/* ── BENTO BANNERS ── */}
-          <BentoBanners />
+          {showDashboard && <BentoBanners />}
 
           {/* ── PROMO & HOT BLOCKS ── */}
           {showDashboard && (
@@ -283,7 +296,7 @@ export default function Products() {
           )}
 
           {/* ── FILTER BAR ── */}
-          <section className="products-filter-section" style={{ padding: 0 }}>
+          <section id="products-filter-bar" className="products-filter-section" style={{ padding: 0 }}>
         <div className="products-filter-bar glass">
           {/* Desktop Filters */}
           <div className="filter-controls-desktop" style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
@@ -454,7 +467,7 @@ export default function Products() {
             <button
               className="pagination-btn"
               disabled={currentPage === 1}
-              onClick={() => setCurrentPage(p => p - 1)}
+              onClick={() => handlePageChange(currentPage - 1)}
             >
               <ChevronLeft size={18} />
             </button>
@@ -463,7 +476,7 @@ export default function Products() {
               <button
                 key={page}
                 className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
-                onClick={() => setCurrentPage(page)}
+                onClick={() => handlePageChange(page)}
               >
                 {page}
               </button>
@@ -472,7 +485,7 @@ export default function Products() {
             <button
               className="pagination-btn"
               disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(p => p + 1)}
+              onClick={() => handlePageChange(currentPage + 1)}
             >
               <ChevronRight size={18} />
             </button>
