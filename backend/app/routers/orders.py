@@ -79,6 +79,23 @@ def create_order(req: OrderCreateRequest, db: Session = Depends(get_db), current
     total_amount = subtotal + (req.shipping_fee or 0)
     shipping_fee = req.shipping_fee or 0
     discount_amount = 0
+    
+    # Calculate Promotion
+    if req.promotion_id:
+        from app.models.marketing import Promotion
+        from datetime import datetime, timezone
+        promotion = db.query(Promotion).filter(Promotion.id == req.promotion_id, Promotion.is_active == True).first()
+        if promotion:
+            now = datetime.now(timezone.utc)
+            if (not promotion.expiration_date) or (promotion.expiration_date >= now):
+                if subtotal >= promotion.min_order_value:
+                    if promotion.discount_percent:
+                        discount_amount = subtotal * (promotion.discount_percent / 100)
+                    elif promotion.discount_amount:
+                        discount_amount = promotion.discount_amount
+                    if discount_amount > subtotal:
+                        discount_amount = subtotal
+                        
     final_total = total_amount - discount_amount
     
     # 4. Create Order
@@ -97,6 +114,15 @@ def create_order(req: OrderCreateRequest, db: Session = Depends(get_db), current
         note=req.note
     )
     db.add(new_order)
+    
+    from app.models.order import OrderStatusHistory
+    status_history = OrderStatusHistory(
+        id=str(uuid.uuid4()),
+        order_id=new_order.id,
+        status=OrderStatus.PENDING,
+        description="Đơn hàng đã được tạo thành công"
+    )
+    db.add(status_history)
     
     # Gắn OrderItems vào Order
     for item in order_items:
@@ -134,3 +160,31 @@ def create_order(req: OrderCreateRequest, db: Session = Depends(get_db), current
         **new_order.__dict__,
         "items": response_items
     }
+
+from typing import List
+
+@router.get("", response_model=List[OrderResponse])
+def get_user_orders(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    orders = db.query(Order).filter(Order.user_id == current_user.id).order_by(Order.created_at.desc()).all()
+    # add image_url to items
+    for order in orders:
+        for item in order.items:
+            sku = db.query(ProductSKU).filter(ProductSKU.id == item.sku_id).first()
+            if sku:
+                product = sku.product
+                item.image_url = sku.images[0].url if sku.images else (product.images[0].url if product.images else None)
+    return orders
+
+@router.get("/{order_id}", response_model=OrderResponse)
+def get_order_details(order_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    order = db.query(Order).filter(Order.id == order_id, Order.user_id == current_user.id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+        
+    for item in order.items:
+        sku = db.query(ProductSKU).filter(ProductSKU.id == item.sku_id).first()
+        if sku:
+            product = sku.product
+            item.image_url = sku.images[0].url if sku.images else (product.images[0].url if product.images else None)
+            
+    return order

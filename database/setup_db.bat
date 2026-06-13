@@ -6,13 +6,32 @@ setlocal EnableDelayedExpansion
 ::  EZ4ENCE — Database Setup Script (Windows)
 :: =============================================
 
+:MENU
+cls
 echo.
 echo ================================================
-echo    ^  EZ4ENCE -- Database Setup (Windows)
+echo    ^  EZ4ENCE -- Database Setup ^& Seed Tool
 echo ================================================
 echo.
+echo Vui long chon chuc nang:
+echo [1] Setup Database (Tao DB, Import Schema, Tao .env)
+echo [2] Seed Data (Cai Python env, thu vien va do du lieu)
+echo [3] Cap nhat anh san pham (Sync Cloudinary URLs)
+echo [4] Thoat
+echo.
+set /p MENU_CHOICE="Chon [1-4]: "
 
-:: --- Kiểm tra psql ---
+if "!MENU_CHOICE!"=="1" goto SETUP_DB
+if "!MENU_CHOICE!"=="2" goto SEED_DATA
+if "!MENU_CHOICE!"=="3" goto UPDATE_IMAGES
+if "!MENU_CHOICE!"=="4" exit /b 0
+goto MENU
+
+
+:SETUP_DB
+cls
+echo.
+echo --- Kiem tra psql ---
 where psql >nul 2>&1
 if %errorlevel% neq 0 (
     echo [LOI] Khong tim thay lenh 'psql'.
@@ -23,7 +42,7 @@ if %errorlevel% neq 0 (
     echo     C:\Program Files\PostgreSQL\16\bin
     echo  3. Mo lai terminal va chay lai script nay.
     pause
-    exit /b 1
+    goto MENU
 )
 for /f "tokens=*" %%v in ('psql --version') do echo [OK] Tim thay: %%v
 echo.
@@ -55,7 +74,7 @@ set /p CONFIRM="Tiep tuc? (y/n): "
 if /i "!CONFIRM!" neq "y" (
     echo Da huy.
     pause
-    exit /b 0
+    goto MENU
 )
 
 set PGPASSWORD=!DB_PASS!
@@ -69,7 +88,7 @@ if %errorlevel% neq 0 (
     echo       Dam bao PostgreSQL dang chay (mo Services hoac pgAdmin).
     set PGPASSWORD=
     pause
-    exit /b 1
+    goto MENU
 )
 echo [OK] Ket noi thanh cong!
 
@@ -88,7 +107,7 @@ if %errorlevel% equ 0 (
         echo [LOI] Khong the tao database.
         set PGPASSWORD=
         pause
-        exit /b 1
+        goto MENU
     )
 )
 
@@ -103,7 +122,7 @@ if not exist "!SCHEMA_FILE!" (
     echo [LOI] Khong tim thay file: !SCHEMA_FILE!
     set PGPASSWORD=
     pause
-    exit /b 1
+    goto MENU
 )
 
 psql -h !DB_HOST! -p !DB_PORT! -U !DB_USER! -d !DB_NAME! -f "!SCHEMA_FILE!" >nul 2>&1
@@ -149,10 +168,35 @@ if "!WRITE_ENV!"=="true" (
         echo REDIS_HOST=127.0.0.1
         echo REDIS_PORT=6379
         echo.
-        echo # Cloudinary (tuy chon)
-        echo CLOUDINARY_CLOUD_NAME=
-        echo CLOUDINARY_API_KEY=
-        echo CLOUDINARY_API_SECRET=
+        echo # Cloudinary (Lưu trữ ảnh)
+        echo CLOUDINARY_CLOUD_NAME="dtbbbq4zr"
+        echo CLOUDINARY_API_KEY="486763615647488"
+        echo CLOUDINARY_API_SECRET="8tFhpi2rN-XiZj2goqmjPZ_27kI"
+        echo.
+        echo # GOOGLE OAUTH
+        echo GOOGLE_CLIENT_ID="259270342314-3vh18nassj4lg7n1gt3gbps75b4gu7c2.apps.googleusercontent.com"
+        echo.
+        echo # PAYMENT - VNPAY
+        echo VNPAY_TMN_CODE="90TFJDF0"
+        echo VNPAY_HASH_SECRET="7X20P17TQ0CE7LHKAQY3U3JJ7G2SRS5O"
+        echo VNPAY_URL="https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+        echo VNPAY_RETURN_URL="http://localhost:5173/checkout/vnpay-return"
+        echo.
+        echo # PAYMENT - PAYPAL
+        echo PAYPAL_CLIENT_ID="AdhN5CrqrW6kxd7FPrnku7J2Cajq6NoxNha5qpjhW1-WWlItsxtptKMMjxZw1eXcifJswdtovszzeO-X"
+        echo PAYPAL_CLIENT_SECRET="EDR5-BVq0ngVI9dRQCJHwwWzDkay5fQ5LqkuFESc0XThkSeghxjGB4W4iqsPrN8dHMe8sjuAb-W_qvh0"
+        echo PAYPAL_MODE="sandbox"
+        echo.
+        echo # FACEBOOK LOGIN
+        echo FACEBOOK_APP_ID="1706350950812679"
+        echo FACEBOOK_APP_SECRET="92c1a850c3a6eb78afff224b33771d14"
+        echo.
+        echo # GIAO HÀNG NHANH (GHN) API
+        echo GHN_TOKEN="d6fd69b2-66c1-11f1-b8b0-2eefbe471c64"
+        echo GHN_SHOP_ID="6488700"
+        echo.
+        echo # GIAO HÀNG TIẾT KIỆM (GHTK) API
+        echo GHTK_TOKEN="47LZuwNJqX2rQkoHaQauSPJru9c9r0HvOO9YrES"
     ) > "!ENV_FILE!"
     echo [OK] Da tao file .env tai: backend\.env
 )
@@ -160,19 +204,73 @@ if "!WRITE_ENV!"=="true" (
 :: --- Hoan Tat ---
 echo.
 echo ================================================
-echo    OK  Setup Hoan Tat!
+echo    OK  Setup Hoan Tat! Ban co the tiep tuc Seed Data bang cach chon Option [2]
 echo ================================================
 echo.
-echo   Chay Backend:
-echo     cd backend
-echo     venv\Scripts\activate
-echo     pip install -r requirements.txt   ^(lan dau^)
-echo     uvicorn app.main:app --reload --port 8000
-echo.
-echo   Chay Frontend:
-echo     cd frontend
-echo     npm install ^&^& npm run dev
-echo.
-echo   Swagger UI: http://localhost:8000/api/docs
-echo.
 pause
+goto MENU
+
+:SEED_DATA
+cls
+echo.
+echo ================================================
+echo    ^  Do du lieu mau vao Database (Seeding)
+echo ================================================
+echo.
+set SCRIPT_DIR=%~dp0
+cd /d "!SCRIPT_DIR!..\backend"
+
+echo [1/3] Kiem tra virtual environment...
+if not exist .venv\Scripts\activate (
+    echo [INFO] Chua co thu muc .venv, dang tien hanh tao...
+    python -m venv .venv
+)
+
+echo [2/3] Cai dat dependencies (co the mat vai phut)...
+call .venv\Scripts\activate
+python -m pip install --upgrade pip >nul 2>&1
+pip install -r requirements.txt >nul 2>&1
+
+echo [3/3] Dang thuc thi file seed_db.py...
+python seed_db.py
+if %errorlevel% equ 0 (
+    echo [OK] Seed du lieu thanh cong!
+) else (
+    echo [LOI] Co loi xay ra khi seed du lieu.
+)
+
+cd /d "!SCRIPT_DIR!"
+pause
+goto MENU
+
+:UPDATE_IMAGES
+cls
+echo.
+echo ================================================
+echo    ^  Cap nhat link anh len Cloudinary vao Database
+echo ================================================
+echo.
+set SCRIPT_DIR=%~dp0
+cd /d "!SCRIPT_DIR!..\backend"
+
+echo Kiem tra virtual environment...
+if not exist .venv\Scripts\activate (
+    echo [LOI] Vui long chay Seed Data [Option 2] truoc de tao moi truong Python.
+    cd /d "!SCRIPT_DIR!"
+    pause
+    goto MENU
+)
+
+call .venv\Scripts\activate
+echo Dang thuc thi cap nhat...
+python seed_db.py --update-images
+if %errorlevel% equ 0 (
+    echo [OK] Cap nhat hinh anh thanh cong!
+) else (
+    echo [LOI] Co loi xay ra khi cap nhat.
+)
+
+cd /d "!SCRIPT_DIR!"
+pause
+goto MENU
+

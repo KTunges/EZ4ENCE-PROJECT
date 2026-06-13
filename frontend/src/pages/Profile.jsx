@@ -42,16 +42,40 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState('account');
   const [isEditing, setIsEditing] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: '',
-    phone: '0988123456', // Mock phone
-    address: '123 Đường Điện Biên Phủ, Phường 15, Quận Bình Thạnh, TP.HCM' // Mock address
+    fullName: user?.fullName || '',
+    phone: user?.phone || '0988123456'
   });
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
+    if (activeTab === 'orders') {
+      const fetchOrders = async () => {
+        setLoadingOrders(true);
+        try {
+          const res = await fetch('http://localhost:8000/api/orders', {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setOrders(data);
+          }
+        } catch (error) {
+          console.error("Failed to fetch orders:", error);
+        } finally {
+          setLoadingOrders(false);
+        }
+      };
+      fetchOrders();
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
     if (user) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData(prev => ({
         ...prev,
         fullName: user.fullName || ''
@@ -110,12 +134,19 @@ export default function Profile() {
 
   const renderStatusBadge = (status) => {
     switch(status) {
+      case 'PENDING':
       case 'processing':
-        return <span className="status-badge status-warning"><Clock3 size={14} /> Đang xử lý</span>;
+        return <span className="status-badge status-warning"><Clock3 size={14} /> Chờ xử lý</span>;
+      case 'CONFIRMED':
+        return <span className="status-badge status-info"><CheckCircle size={14} /> Đã xác nhận</span>;
+      case 'SHIPPING':
       case 'shipped':
         return <span className="status-badge status-info"><Truck size={14} /> Đang giao</span>;
+      case 'DELIVERED':
       case 'delivered':
         return <span className="status-badge status-success"><CheckCircle size={14} /> Đã giao</span>;
+      case 'CANCELLED':
+        return <span className="status-badge status-danger"><CheckCircle size={14} /> Đã hủy</span>;
       default:
         return null;
     }
@@ -245,16 +276,6 @@ export default function Profile() {
                         disabled={!isEditing}
                       />
                     </div>
-                    <div className="form-group col-span-2">
-                      <label>Địa chỉ giao hàng mặc định</label>
-                      <textarea 
-                        className="profile-input" 
-                        rows="3"
-                        value={formData.address}
-                        onChange={(e) => setFormData({...formData, address: e.target.value})}
-                        disabled={!isEditing}
-                      ></textarea>
-                    </div>
                   </div>
 
                   {isEditing && (
@@ -267,8 +288,7 @@ export default function Profile() {
                         // Reset form data if canceled
                         setFormData({
                           fullName: user.fullName || '',
-                          phone: '0988123456',
-                          address: '123 Đường Điện Biên Phủ, Phường 15, Quận Bình Thạnh, TP.HCM'
+                          phone: user.phone || '0988123456'
                         });
                       }}>
                         Hủy
@@ -289,35 +309,51 @@ export default function Profile() {
               <div className="tab-pane fade-in">
                 <h2 className="text-xl font-bold mb-6">Đơn Hàng Của Tôi</h2>
                 
-                <div className="orders-list">
-                  {mockOrders.map((order, idx) => (
-                    <div key={idx} className="order-card">
-                      <div className="order-card-header">
-                        <div className="order-id">{order.id}</div>
-                        {renderStatusBadge(order.status)}
-                      </div>
-                      <div className="order-card-body">
-                        <div className="order-detail-item">
-                          <span className="label">Ngày đặt:</span>
-                          <span className="value">{order.date}</span>
+                {loadingOrders ? (
+                  <div className="flex justify-center p-8"><span className="text-gray-400">Đang tải...</span></div>
+                ) : orders.length === 0 ? (
+                  <div className="text-center p-8 border border-white/10 rounded-xl bg-white/5">
+                    <Package size={48} className="mx-auto text-gray-500 mb-4" />
+                    <p className="text-gray-400">Bạn chưa có đơn hàng nào.</p>
+                  </div>
+                ) : (
+                  <div className="orders-list">
+                    {orders.map((order, idx) => (
+                      <div key={idx} className="order-card">
+                        <div className="order-card-header">
+                          <div>
+                            <div className="order-id text-lg font-bold">Mã đơn: {order.id.split('-')[0].toUpperCase()}</div>
+                            <div className="text-sm text-gray-400 mt-1 flex gap-2">
+                              <span>Phương thức: <span className="text-white">{order.payment_method}</span></span>
+                              <span>|</span>
+                              <span>Mã GD: {order.payment_transaction_id ? <span className="text-cyan font-mono">{order.payment_transaction_id}</span> : <span className="text-gray-500">Chưa có</span>}</span>
+                            </div>
+                          </div>
+                          {renderStatusBadge(order.status)}
                         </div>
-                        <div className="order-detail-item">
-                          <span className="label">Số sản phẩm:</span>
-                          <span className="value">{order.items}</span>
+                        <div className="order-card-body">
+                          <div className="order-detail-item">
+                            <span className="label">Ngày đặt:</span>
+                            <span className="value">{new Date(order.created_at).toLocaleDateString('vi-VN')}</span>
+                          </div>
+                          <div className="order-detail-item">
+                            <span className="label">Số sản phẩm:</span>
+                            <span className="value">{order.items ? order.items.length : 0}</span>
+                          </div>
+                          <div className="order-detail-item">
+                            <span className="label">Tổng tiền:</span>
+                            <span className="value text-cyan font-mono font-bold">
+                              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.total_amount)}
+                            </span>
+                          </div>
                         </div>
-                        <div className="order-detail-item">
-                          <span className="label">Tổng tiền:</span>
-                          <span className="value text-cyan font-mono font-bold">
-                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.total)}
-                          </span>
+                        <div className="order-card-footer">
+                          <button className="btn btn-outline btn-sm" onClick={() => navigate(`/profile/orders/${order.id}`)}>Xem Chi Tiết</button>
                         </div>
                       </div>
-                      <div className="order-card-footer">
-                        <button className="btn btn-outline btn-sm">Xem Chi Tiết</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

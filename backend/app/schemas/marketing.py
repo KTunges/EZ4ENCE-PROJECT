@@ -20,3 +20,15 @@ class BannerResponse(BannerBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+class PromotionApplyRequest(BaseModel):
+    code: str
+    order_value: float
+
+class PromotionApplyResponse(BaseModel):
+    id: str
+    code: str
+    discount_amount: float
+    discount_percent: Optional[float] = None
+    final_discount: float
+    message: str

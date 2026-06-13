@@ -48,6 +48,20 @@ class Order(Base):
     shipping_address = relationship("Address", back_populates="orders")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
     promotion = relationship("Promotion", back_populates="orders")
+    status_history = relationship("OrderStatusHistory", back_populates="order", cascade="all, delete-orphan", order_by="OrderStatusHistory.created_at.asc()")
+
+class OrderStatusHistory(Base):
+    __tablename__ = "order_status_history"
+
+    id = Column(String, primary_key=True, index=True)
+    order_id = Column(String, ForeignKey("orders.id"), nullable=False)
+    status = Column(Enum(OrderStatus), nullable=False)
+    description = Column(String, nullable=True) # VD: "Đơn hàng đã được tạo", "Đã thanh toán qua VNPay"
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    # Relationships
+    order = relationship("Order", back_populates="status_history")
+
 
 
 class OrderItem(Base):

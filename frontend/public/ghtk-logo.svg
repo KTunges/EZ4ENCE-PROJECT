@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <defs>
+    <linearGradient id="ghtk-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00b14f" />
+      <stop offset="100%" stop-color="#008039" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  
+  <rect width="500" height="500" rx="0" fill="url(#ghtk-grad)" />
+  
+  <!-- Package Box Icon -->
+  <g fill="white" transform="translate(150, 100) scale(0.4)" filter="url(#shadow)">
+    <path d="M250,50 L50,150 L50,350 L250,450 L450,350 L450,150 Z" fill="none" stroke="white" stroke-width="30" stroke-linejoin="round"/>
+    <path d="M50,150 L250,250 L450,150" fill="none" stroke="white" stroke-width="30" stroke-linejoin="round"/>
+    <path d="M250,250 L250,450" fill="none" stroke="white" stroke-width="30" stroke-linejoin="round"/>
+    <path d="M150,100 L250,150" fill="none" stroke="white" stroke-width="30" stroke-linecap="round"/>
+  </g>
+  
+  <text x="250" y="380" font-family="'Inter', 'Segoe UI', sans-serif" font-weight="900" font-size="110" fill="white" text-anchor="middle" letter-spacing="2" filter="url(#shadow)">GHTK</text>
+</svg>

@@ -28,6 +28,12 @@ export default function Checkout() {
   const [loading, setLoading] = useState(false);
   const [saveAddress, setSaveAddress] = useState(true);
 
+  // Thêm state cho mã giảm giá
+  const [promoCode, setPromoCode] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState(null);
+  const [promoError, setPromoError] = useState('');
+  const [promoLoading, setPromoLoading] = useState(false);
+
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState('new');
   
@@ -90,16 +96,24 @@ export default function Checkout() {
   // Fetch Shipping Options when Address changes
   useEffect(() => {
     let c = '', d = '', wCode = '';
+    let pName = '', dName = '', wName = '';
+
     if (selectedAddressId === 'new') {
-      c = provinceName;
+      c = provinceName; // In old code this was provinceName but actually passed as city (ID)
       d = districtId;
       wCode = wardId;
+      pName = provinceName;
+      dName = districtName;
+      wName = wardName;
     } else {
       const addr = savedAddresses.find(a => a.id === selectedAddressId);
       if (addr) {
         c = addr.city;
         d = addr.district_id || addr.district; // Fallback
         wCode = addr.ward_code || addr.ward; // Fallback
+        pName = addr.city;
+        dName = addr.district;
+        wName = addr.ward;
       }
     }
 
@@ -107,7 +121,15 @@ export default function Checkout() {
       fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/shipping/calculate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ city: String(c), district: String(d), ward: String(wCode), weight_grams: 1000 })
+        body: JSON.stringify({ 
+          city: String(c), 
+          district: String(d), 
+          ward: String(wCode), 
+          weight_grams: 1000,
+          province_name: pName,
+          district_name: dName,
+          ward_name: wName
+        })
       })
       .then(res => res.json())
       .then(data => {
@@ -130,10 +152,36 @@ export default function Checkout() {
   
   const selectedShipping = shippingOptions.find(o => o.id === selectedShippingId);
   const shippingFee = selectedShipping ? selectedShipping.fee : 0;
-  const total = subtotal + shippingFee;
+  
+  const discountAmount = appliedPromo ? appliedPromo.final_discount : 0;
+  const total = subtotal + shippingFee - discountAmount;
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+  };
+
+  const handleApplyPromo = async () => {
+    if (!promoCode.trim()) return;
+    setPromoLoading(true);
+    setPromoError('');
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/marketing/promotions/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoCode.trim().toUpperCase(), order_value: subtotal })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setAppliedPromo(data);
+      } else {
+        setPromoError(data.detail || 'Mã giảm giá không hợp lệ');
+        setAppliedPromo(null);
+      }
+    } catch (err) {
+      setPromoError('Lỗi kết nối. Vui lòng thử lại sau.');
+    } finally {
+      setPromoLoading(false);
+    }
   };
 
   const handleSpecificCheckout = async (method) => {
@@ -151,7 +199,8 @@ export default function Checkout() {
         payment_method: method.toUpperCase(),
         shipping_fee: shippingFee,
         shipping_provider: selectedShipping ? selectedShipping.id : null,
-        note: note
+        note: note,
+        promotion_id: appliedPromo ? appliedPromo.id : null
       } : {
         full_name: fullName,
         phone: phone,
@@ -165,7 +214,8 @@ export default function Checkout() {
         payment_method: method.toUpperCase(),
         shipping_fee: shippingFee,
         shipping_provider: selectedShipping ? selectedShipping.id : null,
-        note: note
+        note: note,
+        promotion_id: appliedPromo ? appliedPromo.id : null
       };
 
       // Nếu người dùng chọn lưu địa chỉ
@@ -401,21 +451,60 @@ export default function Checkout() {
                 ))}
               </div>
 
-              <div className="summary-divider"></div>
-              
-              <div className="summary-row">
-                <span>Tạm tính:</span>
-                <span>{formatPrice(subtotal)}</span>
-              </div>
-              
-              <div className="summary-row">
-                <span>Phí giao hàng:</span>
-                <span className="text-cyan">
-                  {shippingFee === 0 ? (shippingOptions.length === 0 ? '--' : 'Miễn phí') : formatPrice(shippingFee)}
-                </span>
-              </div>
+                <div className="summary-divider"></div>
 
-              <div className="summary-divider"></div>
+                {/* Promo Code Input */}
+                <div className="mb-4 mt-4">
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      className="profile-input flex-1 uppercase" 
+                      placeholder="Mã giảm giá (VD: EZ4ENCE)" 
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                      disabled={promoLoading || appliedPromo}
+                    />
+                    {appliedPromo ? (
+                      <button 
+                        className="btn btn-outline border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                        onClick={() => { setAppliedPromo(null); setPromoCode(''); }}
+                      >
+                        Hủy
+                      </button>
+                    ) : (
+                      <button 
+                        className="btn btn-primary"
+                        onClick={handleApplyPromo}
+                        disabled={promoLoading || !promoCode.trim()}
+                      >
+                        {promoLoading ? 'Đang kiểm tra...' : 'Áp dụng'}
+                      </button>
+                    )}
+                  </div>
+                  {promoError && <p className="text-red-400 text-sm mt-2">{promoError}</p>}
+                  {appliedPromo && <p className="text-green-400 text-sm mt-2">{appliedPromo.message}</p>}
+                </div>
+                
+                <div className="summary-row">
+                  <span>Tạm tính:</span>
+                  <span>{formatPrice(subtotal)}</span>
+                </div>
+                
+                <div className="summary-row">
+                  <span>Phí giao hàng:</span>
+                  <span className="text-cyan">
+                    {shippingFee === 0 ? (shippingOptions.length === 0 ? '--' : 'Miễn phí') : formatPrice(shippingFee)}
+                  </span>
+                </div>
+
+                {appliedPromo && (
+                  <div className="summary-row text-green-400">
+                    <span>Giảm giá ({appliedPromo.code}):</span>
+                    <span>-{formatPrice(appliedPromo.final_discount)}</span>
+                  </div>
+                )}
+  
+                <div className="summary-divider"></div>
 
               <div className="summary-total-row">
                 <span className="total-label">Tổng cộng:</span>

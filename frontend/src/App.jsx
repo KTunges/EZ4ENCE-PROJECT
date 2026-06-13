@@ -11,6 +11,7 @@ import Checkout from './pages/Checkout';
 import CheckoutSuccess from './pages/CheckoutSuccess';
 import CheckoutVnpayReturn from './pages/CheckoutVnpayReturn';
 import Profile from './pages/Profile';
+import OrderDetails from './pages/OrderDetails';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Products from './pages/Products';
@@ -39,6 +40,7 @@ function App() {
                   <Route path="checkout/success" element={<CheckoutSuccess />} />
                   <Route path="checkout/vnpay-return" element={<CheckoutVnpayReturn />} />
                   <Route path="profile" element={<Profile />} />
+                  <Route path="profile/orders/:id" element={<OrderDetails />} />
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />

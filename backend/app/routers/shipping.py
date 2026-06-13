@@ -10,7 +10,10 @@ def calculate_shipping(req: ShippingFeeRequest):
     options = ShippingService.calculate_real_fee(
         to_district_id=int(req.district) if req.district.isdigit() else 0,
         to_ward_code=req.ward,
-        weight_grams=req.weight_grams or 1000
+        weight_grams=req.weight_grams or 1000,
+        to_province_name=req.province_name,
+        to_district_name=req.district_name,
+        to_ward_name=req.ward_name
     )
     return ShippingFeeResponse(options=options)
 

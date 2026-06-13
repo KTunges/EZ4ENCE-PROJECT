@@ -38,6 +38,16 @@ class OrderCreateRequest(BaseModel):
     note: Optional[str] = None
     promotion_id: Optional[str] = None
 
+from app.schemas.address import AddressResponse
+
+class OrderStatusHistoryResponse(BaseModel):
+    id: str
+    status: OrderStatus
+    description: Optional[str] = None
+    created_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+
 class OrderResponse(BaseModel):
     id: str
     user_id: str
@@ -55,5 +65,7 @@ class OrderResponse(BaseModel):
     updated_at: datetime
     
     items: List[OrderItemResponse] = []
+    status_history: List[OrderStatusHistoryResponse] = []
+    shipping_address: Optional[AddressResponse] = None
 
     model_config = ConfigDict(from_attributes=True)

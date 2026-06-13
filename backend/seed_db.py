@@ -1,3 +1,5 @@
+import sys
+sys.stdout.reconfigure(encoding="utf-8")
 import asyncio
 import os
 import sys
@@ -71,7 +73,15 @@ def seed():
             {"name": "Acer", "slug": "acer"},
             {"name": "Dell", "slug": "dell"},
             {"name": "HP", "slug": "hp"},
-            {"name": "Apple", "slug": "apple"}
+            {"name": "Apple", "slug": "apple"},
+            {"name": "Corsair", "slug": "corsair"},
+            {"name": "NZXT", "slug": "nzxt"},
+            {"name": "Deepcool", "slug": "deepcool"},
+            {"name": "Logitech", "slug": "logitech"},
+            {"name": "HyperX", "slug": "hyperx"},
+            {"name": "Razer", "slug": "razer"},
+            {"name": "SteelSeries", "slug": "steelseries"}
+
         ]
         brand_objects = {}
         for b_data in brands_data:
@@ -252,6 +262,165 @@ def seed():
                     "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781288274/ez4ence/products/jfkf42irnbwvol7kbysh.webp"
                 ]
             }
+        ,
+            {
+                "name": "Case Corsair 4000D Airflow",
+                "slug": "case-corsair-4000d-airflow",
+                "price": 2190000,
+                "promotional_price": 1990000,
+                "stock": 10,
+                "category_id": category_objects["Case"].id,
+                "brand_id": brand_objects["corsair"].id,
+                "description": "Case Corsair 4000D Airflow là một chiếc case ATX mid-tower hoàn hảo với luồng không khí mạnh mẽ và khả năng làm mát xuất sắc, đi kèm mặt trước được thiết kế dạng lưới tối ưu tản nhiệt.",
+                "specs": {"Loại": "Mid Tower", "Màu sắc": "Đen/Trắng", "Hỗ trợ Mainboard": "ATX, Micro-ATX, Mini-ITX", "Cổng kết nối": "USB 3.0, Type-C"},
+                "images": [
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781338885/ez4ence/products/case-corsair-4000d-airflow-1.jpg",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781338886/ez4ence/products/case-corsair-4000d-airflow-2.jpg",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781338886/ez4ence/products/case-corsair-4000d-airflow-3.jpg"
+                ]
+            },
+            {
+                "name": "Nguồn Corsair RM850e 850W",
+                "slug": "nguon-corsair-rm850e-850w",
+                "price": 3150000,
+                "promotional_price": 2890000,
+                "stock": 15,
+                "category_id": category_objects["Case"].id,
+                "brand_id": brand_objects["corsair"].id,
+                "description": "Nguồn máy tính Corsair RM850e 850W chuẩn 80 Plus Gold Fully Modular mang đến năng lượng sạch, ổn định và hiệu suất cao cho hệ thống của bạn.",
+                "specs": {"Công suất": "850W", "Chuẩn": "80 Plus Gold", "Loại cáp": "Fully Modular", "Kích thước quạt": "120mm"},
+                "images": [
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781344463/ez4ence/products/nguon-corsair-rm850e-850w-1.png",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781344485/ez4ence/products/nguon-corsair-rm850e-850w-2.png",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781344508/ez4ence/products/nguon-corsair-rm850e-850w-3.png"
+                ]
+            },
+            {
+                "name": "Tản nhiệt nước NZXT Kraken Elite 360",
+                "slug": "tan-nhiet-nuoc-nzxt-kraken-elite-360",
+                "price": 7590000,
+                "promotional_price": 6990000,
+                "stock": 8,
+                "category_id": category_objects["Case"].id,
+                "brand_id": brand_objects["nzxt"].id,
+                "description": "Tản nhiệt nước AIO cao cấp NZXT Kraken Elite 360 với màn hình LCD 2.36 inch sắc nét hiển thị thông tin hệ thống hoặc ảnh GIF tùy chỉnh.",
+                "specs": {"Loại tản": "Tản nhiệt nước AIO", "Kích thước Rad": "360mm", "Quạt": "3 x 120mm PWM", "Màn hình": "LCD 2.36 inch"},
+                "images": [
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781344529/ez4ence/products/tan-nhiet-nuoc-nzxt-kraken-elite-360-1.jpg",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781344550/ez4ence/products/tan-nhiet-nuoc-nzxt-kraken-elite-360-2.jpg",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781344571/ez4ence/products/tan-nhiet-nuoc-nzxt-kraken-elite-360-3.jpg"
+                ]
+            },
+            {
+                "name": "Case NZXT H9 Flow",
+                "slug": "case-nzxt-h9-flow",
+                "price": 4290000,
+                "promotional_price": 3990000,
+                "stock": 12,
+                "category_id": category_objects["Case"].id,
+                "brand_id": brand_objects["nzxt"].id,
+                "description": "Case NZXT H9 Flow có thiết kế buồng đôi rộng rãi, kính cường lực liền mạch cho cái nhìn toàn cảnh linh kiện bên trong, cùng luồng khí lưu thông ấn tượng.",
+                "specs": {"Loại": "Mid Tower buồng đôi", "Kính": "Kính cường lực 2 mặt", "Hỗ trợ tản": "Lên đến 360mm ở nhiều vị trí"},
+                "images": [
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781344594/ez4ence/products/case-nzxt-h9-flow-1.png",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781344617/ez4ence/products/case-nzxt-h9-flow-2.png",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781344639/ez4ence/products/case-nzxt-h9-flow-3.png"
+                ]
+            },
+            {
+                "name": "Tai nghe Razer BlackShark V2",
+                "slug": "tai-nghe-razer-blackshark-v2",
+                "price": 2690000,
+                "promotional_price": 2290000,
+                "stock": 18,
+                "category_id": category_objects["Tai nghe"].id,
+                "brand_id": brand_objects["razer"].id,
+                "description": "Razer BlackShark V2 trang bị màng loa Triforce Titanium 50mm, mang lại dải âm tách bạch. Thiết kế siêu nhẹ và cách âm thụ động cực tốt.",
+                "specs": {"Kết nối": "Có dây + USB Sound Card", "Màng loa": "Triforce Titanium 50mm", "Mic": "HyperClear Cardioid", "Trọng lượng": "240g"},
+                "images": [
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781344660/ez4ence/products/tai-nghe-razer-blackshark-v2-1.jpg",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781344682/ez4ence/products/tai-nghe-razer-blackshark-v2-2.png",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781344705/ez4ence/products/tai-nghe-razer-blackshark-v2-3.png"
+                ]
+            },
+            {
+                "name": "Tai nghe SteelSeries Arctis Nova Pro",
+                "slug": "tai-nghe-steelseries-arctis-nova-pro",
+                "price": 6490000,
+                "promotional_price": 5990000,
+                "stock": 5,
+                "category_id": category_objects["Tai nghe"].id,
+                "brand_id": brand_objects["steelseries"].id,
+                "description": "Tai nghe audiophile gaming SteelSeries Arctis Nova Pro mang đến trải nghiệm Almighty Audio nhờ bộ giải mã DAC chuyên dụng.",
+                "specs": {"Kết nối": "Có dây + GameDAC Gen 2", "Độ phân giải": "Hi-Res Audio", "Khử ồn": "Chủ động (ANC)", "Tương thích": "PC, PS5, Switch"},
+                "images": [
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781344771/ez4ence/products/tai-nghe-steelseries-arctis-nova-pro-3.png"
+                ]
+            },
+            {
+                "name": "Tai nghe Corsair HS80 RGB Wireless",
+                "slug": "tai-nghe-corsair-hs80-rgb-wireless",
+                "price": 3890000,
+                "promotional_price": 3490000,
+                "stock": 12,
+                "category_id": category_objects["Tai nghe"].id,
+                "brand_id": brand_objects["corsair"].id,
+                "description": "Kết nối không dây siêu tốc Slipstream, Corsair HS80 RGB Wireless hỗ trợ Dolby Atmos và mic thu âm chuẩn broadcast.",
+                "specs": {"Kết nối": "Không dây 2.4GHz / USB", "Âm thanh": "Dolby Atmos", "Màng loa": "Neodymium 50mm", "Thời lượng pin": "Lên đến 20 giờ"},
+                "images": [
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781345105/ez4ence/products/tai-nghe-corsair-hs80-rgb-wireless-1.jpg",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781345107/ez4ence/products/tai-nghe-corsair-hs80-rgb-wireless-2.jpg",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781345109/ez4ence/products/tai-nghe-corsair-hs80-rgb-wireless-3.jpg"
+                ]
+            },
+            {
+                "name": "Tản nhiệt khí Deepcool AK620",
+                "slug": "tan-nhiet-khi-deepcool-ak620",
+                "price": 1490000,
+                "promotional_price": 1290000,
+                "stock": 20,
+                "category_id": category_objects["Case"].id,
+                "brand_id": brand_objects["deepcool"].id,
+                "description": "Tản nhiệt khí Deepcool AK620 mang lại hiệu năng làm mát ngang ngửa nhiều tản nhiệt nước AIO, với thiết kế tháp đôi và 6 ống đồng dẫn nhiệt.",
+                "specs": {"Loại tản": "Tháp đôi (Dual Tower)", "Quạt": "2 x 120mm PWM", "Số ống đồng": "6", "Hỗ trợ socket": "Intel 1700, AMD AM5"},
+                "images": [
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781345111/ez4ence/products/tan-nhiet-khi-deepcool-ak620-1.svg",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781345113/ez4ence/products/tan-nhiet-khi-deepcool-ak620-2.svg",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781345116/ez4ence/products/tan-nhiet-khi-deepcool-ak620-3.svg"
+                ]
+            },
+            {
+                "name": "Tai nghe Logitech G Pro X",
+                "slug": "tai-nghe-logitech-g-pro-x",
+                "price": 2890000,
+                "promotional_price": 2490000,
+                "stock": 25,
+                "category_id": category_objects["Tai nghe"].id,
+                "brand_id": brand_objects["logitech"].id,
+                "description": "Tai nghe gaming cao cấp Logitech G Pro X với màng loa PRO-G 50mm, công nghệ Blue VO!CE mang đến chất lượng đàm thoại xuất sắc cho eSports.",
+                "specs": {"Kết nối": "Có dây (USB/3.5mm)", "Màng loa": "PRO-G 50mm", "Công nghệ mic": "Blue VO!CE", "Trọng lượng": "320g"},
+                "images": [
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781345119/ez4ence/products/tai-nghe-logitech-g-pro-x-1.svg",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781345121/ez4ence/products/tai-nghe-logitech-g-pro-x-2.svg",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781345124/ez4ence/products/tai-nghe-logitech-g-pro-x-3.svg"
+                ]
+            },
+            {
+                "name": "Tai nghe HyperX Cloud III",
+                "slug": "tai-nghe-hyperx-cloud-iii",
+                "price": 2490000,
+                "promotional_price": 2190000,
+                "stock": 30,
+                "category_id": category_objects["Tai nghe"].id,
+                "brand_id": brand_objects["hyperx"].id,
+                "description": "Huyền thoại trở lại với HyperX Cloud III, nâng cấp màng loa 53mm nghiêng và đệm tai memory foam mang đến sự thoải mái đặc trưng và âm thanh chân thực.",
+                "specs": {"Kết nối": "Có dây (USB-C/USB-A/3.5mm)", "Màng loa": "53mm", "Đệm tai": "Memory foam cao cấp", "Âm thanh vòm": "DTS Headphone:X"},
+                "images": [
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781345129/ez4ence/products/tai-nghe-hyperx-cloud-iii-1.svg",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781345132/ez4ence/products/tai-nghe-hyperx-cloud-iii-2.svg",
+                    "https://res.cloudinary.com/dtbbbq4zr/image/upload/v1781345134/ez4ence/products/tai-nghe-hyperx-cloud-iii-3.svg"
+                ]
+            },
         ]
 
         # Kiểm tra và thêm mới sản phẩm nếu chưa có

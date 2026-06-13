@@ -101,9 +101,21 @@ def capture_paypal_order(req: PayPalCaptureRequest, db: Session = Depends(get_db
     if response.status_code in (200, 201):
         data = response.json()
         if data["status"] == "COMPLETED":
-            # (PayPal doesn't easily pass through our custom order_id without purchase_units custom_id mapping. 
-            # We would need to map it. For simplicity if frontend calls capture, frontend should know which order.)
-            # Actually, the user requirement is about VNPAY mostly. 
+            order = db.query(Order).filter(Order.id == req.order_id).first()
+            if order:
+                order.payment_status = PaymentStatus.PAID
+                order.payment_transaction_id = data.get("id")
+                
+                from app.models.order import OrderStatusHistory, OrderStatus
+                import uuid
+                history = OrderStatusHistory(
+                    id=str(uuid.uuid4()),
+                    order_id=order.id,
+                    status=order.status,
+                    description=f"Thanh toán PayPal thành công. Mã GD: {data.get('id')}"
+                )
+                db.add(history)
+                db.commit()
             return {"success": True, "data": data}
         
     logger.error(f"Failed to capture PayPal order: {response.text}")
@@ -169,6 +181,16 @@ def verify_vnpay_return(request: Request, db: Session = Depends(get_db)):
             if order:
                 order.payment_status = PaymentStatus.PAID
                 order.payment_transaction_id = inputData.get('vnp_TransactionNo')
+                
+                from app.models.order import OrderStatusHistory, OrderStatus
+                import uuid
+                history = OrderStatusHistory(
+                    id=str(uuid.uuid4()),
+                    order_id=order.id,
+                    status=order.status,
+                    description=f"Thanh toán VNPay thành công. Mã GD: {inputData.get('vnp_TransactionNo')}"
+                )
+                db.add(history)
                 db.commit()
                 
             return {
