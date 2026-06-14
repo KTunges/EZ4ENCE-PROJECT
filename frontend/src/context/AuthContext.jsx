@@ -76,6 +76,44 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Admin Login Step 1
+  const adminLoginStep1 = async (email, password) => {
+    setIsLoading(true);
+    try {
+      const res = await fetch('http://localhost:8000/api/auth/admin-login-step1', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Đăng nhập thất bại.');
+      return data;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Admin Login Step 2
+  const adminLoginStep2 = async (email, otp) => {
+    setIsLoading(true);
+    try {
+      const res = await fetch('http://localhost:8000/api/auth/admin-login-step2', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Xác thực OTP thất bại.');
+
+      localStorage.setItem('token', data.access_token);
+      setToken(data.access_token);
+      setUser(data.user);
+      return data.user;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Register handler
   const register = async (fullName, email, password) => {
     setIsLoading(true);
@@ -217,6 +255,8 @@ export const AuthProvider = ({ children }) => {
         token,
         isLoading,
         login,
+        adminLoginStep1,
+        adminLoginStep2,
         register,
         loginWithGoogle,
         loginWithFacebook,

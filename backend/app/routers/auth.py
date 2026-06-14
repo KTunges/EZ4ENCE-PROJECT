@@ -7,10 +7,14 @@ import jwt
 from app.database import get_db
 from app.config import settings
 from app.core import security
-from app.models.user import User
+from app.models.user import User, Role
 from app.schemas.user import UserCreate, UserResponse, UserLogin, TokenResponse, TokenGoogle, ProfileUpdate, TokenFacebook
+from app.schemas.admin_auth_schemas import AdminLoginStep1, AdminLoginStep2
 import string
 import random
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 import cloudinary
@@ -72,6 +76,95 @@ def login(login_in: UserLogin, db: Session = Depends(get_db)):
         )
     
     # Tạo JWT Token
+    access_token = security.create_access_token(subject=user.id)
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": user
+    }
+
+otp_store = {}
+
+@router.post("/admin-login-step1")
+def admin_login_step1(login_in: AdminLoginStep1, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == login_in.email).first()
+    if not user or not security.verify_password(login_in.password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email hoặc mật khẩu không chính xác"
+        )
+    if user.role != Role.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Tài khoản không có quyền Quản trị viên"
+        )
+    
+    otp = f"{random.randint(0, 999999):06d}"
+    otp_store[user.email] = otp
+    print(f"\\n=========================================")
+    print(f"MÃ OTP CỦA ADMIN {user.email} LÀ: {otp}")
+    print(f"=========================================\\n")
+    
+    # Gửi qua Email nếu có cấu hình SMTP
+    if settings.SMTP_EMAIL and settings.SMTP_PASSWORD:
+        try:
+            msg = MIMEMultipart()
+            msg['From'] = settings.SMTP_EMAIL
+            msg['To'] = user.email
+            msg['Subject'] = "EZ4ENCE - Mã xác thực Admin (2FA)"
+            
+            html_body = f"""
+            <html>
+              <body style="font-family: Arial, sans-serif; background-color: #f4f7fb; padding: 40px 0; margin: 0; color: #333;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                  <div style="background-color: #0056b3; padding: 24px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">EZ4ENCE ADMIN PORTAL</h1>
+                  </div>
+                  <div style="padding: 32px; text-align: center;">
+                    <p style="font-size: 16px; color: #555; margin-bottom: 24px; text-align: left;">Xin chào,</p>
+                    <p style="font-size: 16px; color: #555; margin-bottom: 32px; text-align: left;">Bạn đang thực hiện đăng nhập vào hệ thống Quản trị viên của EZ4ENCE. Đây là mã xác thực 2 lớp (2FA) của bạn:</p>
+                    
+                    <div style="background-color: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 20px; margin-bottom: 32px;">
+                      <span style="font-size: 36px; font-weight: bold; letter-spacing: 12px; color: #0056b3;">{otp}</span>
+                    </div>
+                    
+                    <p style="font-size: 14px; color: #888; text-align: left; margin-bottom: 8px;">* Tuyệt đối <strong>KHÔNG</strong> chia sẻ mã này cho bất kỳ ai.</p>
+                  </div>
+                  <div style="background-color: #f8fafc; padding: 16px; text-align: center; border-top: 1px solid #e2e8f0;">
+                    <p style="font-size: 12px; color: #94a3b8; margin: 0;">&copy; 2026 EZ4ENCE. Hệ thống an ninh mạng.</p>
+                  </div>
+                </div>
+              </body>
+            </html>
+            """
+            msg.attach(MIMEText(html_body, 'html'))
+            
+            server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT)
+            server.starttls()
+            server.login(settings.SMTP_EMAIL, settings.SMTP_PASSWORD)
+            server.sendmail(settings.SMTP_EMAIL, user.email, msg.as_string())
+            server.quit()
+            print(f"Đã gửi OTP qua Email thành công cho {user.email}")
+        except Exception as e:
+            print(f"Lỗi khi gửi email: {e}")
+    
+    return {"message": "OTP đã được tạo", "email": user.email}
+
+@router.post("/admin-login-step2", response_model=TokenResponse)
+def admin_login_step2(login_in: AdminLoginStep2, db: Session = Depends(get_db)):
+    stored_otp = otp_store.get(login_in.email)
+    if not stored_otp or stored_otp != login_in.otp:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Mã OTP không hợp lệ hoặc đã hết hạn"
+        )
+    
+    user = db.query(User).filter(User.email == login_in.email).first()
+    if not user:
+        raise HTTPException(status_code=400, detail="User not found")
+        
+    del otp_store[login_in.email]
+    
     access_token = security.create_access_token(subject=user.id)
     return {
         "access_token": access_token,

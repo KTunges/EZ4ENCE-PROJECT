@@ -25,8 +25,12 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      await login(email, password);
-      navigate('/');
+      const loggedInUser = await login(email, password);
+      if (loggedInUser?.role === 'ADMIN') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -41,6 +45,8 @@ export default function Login() {
       const data = await loginWithGoogle(tokenResponse.access_token);
       if (data.is_new_user) {
         setShowNamePrompt(true);
+      } else if (data.user?.role === 'ADMIN') {
+        navigate('/admin/dashboard');
       } else {
         navigate('/');
       }

@@ -20,7 +20,15 @@ import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
 import BuildPC from './pages/BuildPC';
 import AdminRoute from './components/auth/AdminRoute';
-import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminLayout from './components/layout/AdminLayout';
+import AdminLogin from './pages/admin/AdminLogin';
+import Dashboard from './pages/admin/Dashboard';
+import AdminOrders from './pages/admin/AdminOrders';
+import AdminProducts from './pages/admin/AdminProducts';
+import AdminProductForm from './pages/admin/AdminProductForm';
+import AdminOrderDetails from './pages/admin/AdminOrderDetails';
+import AdminCategories from './pages/admin/AdminCategories';
+import AdminBrands from './pages/admin/AdminBrands';
 
 // Google Client ID (đọc từ file .env)
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -60,11 +68,22 @@ function App() {
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/admin/*" element={
+                <Route path="/ez4-portal-auth" element={<AdminLogin />} />
+                <Route path="/admin" element={
                   <AdminRoute>
-                    <AdminDashboard />
+                    <AdminLayout />
                   </AdminRoute>
-                } />
+                }>
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                  <Route path="products" element={<AdminProducts />} />
+                  <Route path="products/new" element={<AdminProductForm />} />
+                  <Route path="products/edit/:id" element={<AdminProductForm />} />
+                  <Route path="orders/:id" element={<AdminOrderDetails />} />
+                  <Route path="categories" element={<AdminCategories />} />
+                  <Route path="brands" element={<AdminBrands />} />
+                  {/* Các route tương lai sẽ thêm vào đây */}
+                </Route>
               </Routes>
               </BrowserRouter>
             </CartProvider>

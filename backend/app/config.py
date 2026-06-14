@@ -40,6 +40,12 @@ class Settings(BaseSettings):
     VNPAY_URL: str = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
     VNPAY_RETURN_URL: str = "http://localhost:5173/checkout/vnpay-return"
 
+    # SMTP for Email Sending
+    SMTP_EMAIL: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
+    SMTP_SERVER: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

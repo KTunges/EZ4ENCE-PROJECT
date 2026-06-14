@@ -147,7 +147,7 @@ def create_vnpay_url(req: VNPAYOrderRequest, request: Request, db: Session = Dep
     vnp.requestData['vnp_Locale'] = 'vn'
     
     # IP Client
-    client_ip = request.client.host
+    client_ip = request.client.host if request.client else "127.0.0.1"
     if not client_ip:
         client_ip = "127.0.0.1"
     vnp.requestData['vnp_IpAddr'] = client_ip
