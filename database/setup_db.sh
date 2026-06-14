@@ -21,9 +21,10 @@ while true; do
     echo "Vui lòng chọn chức năng:"
     echo " [1] Setup Database (Tạo DB, Import Schema, Tạo .env)"
     echo " [2] Seed Data (Cài Python env, thư viện và đổ dữ liệu)"
-    echo " [3] Thoát"
+    echo " [3] Tạo tài khoản Admin (Cấp quyền Admin)"
+    echo " [4] Thoát"
     echo ""
-    read -p "Chọn [1-3]: " MENU_CHOICE
+    read -p "Chọn [1-4]: " MENU_CHOICE
 
     case $MENU_CHOICE in
         1)
@@ -257,6 +258,39 @@ EOF
             ;;
 
         3)
+            # --- CREATE ADMIN ---
+            clear
+            echo ""
+            echo -e "${CYAN}${BOLD}================================================${NC}"
+            echo -e "${CYAN}${BOLD}   Tạo Tài Khoản Admin                          ${NC}"
+            echo -e "${CYAN}${BOLD}================================================${NC}"
+            echo ""
+            
+            SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+            cd "$SCRIPT_DIR/../backend" || exit
+
+            echo -e "${YELLOW}[INFO] Bạn cần có sẵn một tài khoản đã đăng ký trên web.${NC}"
+            read -p "Nhập Email tài khoản muốn cấp quyền Admin: " ADMIN_EMAIL
+            read -sp "Nhập mật khẩu mới (nếu muốn đổi) hoặc mật khẩu cũ: " ADMIN_PASS
+            echo ""
+            read -p "Nhập tên hiển thị: " ADMIN_NAME
+
+            if [ -f ".venv/bin/activate" ]; then
+                source .venv/bin/activate
+            elif [ -f "venv/bin/activate" ]; then
+                source venv/bin/activate
+            fi
+            
+            export PYTHONPATH="."
+            export PYTHONUTF8=1
+            python3 create_admin.py "$ADMIN_EMAIL" "$ADMIN_PASS" "$ADMIN_NAME"
+
+            cd "$SCRIPT_DIR" || exit
+            echo ""
+            read -p "Nhấn Enter để quay lại..." dummy
+            ;;
+
+        4)
             # --- EXIT ---
             echo -e "${GREEN}Tạm biệt!${NC}"
             exit 0

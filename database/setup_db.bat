@@ -16,13 +16,15 @@ echo.
 echo Vui long chon chuc nang:
 echo [1] Setup Database (Tao DB, Import Schema, Tao .env)
 echo [2] Seed Data (Cai Python env, thu vien va do du lieu)
-echo [3] Thoat
+echo [3] Tao tai khoan Admin (Cap quyen Admin)
+echo [4] Thoat
 echo.
-set /p MENU_CHOICE="Chon [1-3]: "
+set /p MENU_CHOICE="Chon [1-4]: "
 
 if "!MENU_CHOICE!"=="1" goto SETUP_DB
 if "!MENU_CHOICE!"=="2" goto SEED_DATA
-if "!MENU_CHOICE!"=="3" exit /b 0
+if "!MENU_CHOICE!"=="3" goto CREATE_ADMIN
+if "!MENU_CHOICE!"=="4" exit /b 0
 goto MENU
 
 
@@ -236,6 +238,30 @@ if %errorlevel% equ 0 (
 ) else (
     echo [LOI] Co loi xay ra khi seed du lieu.
 )
+
+cd /d "!SCRIPT_DIR!"
+pause
+goto MENU
+
+:CREATE_ADMIN
+cls
+echo.
+echo ================================================
+echo    ^  Tao Tai Khoan Admin
+echo ================================================
+echo.
+set SCRIPT_DIR=%~dp0
+cd /d "!SCRIPT_DIR!..\backend"
+
+echo [INFO] Ban can co san mot tai khoan dang ky tren web.
+set /p ADMIN_EMAIL="Nhap Email tai khoan muon cap quyen Admin: "
+set /p ADMIN_PASS="Nhap mat khau moi (neu muon doi) hoac mat khau cu: "
+set /p ADMIN_NAME="Nhap ten hien thi: "
+
+call .venv\Scripts\activate
+set PYTHONPATH=.
+set PYTHONUTF8=1
+python create_admin.py "!ADMIN_EMAIL!" "!ADMIN_PASS!" "!ADMIN_NAME!"
 
 cd /d "!SCRIPT_DIR!"
 pause
