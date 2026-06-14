@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, File, Upl
 from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 import uuid
+from sqlalchemy import or_, func
 
 from app.database import get_db
 from app.models.product import Product, ProductSKU, ProductImage
@@ -54,13 +55,37 @@ def get_products(
     """
     query = db.query(Product).filter(Product.is_published == True)
     
-    # Filter by category
+    # Cần join trước nếu có filter theo tag
+    if category_slug or brand_slug:
+        query = query.outerjoin(Category).outerjoin(Brand)
+
+    # Filter by category (cross-match category and brand, case-insensitive)
     if category_slug:
-        query = query.join(Category).filter(Category.slug == category_slug)
+        cat_search = category_slug.replace('-', '%')
+        query = query.filter(
+            or_(
+                func.lower(Category.slug) == category_slug.lower(),
+                func.lower(Brand.slug) == category_slug.lower(),
+                Category.name.ilike(f"%{cat_search}%"),
+                Brand.name.ilike(f"%{cat_search}%"),
+                func.lower(Category.slug) == category_slug.replace('-', ' ').lower(),
+                func.lower(Brand.slug) == category_slug.replace('-', ' ').lower()
+            )
+        )
         
-    # Filter by brand
+    # Filter by brand (cross-match category and brand, case-insensitive)
     if brand_slug:
-        query = query.join(Brand).filter(Brand.slug == brand_slug)
+        brand_search = brand_slug.replace('-', '%')
+        query = query.filter(
+            or_(
+                func.lower(Category.slug) == brand_slug.lower(),
+                func.lower(Brand.slug) == brand_slug.lower(),
+                Category.name.ilike(f"%{brand_search}%"),
+                Brand.name.ilike(f"%{brand_search}%"),
+                func.lower(Category.slug) == brand_slug.replace('-', ' ').lower(),
+                func.lower(Brand.slug) == brand_slug.replace('-', ' ').lower()
+            )
+        )
         
     # Search by name
     if search:
