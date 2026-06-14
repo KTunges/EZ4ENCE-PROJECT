@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User, Package, Clock, LogOut, Edit3, CheckCircle, Clock3, Truck, ShoppingCart, MapPin } from 'lucide-react';
+import { User, Package, Clock, LogOut, Edit3, CheckCircle, Clock3, Truck, ShoppingCart, MapPin, Settings } from 'lucide-react';
 import AddressBook from '../components/profile/AddressBook';
 
 const mockOrders = [
@@ -21,21 +21,6 @@ const mockOrders = [
   }
 ];
 
-const mockRecentProducts = [
-  {
-    id: 1,
-    name: 'VGA ASUS ROG Strix GeForce RTX 4090 OC Edition',
-    price: 55000000,
-    image: 'https://via.placeholder.com/200/1a1a2e/00d2ff?text=RTX+4090',
-  },
-  {
-    id: 2,
-    name: 'Bàn phím cơ Razer Huntsman V2 Analog',
-    price: 4500000,
-    image: 'https://via.placeholder.com/200/1a1a2e/7000ff?text=Huntsman',
-  }
-];
-
 export default function Profile() {
   const { user, isAuthenticated, logout, updateProfile, updateAvatar } = useAuth();
   const navigate = useNavigate();
@@ -44,6 +29,7 @@ export default function Profile() {
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [recentProducts, setRecentProducts] = useState([]);
   const [formData, setFormData] = useState({
     fullName: user?.fullName || '',
     phone: user?.phone || '0988123456'
@@ -71,6 +57,15 @@ export default function Profile() {
         }
       };
       fetchOrders();
+    } else if (activeTab === 'recent') {
+      try {
+        const recentStr = localStorage.getItem('recently_viewed');
+        if (recentStr) {
+          setRecentProducts(JSON.parse(recentStr));
+        }
+      } catch (err) {
+        console.error("Failed to load recent products", err);
+      }
     }
   }, [activeTab]);
 
@@ -218,6 +213,14 @@ export default function Profile() {
               >
                 <Clock size={18} /> Sản phẩm đã xem
               </button>
+              {user?.role === 'ADMIN' && (
+                <button 
+                  className="profile-nav-btn text-cyan"
+                  onClick={() => window.location.href = '/admin'}
+                >
+                  <Settings size={18} /> Trang Quản Trị
+                </button>
+              )}
               <button className="profile-nav-btn text-pink" onClick={handleLogout}>
                 <LogOut size={18} /> Đăng xuất
               </button>
@@ -362,26 +365,38 @@ export default function Profile() {
               <div className="tab-pane fade-in">
                 <h2 className="text-xl font-bold mb-6">Sản Phẩm Vừa Xem</h2>
                 
-                <div className="recent-products-grid">
-                  {mockRecentProducts.map(product => (
-                    <div key={product.id} className="recent-product-card">
-                      <div className="recent-img-wrapper">
-                        <img src={product.image} alt={product.name} />
-                        <div className="recent-actions">
-                          <button className="icon-btn tooltip-trigger" aria-label="Add to cart">
-                            <ShoppingCart size={18} />
-                          </button>
+                {recentProducts.length === 0 ? (
+                  <div className="text-center p-8 border border-white/10 rounded-xl bg-white/5">
+                    <p className="text-gray-400">Bạn chưa xem sản phẩm nào.</p>
+                  </div>
+                ) : (
+                  <div className="recent-products-grid">
+                    {recentProducts.map(product => (
+                      <div key={product.id} className="recent-product-card cursor-pointer transition-transform hover:-translate-y-1" onClick={() => navigate(`/products/${product.slug}`)}>
+                        <div className="recent-img-wrapper">
+                          {product.image ? (
+                            <img src={product.image} alt={product.name} />
+                          ) : (
+                            <div style={{ width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <span style={{ color: 'var(--text-dim)', fontSize: '14px' }}>No img</span>
+                            </div>
+                          )}
+                          <div className="recent-actions">
+                            <button className="icon-btn tooltip-trigger" aria-label="Add to cart" onClick={(e) => { e.stopPropagation(); navigate(`/products/${product.slug}`); }}>
+                              <ShoppingCart size={18} />
+                            </button>
+                          </div>
+                        </div>
+                        <div className="recent-info">
+                          <h4 style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.name}</h4>
+                          <div className="price text-cyan font-mono">
+                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
+                          </div>
                         </div>
                       </div>
-                      <div className="recent-info">
-                        <h4>{product.name}</h4>
-                        <div className="price text-cyan font-mono">
-                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

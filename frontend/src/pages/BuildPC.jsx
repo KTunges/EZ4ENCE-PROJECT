@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Cpu, Box, HardDrive, Zap, 
@@ -8,24 +8,8 @@ import {
 } from 'lucide-react';
 import CyberBackground from '../components/ui/CyberBackground';
 import CustomSelect from '../components/ui/CustomSelect';
-
-// Mock Data for Build PC Components
-const BUILD_PC_PRODUCTS = [
-  { id: 'cpu-1', category: 'CPU', name: 'CPU INTEL CORE I9 14900K (3.2GHZ TURBO UP TO 6.0GHZ, 24 NHÂN 32 LUỒNG, 36MB CACHE, 125W, LGA 1700)', price: 14500000, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=400&q=80', brand: 'Intel', code: 'CPU001', warranty: '36 Tháng', stock: 'Còn hàng' },
-  { id: 'cpu-2', category: 'CPU', name: 'CPU AMD RYZEN 9 7950X3D (4.2GHZ BOOST 5.7GHZ, 16 NHÂN 32 LUỒNG, 128MB CACHE, 120W, AM5)', price: 16900000, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=400&q=80', brand: 'AMD', code: 'CPU002', warranty: '36 Tháng', stock: 'Còn hàng' },
-  { id: 'cpu-3', category: 'CPU', name: 'CPU INTEL CORE I5 13600KF (3.5GHZ TURBO UP TO 5.1GHZ, 14 NHÂN 20 LUỒNG, 20MB CACHE, 125W, LGA 1700/RAPTOR LAKE)', price: 7799000, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=400&q=80', brand: 'Intel', code: 'CPU003', warranty: '36 Tháng', stock: 'Còn hàng' },
-  { id: 'cpu-4', category: 'CPU', name: 'CPU INTEL CORE I5 13400F (UP TO 4.6GHZ, 10 NHÂN 16 LUỒNG, 20MB CACHE, 65W) - SOCKET INTEL LGA 1700/RAPTOR LAKE', price: 4999000, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=400&q=80', brand: 'Intel', code: 'CPU004', warranty: '36 Tháng', stock: 'Còn hàng' },
-  { id: 'cpu-5', category: 'CPU', name: 'CPU INTEL CORE I5 13400 (UP TO 4.6GHZ, 10 NHÂN 16 LUỒNG, 20MB CACHE, 65W) - SOCKET INTEL LGA 1700/RAPTOR LAKE', price: 5999000, image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=400&q=80', brand: 'Intel', code: 'CPU005', warranty: '36 Tháng', stock: 'Còn hàng' },
-  { id: 'mb-1', category: 'Mainboard', name: 'ASUS ROG MAXIMUS Z790 HERO', price: 16900000, image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&q=80', brand: 'ASUS', code: 'MB001', warranty: '36 Tháng', stock: 'Còn hàng' },
-  { id: 'mb-2', category: 'Mainboard', name: 'GIGABYTE B760M AORUS ELITE AX', price: 4200000, image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&q=80', brand: 'Gigabyte', code: 'MB002', warranty: '36 Tháng', stock: 'Còn hàng' },
-  { id: 'ram-1', category: 'RAM', name: 'Corsair Dominator Platinum RGB 32GB (2x16GB) DDR5 6200MHz', price: 4800000, image: 'https://images.unsplash.com/photo-1563687462186-b4845186b5b8?auto=format&fit=crop&w=400&q=80', brand: 'Corsair', code: 'RAM001', warranty: '36 Tháng', stock: 'Còn hàng' },
-  { id: 'vga-1', category: 'VGA', name: 'ASUS ROG Strix GeForce RTX 4090 24GB', price: 59900000, image: 'https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=400&q=80', brand: 'ASUS', code: 'VGA001', warranty: '36 Tháng', stock: 'Còn hàng' },
-  { id: 'vga-2', category: 'VGA', name: 'MSI GeForce RTX 4060 Ti Ventus 2X Black 8G OC', price: 10500000, image: 'https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=400&q=80', brand: 'MSI', code: 'VGA002', warranty: '36 Tháng', stock: 'Liên hệ' },
-  { id: 'ssd-1', category: 'SSD', name: 'Samsung 990 PRO 2TB PCIe Gen 4.0 x4 NVMe', price: 4800000, image: 'https://images.unsplash.com/photo-1531492746076-161ca9bcad58?auto=format&fit=crop&w=400&q=80', brand: 'Samsung', code: 'SSD001', warranty: '60 Tháng', stock: 'Còn hàng' },
-  { id: 'psu-1', category: 'Nguồn', name: 'Corsair RM1000e 1000W 80 Plus Gold - Fully Modular', price: 4500000, image: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=400&q=80', brand: 'Corsair', code: 'PSU001', warranty: '120 Tháng', stock: 'Còn hàng' },
-  { id: 'case-1', category: 'Case', name: 'NZXT H9 Flow Matte White', price: 4200000, image: 'https://images.unsplash.com/photo-1587202372634-32705e3bf49c?auto=format&fit=crop&w=400&q=80', brand: 'NZXT', code: 'CASE001', warranty: '24 Tháng', stock: 'Còn hàng' },
-  { id: 'cooler-1', category: 'Tản nhiệt', name: 'NZXT Kraken Elite 360 RGB White', price: 7500000, image: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=400&q=80', brand: 'NZXT', code: 'COOL001', warranty: '72 Tháng', stock: 'Còn hàng' }
-];
+import { useCart } from '../context/CartContext';
+import { useToast } from '../context/ToastContext';
 
 const BUILD_SLOTS = [
   { id: 'CPU', label: 'Vi Xử Lý', icon: <Cpu size={24} /> },
@@ -44,6 +28,29 @@ export default function BuildPC() {
   const [searchQuery, setSearchQuery] = useState('');
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sortBy, setSortBy] = useState('Tùy chọn');
+
+  const [productsList, setProductsList] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:8000/api/products?limit=100')
+      .then(res => res.json())
+      .then(data => {
+        const mapped = data.map(item => ({
+          id: item.id,
+          name: item.name,
+          brand: item.brand?.name || 'Unknown',
+          rawCategory: item.category?.name || '',
+          price: item.skus?.[0]?.price || 0,
+          image: item.images?.[0]?.url || '',
+          code: item.skus?.[0]?.sku_code || 'N/A',
+          warranty: item.specifications?.['Bảo hành'] || '36 Tháng',
+          stock: item.skus?.[0]?.stock_quantity > 0 ? 'Còn hàng' : 'Hết hàng',
+          skus: item.skus || []
+        }));
+        setProductsList(mapped);
+      })
+      .catch(err => console.error(err));
+  }, []);
 
   // Calculate totals
   const totalCost = useMemo(() => {
@@ -65,10 +72,74 @@ export default function BuildPC() {
     setSelectedComponents(updated);
   };
 
+  const { addToCart } = useCart();
+  const { addToast } = useToast();
+
+  const handleAddToCart = () => {
+    let addedCount = 0;
+    let missingCount = 0;
+    Object.values(selectedComponents).forEach(product => {
+      if (product && product.skus && product.skus.length > 0) {
+        addToCart(product.skus[0].id, 1, true); // silent mode
+        addedCount++;
+      } else if (product) {
+        missingCount++;
+      }
+    });
+    
+    if (addedCount > 0) {
+      addToast(`Đã thêm ${addedCount} linh kiện vào giỏ hàng thành công!`, 'success');
+    } 
+    if (missingCount > 0) {
+      addToast(`Lỗi: ${missingCount} linh kiện không có mã SKU để thanh toán.`, 'error');
+    }
+  };
+
   // Filter products for modal
   const modalProducts = useMemo(() => {
     if (!activeModalSlot) return [];
-    let products = BUILD_PC_PRODUCTS.filter(p => p.category === activeModalSlot);
+    
+    // Map activeModalSlot to keywords for filtering the productsList
+    let slotKeywords = [];
+    if (activeModalSlot === 'CPU') slotKeywords = ['cpu', 'core', 'ryzen'];
+    else if (activeModalSlot === 'Mainboard') slotKeywords = ['mainboard', 'z790', 'b760', 'b660', 'h610', 'x670', 'b650'];
+    else if (activeModalSlot === 'RAM') slotKeywords = ['ram', 'ddr4', 'ddr5', 'corsair dominator'];
+    else if (activeModalSlot === 'VGA') slotKeywords = ['vga', 'rtx', 'gtx', 'rx', 'card'];
+    else if (activeModalSlot === 'SSD') slotKeywords = ['ssd', 'hdd', 'nvme', 'ổ cứng'];
+    else if (activeModalSlot === 'Nguồn') slotKeywords = ['nguồn', 'psu'];
+    else if (activeModalSlot === 'Case') slotKeywords = ['case', 'vỏ'];
+    else if (activeModalSlot === 'Tản nhiệt') slotKeywords = ['tản nhiệt', 'kraken', 'cooler'];
+
+    const categoryMap = {
+      'CPU': ['main, cpu, vga'],
+      'Mainboard': ['main, cpu, vga'],
+      'VGA': ['main, cpu, vga'],
+      'RAM': ['ổ cứng, ram'],
+      'SSD': ['ổ cứng, ram'],
+      'Case': ['case, nguồn, tản'],
+      'Nguồn': ['case, nguồn, tản'],
+      'Tản nhiệt': ['case, nguồn, tản']
+    };
+
+    let products = productsList.filter(p => {
+       const cat = p.rawCategory.toLowerCase();
+       
+       // Filter by valid DB category for the active slot
+       const validCategories = categoryMap[activeModalSlot] || [];
+       const isComponent = validCategories.some(c => cat.includes(c));
+       if (!isComponent) return false;
+
+       // Use exact keywords to match within that specific DB category
+       const textSearch = p.name.toLowerCase();
+       
+       // Use word boundaries for very short keywords like 'rx' to avoid matching 'irx'
+       return slotKeywords.some(kw => {
+         if (kw === 'rx' || kw === 'hdd' || kw === 'psu') {
+           return new RegExp(`\\b${kw}\\b`).test(textSearch);
+         }
+         return textSearch.includes(kw);
+       });
+    });
     
     if (searchQuery) {
       const keywords = searchQuery.toLowerCase().trim().split(/\s+/);
@@ -81,9 +152,17 @@ export default function BuildPC() {
     if (inStockOnly) {
       products = products.filter(p => p.stock === 'Còn hàng');
     }
+
+    // Sorting
+    let result = [...products];
+    if (sortBy === 'Giá tăng dần') {
+      result.sort((a, b) => a.price - b.price);
+    } else if (sortBy === 'Giá giảm dần') {
+      result.sort((a, b) => b.price - a.price);
+    }
     
-    return products;
-  }, [activeModalSlot, searchQuery, inStockOnly]);
+    return result;
+  }, [activeModalSlot, searchQuery, inStockOnly, productsList, sortBy]);
 
   return (
     <div className="build-pc-page">
@@ -192,6 +271,7 @@ export default function BuildPC() {
                 <button 
                   className="btn btn-primary w-full"
                   disabled={componentsCount === 0}
+                  onClick={handleAddToCart}
                 >
                   <ShoppingCart size={18} /> Thêm Vào Giỏ Hàng
                 </button>

@@ -47,6 +47,23 @@ export default function ProductDetail() {
         setProduct(mappedProduct);
         setLoading(false);
 
+        // Save to recently viewed
+        try {
+          const recentStr = localStorage.getItem('recently_viewed');
+          let recentList = recentStr ? JSON.parse(recentStr) : [];
+          recentList = recentList.filter(p => p.id !== mappedProduct.id);
+          recentList.unshift({
+            id: mappedProduct.id,
+            slug: mappedProduct.slug,
+            name: mappedProduct.name,
+            price: mappedProduct.skus[0].price,
+            image: mappedProduct.images[0] || '',
+            timestamp: Date.now()
+          });
+          if (recentList.length > 12) recentList = recentList.slice(0, 12);
+          localStorage.setItem('recently_viewed', JSON.stringify(recentList));
+        } catch(e) { console.error('Lỗi lưu SP đã xem', e); }
+
         // Fetch related products (same category)
         fetch(`http://localhost:8000/api/products?category_slug=${data.category?.slug}`)
           .then(r => r.json())

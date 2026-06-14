@@ -1,6 +1,7 @@
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { ToastProvider } from './context/ToastContext';
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -18,6 +19,8 @@ import Register from './pages/Register';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
 import BuildPC from './pages/BuildPC';
+import AdminRoute from './components/auth/AdminRoute';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 // Google Client ID (đọc từ file .env)
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -36,9 +39,10 @@ function App() {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <ThemeProvider>
-        <AuthProvider>
-          <CartProvider>
-            <BrowserRouter>
+        <ToastProvider>
+          <AuthProvider>
+            <CartProvider>
+              <BrowserRouter>
               <ScrollToTop />
               <Routes>
                 <Route path="/" element={<MainLayout />}>
@@ -56,10 +60,16 @@ function App() {
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/admin/*" element={
+                  <AdminRoute>
+                    <AdminDashboard />
+                  </AdminRoute>
+                } />
               </Routes>
-            </BrowserRouter>
-          </CartProvider>
-        </AuthProvider>
+              </BrowserRouter>
+            </CartProvider>
+          </AuthProvider>
+        </ToastProvider>
       </ThemeProvider>
     </GoogleOAuthProvider>
   );

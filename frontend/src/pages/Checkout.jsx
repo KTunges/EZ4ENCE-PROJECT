@@ -151,7 +151,9 @@ export default function Checkout() {
   const subtotal = cart?.total_amount || 0;
   
   const selectedShipping = shippingOptions.find(o => o.id === selectedShippingId);
-  const shippingFee = selectedShipping ? selectedShipping.fee : 0;
+  const rawShippingFee = selectedShipping ? selectedShipping.fee : 0;
+  const isFreeshipEligible = subtotal >= 2000000;
+  const shippingFee = isFreeshipEligible ? 0 : rawShippingFee;
   
   const discountAmount = appliedPromo ? appliedPromo.final_discount : 0;
   const total = subtotal + shippingFee - discountAmount;
@@ -418,7 +420,14 @@ export default function Checkout() {
                           <p>Dự kiến giao: <strong className="text-white">{option.estimated_delivery}</strong></p>
                         </div>
                         <div className="option-price" style={{ color: selectedShippingId === option.id ? '#00d2ff' : 'var(--text-muted)' }}>
-                          {formatPrice(option.fee)}
+                          {isFreeshipEligible ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                              <span style={{ textDecoration: 'line-through', color: 'var(--text-dim)', fontSize: '12px' }}>{formatPrice(option.fee)}</span>
+                              <span style={{ color: '#00d2ff', fontWeight: 'bold' }}>0 đ</span>
+                            </div>
+                          ) : (
+                            formatPrice(option.fee)
+                          )}
                         </div>
                       </div>
                     </label>

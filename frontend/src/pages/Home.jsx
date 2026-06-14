@@ -1,8 +1,9 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useState, useEffect } from 'react';
 import { ArrowRight, Zap, Shield, ChevronRight, Star, Cpu } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import MarqueeBanner from '../components/ui/MarqueeBanner';
+import ProductCard from '../components/ui/ProductCard';
 import CyberBackground from '../components/ui/CyberBackground';
 import { useHackerText } from '../hooks/useHackerText';
 
@@ -88,6 +89,50 @@ const features = [
 ];
 
 export default function Home() {
+  const [bestSellers, setBestSellers] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:8000/api/products?limit=100')
+      .then(res => res.json())
+      .then(data => {
+        // Filter for beautiful products (have images, and preferably on sale)
+        let featured = data.filter(item => 
+          item.images && item.images.length > 0 && 
+          !item.images[0].url.includes('dummy') &&
+          item.skus?.[0]?.promotional_price < item.skus?.[0]?.price
+        );
+        
+        // Fallback to any products with real images if not enough sale items
+        if (featured.length < 4) {
+          const withImages = data.filter(item => 
+            item.images && item.images.length > 0 && 
+            !item.images[0].url.includes('dummy')
+          );
+          featured = [...featured, ...withImages].filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i);
+        }
+
+        const mapped = featured.slice(0, 4).map(item => ({
+          id: item.id,
+          slug: item.slug,
+          name: item.name,
+          brand: item.brand?.name || 'Unknown',
+          category: item.category?.name || 'Unknown',
+          categorySlug: item.category?.slug || '',
+          price: item.skus?.[0]?.price || 0,
+          originalPrice: item.skus?.[0]?.promotional_price || null,
+          image: item.images?.[0]?.url || '',
+          rating: item.rating || 5,
+          reviewCount: item.review_count || 0,
+          badge: item.skus?.[0]?.promotional_price < item.skus?.[0]?.price ? 'HOT' : null,
+          specs: Object.values(item.specifications || {}).slice(0, 4),
+          fullSpecs: item.specifications || {},
+          stock: item.skus?.[0]?.stock_quantity || 0,
+          skus: item.skus || []
+        }));
+        setBestSellers(mapped);
+      })
+      .catch(console.error);
+  }, []);
   return (
     <div className="home-page relative">
       <CyberBackground />
@@ -197,17 +242,10 @@ export default function Home() {
           <p className="section-desc">Những sản phẩm được game thủ yêu thích nhất tháng này.</p>
         </motion.div>
         <div className="products-grid">
-          {[1, 2, 3, 4].map((item, index) => (
-            <motion.div 
-              key={item} 
-              className="card product-placeholder"
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-            >
-              [Product {item}]
-            </motion.div>
+          {bestSellers.map((item, index) => (
+            <div key={item.id} style={{ display: 'flex' }}>
+              <ProductCard product={item} index={index} />
+            </div>
           ))}
         </div>
       </section>

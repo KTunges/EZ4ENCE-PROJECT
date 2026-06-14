@@ -1,10 +1,12 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import { useToast } from './ToastContext';
 
 const CartContext = createContext(null);
 
 export const CartProvider = ({ children }) => {
   const { user, token } = useAuth();
+  const { addToast } = useToast();
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -36,9 +38,9 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const addToCart = async (skuId, quantity = 1) => {
+  const addToCart = async (skuId, quantity = 1, silent = false) => {
     if (!user || !token) {
-      alert('Vui lòng đăng nhập để thêm vào giỏ hàng');
+      if (!silent) addToast('Vui lòng đăng nhập để thêm vào giỏ hàng', 'info');
       return false;
     }
     
@@ -54,14 +56,16 @@ export const CartProvider = ({ children }) => {
       
       if (res.ok) {
         await fetchCart();
+        if (!silent) addToast('Đã thêm sản phẩm vào giỏ hàng', 'success');
         return true;
       } else {
         const data = await res.json();
-        alert(data.detail || 'Lỗi thêm vào giỏ hàng');
+        if (!silent) addToast(data.detail || 'Lỗi thêm vào giỏ hàng', 'error');
         return false;
       }
     } catch (err) {
       console.error("Add to cart error", err);
+      if (!silent) addToast('Lỗi kết nối máy chủ', 'error');
       return false;
     }
   };
