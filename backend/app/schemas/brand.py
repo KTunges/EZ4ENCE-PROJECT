@@ -15,5 +15,6 @@ class BrandResponse(BrandBase):
     id: str
     created_at: datetime
     updated_at: datetime
+    product_count: int = 0
 
     model_config = ConfigDict(from_attributes=True)

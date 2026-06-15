@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { User, Package, Clock, LogOut, Edit3, CheckCircle, Clock3, Truck, ShoppingCart, MapPin, Settings } from 'lucide-react';
-import AddressBook from '../components/profile/AddressBook';
+import AddressBook from '../../components/profile/AddressBook';
 
 const mockOrders = [
   {

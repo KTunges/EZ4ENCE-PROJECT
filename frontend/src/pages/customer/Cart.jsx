@@ -1,14 +1,43 @@
 import { useState, useEffect } from 'react';
 import { Trash2, Plus, Minus, Tag, ShieldCheck, Truck, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
+import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
+import ProductCard from '../../components/ui/ProductCard';
+import AuthModal from '../../components/ui/AuthModal';
 
 export default function Cart() {
   const { cart, updateQuantity, removeItem, loading } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [promoCode, setPromoCode] = useState('');
+  const [recommendedProducts, setRecommendedProducts] = useState([]);
+  const [showAuth, setShowAuth] = useState(false);
+
+  useEffect(() => {
+    // Fetch recommended products for empty cart state
+    if (!cart || cart.items.length === 0) {
+      fetch('http://localhost:8000/api/products?limit=8')
+        .then(res => res.json())
+        .then(data => {
+          const mapped = data.filter(item => item.images && item.images.length > 0 && !item.images[0].url.includes('dummy')).slice(0, 4).map(item => ({
+            id: item.id,
+            slug: item.slug,
+            name: item.name,
+            brand: item.brand?.name || 'Unknown',
+            category: item.category?.name || 'Unknown',
+            price: item.skus?.[0]?.price || 0,
+            originalPrice: item.skus?.[0]?.promotional_price || null,
+            image: item.images?.[0]?.url || '',
+            rating: item.rating || 5,
+            reviewCount: item.review_count || 0,
+            badge: item.skus?.[0]?.promotional_price < item.skus?.[0]?.price ? 'HOT' : null,
+          }));
+          setRecommendedProducts(mapped);
+        })
+        .catch(console.error);
+    }
+  }, [cart]);
 
   // Redirect to login if not logged in
   useEffect(() => {
@@ -44,8 +73,9 @@ export default function Cart() {
         <div className="container" style={{ textAlign: 'center', paddingTop: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
           <h2 className="glitch-text text-3xl font-bold" data-text="VUI LÒNG ĐĂNG NHẬP">VUI LÒNG ĐĂNG NHẬP</h2>
           <p className="text-muted" style={{ fontSize: '1.1rem' }}>Bạn cần đăng nhập để quản lý giỏ hàng của mình.</p>
-          <Link to="/login" className="btn btn-primary" style={{ padding: '12px 30px', fontSize: '1.1rem' }}>ĐĂNG NHẬP NGAY</Link>
+          <button onClick={() => setShowAuth(true)} className="btn btn-primary" style={{ padding: '12px 30px', fontSize: '1.1rem' }}>ĐĂNG NHẬP NGAY</button>
         </div>
+        <AuthModal isOpen={showAuth} onClose={() => setShowAuth(false)} />
       </div>
     );
   }
@@ -64,7 +94,7 @@ export default function Cart() {
         </div>
 
         {items.length === 0 ? (
-          <div className="cart-page-empty glass" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', padding: '60px 20px', textAlign: 'center' }}>
+          <div className="cart-page-empty glass" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', padding: '60px 20px', textAlign: 'center', marginBottom: '40px' }}>
             <h2 className="text-3xl font-bold">Giỏ hàng của bạn đang trống!</h2>
             <p className="text-muted" style={{ fontSize: '1.1rem' }}>Có vẻ như bạn chưa chọn sản phẩm nào để nâng cấp góc máy của mình.</p>
             <Link to="/products" className="btn btn-primary" style={{ padding: '12px 30px', fontSize: '1.1rem' }}>TIẾP TỤC MUA SẮM</Link>
@@ -185,6 +215,20 @@ export default function Cart() {
               </div>
             </div>
 
+          </div>
+        )}
+
+        {/* Recommended Products (show regardless of empty state but styled distinctly) */}
+        {recommendedProducts.length > 0 && (
+          <div style={{ marginTop: '60px', paddingBottom: '60px' }}>
+            <h3 className="glitch-text text-2xl font-bold" data-text="CÓ THỂ BẠN SẼ THÍCH" style={{ marginBottom: '24px' }}>CÓ THỂ BẠN SẼ THÍCH</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
+              {recommendedProducts.map((item, idx) => (
+                <div key={item.id} style={{ display: 'flex' }}>
+                  <ProductCard product={item} index={idx} />
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

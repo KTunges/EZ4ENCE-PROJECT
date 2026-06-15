@@ -6,19 +6,20 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import MainLayout from './components/layout/MainLayout';
-import Home from './pages/Home';
-import About from './pages/About';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import CheckoutSuccess from './pages/CheckoutSuccess';
-import CheckoutVnpayReturn from './pages/CheckoutVnpayReturn';
-import Profile from './pages/Profile';
-import OrderDetails from './pages/OrderDetails';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Products from './pages/Products';
-import ProductDetail from './pages/ProductDetail';
-import BuildPC from './pages/BuildPC';
+import Home from './pages/customer/Home';
+import About from './pages/customer/About';
+import Cart from './pages/customer/Cart';
+import Checkout from './pages/customer/Checkout';
+import CheckoutSuccess from './pages/customer/CheckoutSuccess';
+import CheckoutVnpayReturn from './pages/customer/CheckoutVnpayReturn';
+import Profile from './pages/customer/Profile';
+import OrderDetails from './pages/customer/OrderDetails';
+import Login from './pages/customer/Login';
+import Register from './pages/customer/Register';
+import Products from './pages/customer/Products';
+import ProductDetail from './pages/customer/ProductDetail';
+import BuildPC from './pages/customer/BuildPC';
+import NewsDetails from './pages/customer/NewsDetails';
 import AdminRoute from './components/auth/AdminRoute';
 import AdminLayout from './components/layout/AdminLayout';
 import AdminLogin from './pages/admin/AdminLogin';
@@ -31,6 +32,13 @@ import AdminCategories from './pages/admin/AdminCategories';
 import AdminBrands from './pages/admin/AdminBrands';
 import AdminCustomers from './pages/admin/AdminCustomers';
 import AdminReviews from './pages/admin/AdminReviews';
+import AdminBanners from './pages/admin/AdminBanners';
+import AdminCoupons from './pages/admin/AdminCoupons';
+import AdminSuppliers from './pages/admin/AdminSuppliers';
+import AdminInventory from './pages/admin/AdminInventory';
+import AdminStock from './pages/admin/AdminStock';
+import AdminStaffs from './pages/admin/AdminStaffs';
+import AdminNews from './pages/admin/AdminNews';
 
 // Google Client ID (đọc từ file .env)
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -61,6 +69,7 @@ function App() {
                   <Route path="products" element={<Products />} />
                   <Route path="products/:slug" element={<ProductDetail />} />
                   <Route path="build-pc" element={<BuildPC />} />
+                  <Route path="news/:slug" element={<NewsDetails />} />
                   <Route path="cart" element={<Cart />} />
                   <Route path="checkout" element={<Checkout />} />
                   <Route path="checkout/success" element={<CheckoutSuccess />} />
@@ -86,6 +95,14 @@ function App() {
                   <Route path="brands" element={<AdminBrands />} />
                   <Route path="customers" element={<AdminCustomers />} />
                   <Route path="reviews" element={<AdminReviews />} />
+                  <Route path="staffs" element={<AdminStaffs />} />
+                  <Route path="banners" element={<AdminBanners />} />
+                  <Route path="coupons" element={<AdminCoupons />} />
+                  <Route path="email" element={<div style={{padding: '40px'}}>Tính năng Email Marketing đang phát triển</div>} />
+                  <Route path="news" element={<AdminNews />} />
+                  <Route path="suppliers" element={<AdminSuppliers />} />
+                  <Route path="inventory" element={<AdminInventory />} />
+                  <Route path="stock" element={<AdminStock />} />
                   {/* Các route tương lai sẽ thêm vào đây */}
                 </Route>
               </Routes>

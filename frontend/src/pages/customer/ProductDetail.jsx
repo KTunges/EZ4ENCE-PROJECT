@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ShoppingCart, Heart, Star, Minus, Plus, ChevronRight, Shield, Truck, RotateCcw, Package, Check, Gift, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import CyberBackground from '../components/ui/CyberBackground';
-import ProductCard from '../components/ui/ProductCard';
-import { useCart } from '../context/CartContext';
+import CyberBackground from '../../components/ui/CyberBackground';
+import ProductCard from '../../components/ui/ProductCard';
+import { useCart } from '../../context/CartContext';
 
 export default function ProductDetail() {
   const { slug } = useParams();

@@ -73,26 +73,10 @@ export const deleteOrder = async (id) => {
   return response.data;
 };
 
-// --- DASHBOARD (DUMMY CHO TỚI KHI CÓ API THỐNG KÊ THẬT) ---
-export const getDashboardStats = async () => {
-  try {
-    const [orders, products] = await Promise.all([
-      getAdminOrders({ limit: 100 }),
-      getAdminProducts({ limit: 1000 })
-    ]);
-    
-    const totalRevenue = orders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
-    
-    return {
-      totalRevenue,
-      totalOrders: orders.length,
-      activeProducts: products.length,
-      newCustomers: 4 // Giả lập số khách hàng
-    };
-  } catch (error) {
-    console.error("Lỗi khi lấy dữ liệu dashboard:", error);
-    return { totalRevenue: 0, totalOrders: 0, activeProducts: 0, newCustomers: 0 };
-  }
+// --- DASHBOARD ---
+export const getDashboardStats = async (period = 'week') => {
+  const response = await adminApi.get(`/admin/dashboard/stats?period=${period}`);
+  return response.data;
 };
 
 // --- CATEGORIES ---
@@ -163,5 +147,39 @@ export const deleteReview = async (id) => {
   const response = await adminApi.delete(`/admin/reviews/${id}`);
   return response.data;
 };
+
+// MARKETING - PROMOTIONS & BANNERS & NEWS
+// MARKETING - PROMOTIONS & BANNERS & NEWS
+export const getPromotions = async () => { const r = await adminApi.get('/admin/marketing/promotions'); return r.data; };
+export const createPromotion = async (data) => { const r = await adminApi.post('/admin/marketing/promotions', data); return r.data; };
+export const togglePromotionStatus = async (id) => { const r = await adminApi.put(`/admin/marketing/promotions/${id}/toggle`); return r.data; };
+export const deletePromotion = async (id) => { const r = await adminApi.delete(`/admin/marketing/promotions/${id}`); return r.data; };
+
+export const getAdminBanners = async () => { const r = await adminApi.get('/admin/marketing/banners'); return r.data; };
+export const createBanner = async (data) => { const r = await adminApi.post('/admin/marketing/banners', data); return r.data; };
+export const toggleBannerStatus = async (id) => { const r = await adminApi.put(`/admin/marketing/banners/${id}/toggle`); return r.data; };
+export const deleteBanner = async (id) => { const r = await adminApi.delete(`/admin/marketing/banners/${id}`); return r.data; };
+
+export const getAdminNews = async () => { const r = await adminApi.get('/admin/news'); return r.data; };
+export const createNews = async (data) => { const r = await adminApi.post('/admin/news', data); return r.data; };
+export const updateNews = async (id, data) => { const r = await adminApi.put(`/admin/news/${id}`, data); return r.data; };
+export const deleteNews = async (id) => { const r = await adminApi.delete(`/admin/news/${id}`); return r.data; };
+
+// INVENTORY & SUPPLIERS
+export const getSuppliers = () => adminApi.get('/admin/inventory/suppliers');
+export const createSupplier = (data) => adminApi.post('/admin/inventory/suppliers', data);
+export const updateSupplier = (id, data) => adminApi.put(`/admin/inventory/suppliers/${id}`, data);
+export const deleteSupplier = (id) => adminApi.delete(`/admin/inventory/suppliers/${id}`);
+
+export const getInventory = () => adminApi.get('/admin/inventory/skus');
+
+export const getStockReceipts = () => adminApi.get('/admin/inventory/receipts');
+export const createStockReceipt = (data) => adminApi.post('/admin/inventory/receipts', data);
+
+// STAFFS
+export const getStaffs = () => adminApi.get('/admin/staffs');
+export const createStaff = (data) => adminApi.post('/admin/staffs', data);
+export const updateStaff = (id, data) => adminApi.put(`/admin/staffs/${id}`, data);
+export const deleteStaff = (id) => adminApi.delete(`/admin/staffs/${id}`);
 
 export default adminApi;

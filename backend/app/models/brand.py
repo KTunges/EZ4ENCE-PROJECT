@@ -16,3 +16,7 @@ class Brand(Base):
 
     # Relationships
     products = relationship("Product", back_populates="brand")
+
+    @property
+    def product_count(self) -> int:
+        return len(self.products) if self.products else 0

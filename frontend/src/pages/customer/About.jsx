@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Cpu, MemoryStick, MonitorPlay, Power } from 'lucide-react';
-import MarqueeBanner from '../components/ui/MarqueeBanner';
-import CyberBackground from '../components/ui/CyberBackground';
-import CyberTimeline from '../components/ui/CyberTimeline';
-import { useHackerText } from '../hooks/useHackerText';
+import MarqueeBanner from '../../components/ui/MarqueeBanner';
+import CyberBackground from '../../components/ui/CyberBackground';
+import CyberTimeline from '../../components/ui/CyberTimeline';
+import { useHackerText } from '../../hooks/useHackerText';
 
 // A wrapper component to handle hover state for hacker text
 function HackerSpecCard({ spec, index }) {

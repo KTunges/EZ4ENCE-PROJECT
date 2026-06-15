@@ -15,6 +15,7 @@ def build_tree(categories, parent_id=None):
             # We must map SQLAlchemy model to dict or let Pydantic handle it
             # Pydantic handles from_attributes, but we need to inject 'children'
             cat_dict = cat.__dict__.copy()
+            cat_dict['product_count'] = cat.product_count
             cat_dict['children'] = build_tree(categories, cat.id)
             tree.append(cat_dict)
     return tree

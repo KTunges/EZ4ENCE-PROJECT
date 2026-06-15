@@ -10,6 +10,8 @@ from app.models.review import Review, ReviewImage
 from app.models.wishlist import WishlistItem
 from app.models.marketing import Banner, Promotion
 from app.models.builder import CompatibilityOverride
+from app.models.inventory import Supplier, StockReceipt, StockReceiptItem
+from app.models.news import News
 
 __all__ = [
     "Base",
@@ -23,5 +25,6 @@ __all__ = [
     "Review", "ReviewImage",
     "WishlistItem",
     "Banner", "Promotion",
-    "CompatibilityOverride"
+    "CompatibilityOverride",
+    "News"
 ]

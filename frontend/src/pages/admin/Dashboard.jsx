@@ -7,51 +7,68 @@ export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState({
     totalRevenue: 0,
     totalOrders: 0,
-    activeProducts: 1240,
-    newCustomers: 12
+    activeProducts: 0,
+    totalCustomers: 0,
+    revenueChart: [],
+    recentOrders: []
   });
+
+  const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState('week');
 
   useEffect(() => {
     const fetchStats = async () => {
+      setLoading(true);
       try {
-        const stats = await getDashboardStats();
-        setDashboardData(prev => ({ ...prev, ...stats }));
+        const stats = await getDashboardStats(period);
+        setDashboardData(stats);
       } catch (error) {
         console.error("Lỗi lấy dữ liệu dashboard", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchStats();
-  }, []);
+  }, [period]);
   const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
 
   const stats = [
     { title: 'Tổng doanh thu', value: formatCurrency(dashboardData.totalRevenue), trend: '+12.5%', isPositive: true, icon: <DollarSign size={24} /> },
-    { title: 'Đơn hàng mới', value: dashboardData.totalOrders.toString(), trend: '+5.2%', isPositive: true, icon: <ShoppingCart size={24} /> },
-    { title: 'Khách hàng mới', value: dashboardData.newCustomers.toString(), trend: '-2.4%', isPositive: false, icon: <Users size={24} /> },
-    { title: 'Tổng sản phẩm', value: dashboardData.activeProducts.toString(), trend: '+0.0%', isPositive: true, icon: <Package size={24} /> }
+    { title: 'Tổng đơn hàng', value: dashboardData.totalOrders.toString(), trend: '+5.2%', isPositive: true, icon: <ShoppingCart size={24} /> },
+    { title: 'Khách hàng', value: dashboardData.totalCustomers?.toString() || '0', trend: '+1.4%', isPositive: true, icon: <Users size={24} /> },
+    { title: 'Sản phẩm', value: dashboardData.activeProducts.toString(), trend: '+0.0%', isPositive: true, icon: <Package size={24} /> }
   ];
 
-  const revenueData = [
-    { name: 'T2', current: 15, prev: 12 },
-    { name: 'T3', current: 22, prev: 18 },
-    { name: 'T4', current: 18, prev: 20 },
-    { name: 'T5', current: 28, prev: 25 },
-    { name: 'T6', current: 35, prev: 30 },
-    { name: 'T7', current: 48, prev: 42 },
-    { name: 'CN', current: 52, prev: 45 },
-  ];
-
-  const orderData = [
-    { name: 'CPU', sales: 120 },
-    { name: 'VGA', sales: 85 },
-    { name: 'RAM', sales: 250 },
-    { name: 'Main', sales: 110 },
-    { name: 'SSD', sales: 180 },
-  ];
+  if (loading) {
+    return <div style={{ padding: '40px', textAlign: 'center' }}><div className="spinner-border text-cyan"></div></div>;
+  }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Tổng quan Dashboard</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <h1 className="text-2xl font-bold">Tổng quan Dashboard</h1>
+        <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-card)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border)' }}>
+          {['week', 'month', 'year'].map(p => (
+            <button 
+              key={p}
+              onClick={() => setPeriod(p)}
+              style={{
+                padding: '6px 16px',
+                borderRadius: '6px',
+                border: 'none',
+                background: period === p ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+                color: period === p ? '#38bdf8' : 'var(--text-muted)',
+                fontWeight: period === p ? 'bold' : '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                fontSize: '13px'
+              }}
+            >
+              {p === 'week' ? '7 Ngày' : p === 'month' ? '30 Ngày' : '1 Năm'}
+            </button>
+          ))}
+        </div>
+      </div>
       
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '30px' }}>
         {stats.map((stat, idx) => (
@@ -73,10 +90,12 @@ export default function Dashboard() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
         <div className="glass" style={{ padding: '24px', borderRadius: '12px', minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '20px' }}>Biểu đồ doanh thu (Tuần)</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h2 style={{ fontSize: '16px', fontWeight: 'bold' }}>Biểu đồ doanh thu</h2>
+          </div>
           <div style={{ flex: 1, width: '100%', minHeight: '300px' }}>
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={revenueData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <AreaChart data={dashboardData.revenueChart} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorCurrent" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.3}/>
@@ -88,15 +107,15 @@ export default function Dashboard() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                <XAxis dataKey="name" stroke="#94a3b8" tick={{fill: 'var(--text-muted)'}} axisLine={false} tickLine={false} />
-                <YAxis stroke="#94a3b8" tick={{fill: 'var(--text-muted)'}} axisLine={false} tickLine={false} tickFormatter={(val) => `${val}M`} />
+                <XAxis dataKey="date" stroke="#94a3b8" tick={{fill: 'var(--text-muted)'}} axisLine={false} tickLine={false} />
+                <YAxis stroke="#94a3b8" tick={{fill: 'var(--text-muted)'}} axisLine={false} tickLine={false} tickFormatter={(val) => `${val / 1000000}M`} />
                 <Tooltip 
                   contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)' }}
                   itemStyle={{ color: 'var(--text)' }}
+                  formatter={(value) => formatCurrency(value)}
                 />
                 <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
-                <Area type="monotone" dataKey="prev" name="Tuần trước" stroke="#94a3b8" strokeWidth={2} fillOpacity={1} fill="url(#colorPrev)" />
-                <Area type="monotone" dataKey="current" name="Tuần này" stroke="#38bdf8" strokeWidth={3} fillOpacity={1} fill="url(#colorCurrent)" activeDot={{ r: 6, strokeWidth: 0, fill: '#38bdf8' }} />
+                <Area type="monotone" dataKey="revenue" name="Doanh thu" stroke="#38bdf8" strokeWidth={3} fillOpacity={1} fill="url(#colorCurrent)" activeDot={{ r: 6, strokeWidth: 0, fill: '#38bdf8' }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -105,14 +124,18 @@ export default function Dashboard() {
         <div className="glass" style={{ padding: '24px', borderRadius: '12px', minHeight: '400px' }}>
           <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '20px' }}>Đơn hàng gần đây</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {[1, 2, 3, 4, 5].map(i => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingBottom: '16px', borderBottom: i !== 5 ? '1px solid var(--border)' : 'none' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 'bold' }}>#{i}A</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '14px', fontWeight: 'bold' }}>Khách hàng {i}</div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Vừa xong</div>
+            {dashboardData.recentOrders.length === 0 ? (
+              <div style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '20px 0' }}>Chưa có đơn hàng nào</div>
+            ) : dashboardData.recentOrders.map(o => (
+              <div key={o.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 'bold' }}>
+                  #{o.order_code.slice(-4)}
                 </div>
-                <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--cyan)', fontFamily: 'var(--font-mono)' }}>24.5M</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '14px', fontWeight: 'bold', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100px' }}>{o.user_name}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{new Date(o.created_at).toLocaleDateString('vi-VN')}</div>
+                </div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--cyan)', fontFamily: 'var(--font-mono)' }}>{formatCurrency(o.total_amount)}</div>
               </div>
             ))}
           </div>

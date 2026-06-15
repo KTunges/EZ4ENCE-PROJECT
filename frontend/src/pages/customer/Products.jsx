@@ -2,11 +2,11 @@ import { useState, useMemo, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { SlidersHorizontal, Grid3X3, List, ChevronLeft, ChevronRight, X, Filter } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import CyberBackground from '../components/ui/CyberBackground';
-import ProductCard from '../components/ui/ProductCard';
-import CustomSelect from '../components/ui/CustomSelect';
-import CategorySidebar from '../components/layout/CategorySidebar';
-import BentoBanners from '../components/ui/BentoBanners';
+import CyberBackground from '../../components/ui/CyberBackground';
+import ProductCard from '../../components/ui/ProductCard';
+import CustomSelect from '../../components/ui/CustomSelect';
+import CategorySidebar from '../../components/layout/CategorySidebar';
+import BentoBanners from '../../components/ui/BentoBanners';
 
 const CATEGORIES = ['Tất cả', 'VGA', 'CPU', 'Mainboard', 'RAM', 'Lưu trữ', 'Màn hình', 'Chuột', 'Bàn phím', 'Tai nghe', 'Nguồn', 'Case', 'Phụ kiện'];
 const BRANDS = ['Tất cả', 'ASUS', 'Logitech', 'Razer', 'SteelSeries', 'Intel', 'MSI', 'G.Skill', 'Samsung', 'LG', 'Corsair', 'NZXT', 'Artisan'];

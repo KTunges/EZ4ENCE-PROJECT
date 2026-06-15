@@ -6,10 +6,10 @@ import {
   Check, Trash2, RefreshCw, ShoppingCart, 
   Settings2, LucideFan, ChevronRight
 } from 'lucide-react';
-import CyberBackground from '../components/ui/CyberBackground';
-import CustomSelect from '../components/ui/CustomSelect';
-import { useCart } from '../context/CartContext';
-import { useToast } from '../context/ToastContext';
+import CyberBackground from '../../components/ui/CyberBackground';
+import CustomSelect from '../../components/ui/CustomSelect';
+import { useCart } from '../../context/CartContext';
+import { useToast } from '../../context/ToastContext';
 
 const BUILD_SLOTS = [
   { id: 'CPU', label: 'Vi Xử Lý', icon: <Cpu size={24} /> },

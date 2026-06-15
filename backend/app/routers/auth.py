@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, BackgroundTasks
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 import jwt
@@ -43,6 +43,11 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise credentials_exception
     return user
 
+def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
+    if current_user.role != Role.ADMIN:
+        raise HTTPException(status_code=403, detail="Not authorized. Admin access required.")
+    return current_user
+
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(user_in: UserCreate, db: Session = Depends(get_db)):
     # Kiểm tra email tồn tại
@@ -85,32 +90,12 @@ def login(login_in: UserLogin, db: Session = Depends(get_db)):
 
 otp_store = {}
 
-@router.post("/admin-login-step1")
-def admin_login_step1(login_in: AdminLoginStep1, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == login_in.email).first()
-    if not user or not security.verify_password(login_in.password, user.password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email hoặc mật khẩu không chính xác"
-        )
-    if user.role != Role.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Tài khoản không có quyền Quản trị viên"
-        )
-    
-    otp = f"{random.randint(0, 999999):06d}"
-    otp_store[user.email] = otp
-    print(f"\\n=========================================")
-    print(f"MÃ OTP CỦA ADMIN {user.email} LÀ: {otp}")
-    print(f"=========================================\\n")
-    
-    # Gửi qua Email nếu có cấu hình SMTP
+def send_otp_email_task(email: str, otp: str):
     if settings.SMTP_EMAIL and settings.SMTP_PASSWORD:
         try:
             msg = MIMEMultipart()
             msg['From'] = settings.SMTP_EMAIL
-            msg['To'] = user.email
+            msg['To'] = email
             msg['Subject'] = "EZ4ENCE - Mã xác thực Admin (2FA)"
             
             html_body = f"""
@@ -139,14 +124,36 @@ def admin_login_step1(login_in: AdminLoginStep1, db: Session = Depends(get_db)):
             """
             msg.attach(MIMEText(html_body, 'html'))
             
-            server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT)
+            server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT, timeout=10)
             server.starttls()
             server.login(settings.SMTP_EMAIL, settings.SMTP_PASSWORD)
-            server.sendmail(settings.SMTP_EMAIL, user.email, msg.as_string())
+            server.sendmail(settings.SMTP_EMAIL, email, msg.as_string())
             server.quit()
-            print(f"Đã gửi OTP qua Email thành công cho {user.email}")
+            print(f"Đã gửi OTP qua Email thành công cho {email}")
         except Exception as e:
             print(f"Lỗi khi gửi email: {e}")
+
+@router.post("/admin-login-step1")
+def admin_login_step1(login_in: AdminLoginStep1, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == login_in.email).first()
+    if not user or not security.verify_password(login_in.password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email hoặc mật khẩu không chính xác"
+        )
+    if user.role != Role.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Tài khoản không có quyền Quản trị viên"
+        )
+    
+    otp = f"{random.randint(0, 999999):06d}"
+    otp_store[user.email] = otp
+    print(f"\\n=========================================")
+    print(f"MÃ OTP CỦA ADMIN {user.email} LÀ: {otp}")
+    print(f"=========================================\\n")
+    
+    background_tasks.add_task(send_otp_email_task, user.email, otp)
     
     return {"message": "OTP đã được tạo", "email": user.email}
 

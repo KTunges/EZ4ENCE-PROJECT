@@ -133,7 +133,7 @@ export default function AdminLogin() {
               onMouseLeave={(e) => (!isLoading && otp.length === 6) && (e.currentTarget.style.transform = 'scale(1)')}
             >
               {isLoading ? (
-                <span className="spinner-border w-5 h-5 border-2 rounded-full border-t-transparent animate-spin"></span>
+                <>ĐANG XỬ LÝ... <span className="w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin ml-2"></span></>
               ) : (
                 <>XÁC NHẬN ĐĂNG NHẬP <ShieldCheck size={18} /></>
               )}
@@ -224,7 +224,7 @@ export default function AdminLogin() {
               onMouseLeave={(e) => !isLoading && (e.currentTarget.style.transform = 'scale(1)')}
             >
               {isLoading ? (
-                <span className="spinner-border w-5 h-5 border-2 rounded-full border-t-transparent animate-spin"></span>
+                <>ĐANG XỬ LÝ... <span className="w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin ml-2"></span></>
               ) : (
                 <>TIẾP TỤC <ArrowRight size={18} /></>
               )}

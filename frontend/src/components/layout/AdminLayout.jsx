@@ -18,36 +18,50 @@ export default function AdminLayout() {
     navigate('/');
   };
 
+  const hasAccess = (path, isDev = false) => {
+    if (isDev) return false; // Dev items are always false
+    if (!adminUser || !adminUser.staff_role) return false; // Should not happen if logged in
+    if (adminUser.staff_role === 'SUPER_ADMIN') return true;
+    if (path === '/admin/dashboard') return true; // Everyone can see dashboard
+    
+    if (adminUser.staff_role === 'SALES') {
+      return ['/admin/orders', '/admin/customers'].includes(path);
+    }
+    if (adminUser.staff_role === 'INVENTORY') {
+      return ['/admin/products', '/admin/categories', '/admin/brands', '/admin/inventory', '/admin/suppliers', '/admin/stock'].includes(path);
+    }
+    return false;
+  };
+
   const navItems = [
     { section: 'TỔNG QUAN', items: [
-      { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} />, path: '/admin/dashboard', active: true }
+      { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} />, path: '/admin/dashboard', active: hasAccess('/admin/dashboard') }
     ]},
     { section: 'BÁN HÀNG', items: [
-      { id: 'orders', label: 'Quản lý Đơn hàng', icon: <ShoppingCart size={18} />, path: '/admin/orders', active: true },
-      { id: 'products', label: 'Quản lý Sản phẩm', icon: <Package size={18} />, path: '/admin/products', active: true },
-      { id: 'categories', label: 'Quản lý Danh mục', icon: <Tags size={18} />, path: '/admin/categories', active: true },
-      { id: 'brands', label: 'Quản lý Thương hiệu', icon: <Award size={18} />, path: '/admin/brands', active: true }
+      { id: 'orders', label: 'Quản lý Đơn hàng', icon: <ShoppingCart size={18} />, path: '/admin/orders', active: hasAccess('/admin/orders') },
+      { id: 'products', label: 'Quản lý Sản phẩm', icon: <Package size={18} />, path: '/admin/products', active: hasAccess('/admin/products') },
+      { id: 'categories', label: 'Quản lý Danh mục', icon: <Tags size={18} />, path: '/admin/categories', active: hasAccess('/admin/categories') },
+      { id: 'brands', label: 'Quản lý Thương hiệu', icon: <Award size={18} />, path: '/admin/brands', active: hasAccess('/admin/brands') }
     ]},
     { section: 'MARKETING', items: [
-      { id: 'coupons', label: 'Mã giảm giá', icon: <Ticket size={18} />, path: '/admin/coupons', active: false },
-      { id: 'banners', label: 'Quản lý Banner', icon: <ImageIcon size={18} />, path: '/admin/banners', active: false },
-      { id: 'email', label: 'Email Marketing', icon: <Send size={18} />, path: '/admin/email', active: false }
+      { id: 'coupons', label: 'Mã giảm giá', icon: <Ticket size={18} />, path: '/admin/coupons', active: hasAccess('/admin/coupons') },
+      { id: 'banners', label: 'Quản lý Banner', icon: <ImageIcon size={18} />, path: '/admin/banners', active: hasAccess('/admin/banners') },
+      { id: 'news', label: 'Tin tức', icon: <FileText size={18} />, path: '/admin/news', active: hasAccess('/admin/dashboard') },
+      { id: 'email', label: 'Email Marketing', icon: <Send size={18} />, path: '/admin/email', active: hasAccess('/admin/email', true) }
     ]},
     { section: 'KHO & ĐỐI TÁC', items: [
-      { id: 'inventory', label: 'Theo dõi Tồn kho', icon: <ClipboardList size={18} />, path: '/admin/inventory', active: false },
-      { id: 'suppliers', label: 'Nhà cung cấp', icon: <Truck size={18} />, path: '/admin/suppliers', active: false },
-      { id: 'stock-in', label: 'Phiếu nhập kho', icon: <ArrowDownToLine size={18} />, path: '/admin/stock-in', active: false },
-      { id: 'stock-out', label: 'Phiếu xuất kho', icon: <ArrowUpFromLine size={18} />, path: '/admin/stock-out', active: false }
+      { id: 'inventory', label: 'Theo dõi Tồn kho', icon: <Package size={18} />, path: '/admin/inventory', active: hasAccess('/admin/inventory') },
+      { id: 'suppliers', label: 'Nhà cung cấp', icon: <Truck size={18} />, path: '/admin/suppliers', active: hasAccess('/admin/suppliers') },
+      { id: 'stock-in', label: 'Phiếu nhập/xuất kho', icon: <FileText size={18} />, path: '/admin/stock', active: hasAccess('/admin/stock') }
     ]},
     { section: 'KHÁCH HÀNG', items: [
-      { id: 'customers', label: 'Khách hàng', icon: <Users size={18} />, path: '/admin/customers', active: true },
-      { id: 'reviews', label: 'Đánh giá/Bình luận', icon: <Star size={18} />, path: '/admin/reviews', active: true },
-      { id: 'chat', label: 'Live Chat', icon: <MessageSquare size={18} />, path: '/admin/chat', active: false },
-      { id: 'returns', label: 'Đổi/Trả hàng', icon: <RefreshCcw size={18} />, path: '/admin/returns', active: false }
+      { id: 'customers', label: 'Khách hàng', icon: <Users size={18} />, path: '/admin/customers', active: hasAccess('/admin/customers') },
+      { id: 'reviews', label: 'Đánh giá/Bình luận', icon: <Star size={18} />, path: '/admin/reviews', active: hasAccess('/admin/reviews') },
+      { id: 'chat', label: 'Live Chat', icon: <MessageSquare size={18} />, path: '/admin/chat', active: hasAccess('/admin/chat', true) },
+      { id: 'returns', label: 'Đổi/Trả hàng', icon: <RefreshCcw size={18} />, path: '/admin/returns', active: hasAccess('/admin/returns', true) }
     ]},
     { section: 'HỆ THỐNG', items: [
-      { id: 'users', label: 'Nhân viên (Staff)', icon: <UserCog size={18} />, path: '/admin/users', active: false },
-      { id: 'roles', label: 'Phân quyền', icon: <ShieldCheck size={18} />, path: '/admin/roles', active: false }
+      { id: 'staffs', label: 'Nhân viên (Staff)', icon: <UserCog size={18} />, path: '/admin/staffs', active: hasAccess('/admin/staffs') }
     ]}
   ];
 
@@ -107,7 +121,9 @@ export default function AdminLayout() {
                       >
                         {item.icon}
                         {item.label}
-                        <span style={{ marginLeft: 'auto', fontSize: '10px', background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.8)', padding: '2px 6px', borderRadius: '4px', fontWeight: '500' }}>Dev</span>
+                        <span style={{ marginLeft: 'auto', fontSize: '10px', background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.8)', padding: '2px 6px', borderRadius: '4px', fontWeight: '500' }}>
+                          {['/admin/email', '/admin/chat', '/admin/returns'].includes(item.path) ? 'Dev' : <ShieldCheck size={12} />}
+                        </span>
                       </div>
                     )}
                   </li>
@@ -157,7 +173,9 @@ export default function AdminLayout() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', borderLeft: '1px solid var(--border-hover)', paddingLeft: '24px' }}>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--text)', letterSpacing: '0.5px' }}>{adminUser?.fullName || 'Admin'}</div>
-                <div style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'right' }}>{adminUser?.role || 'System Admin'}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'right' }}>
+                  {adminUser?.staff_role === 'SUPER_ADMIN' ? 'Super Admin' : adminUser?.staff_role || 'System Admin'}
+                </div>
               </div>
               <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '16px', boxShadow: '0 4px 10px rgba(14, 165, 233, 0.3)' }}>
                 {adminUser?.fullName?.charAt(0) || 'A'}

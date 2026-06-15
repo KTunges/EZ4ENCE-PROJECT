@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Truck, Zap, ShieldCheck } from 'lucide-react';
-import CustomSelect from '../components/ui/CustomSelect';
+import CustomSelect from '../../components/ui/CustomSelect';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
-import useVietnamProvinces from '../hooks/useVietnamProvinces';
+import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
+import useVietnamProvinces from '../../hooks/useVietnamProvinces';
 
 export default function Checkout() {
   const navigate = useNavigate();

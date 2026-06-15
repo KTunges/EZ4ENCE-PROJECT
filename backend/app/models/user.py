@@ -19,6 +19,7 @@ class User(Base):
     phone = Column(String, nullable=True)
     avatar = Column(String, nullable=True)  # URL ảnh đại diện từ Cloudinary
     role = Column(Enum(Role), default=Role.USER, nullable=False)
+    staff_role = Column(String, nullable=True) # e.g. SUPER_ADMIN, SALES, INVENTORY
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)

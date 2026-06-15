@@ -20,6 +20,11 @@ export default function Footer() {
               <a href="#" className="icon-btn"><Send size={18} /></a>
               <a href="#" className="icon-btn"><Code2 size={18} /></a>
             </div>
+            
+            <div style={{ marginTop: '24px', fontSize: '14px', color: 'var(--text-muted)' }}>
+              <p>Hotline: 1900 xxxx</p>
+              <p style={{ marginTop: '8px' }}>Email: support@ez4ence.vn</p>
+            </div>
           </div>
 
           <div>
@@ -45,12 +50,21 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="footer-title">Liên Hệ</h3>
-            <div className="footer-links">
-              <p style={{ color: 'var(--text-muted)' }}>Hotline: 1900 xxxx</p>
-              <p style={{ color: 'var(--text-muted)' }}>Email: support@ez4ence.vn</p>
-              <p style={{ color: 'var(--text-muted)' }}>Địa chỉ: 123 Đường X, Quận Y, TP.HCM</p>
-            </div>
+            <h3 className="footer-title">Nhận Tin Khuyến Mãi</h3>
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '16px', lineHeight: '1.6' }}>
+              Đăng ký ngay để nhận các mã giảm giá và tin tức phần cứng mới nhất.
+            </p>
+            <form className="cyber-input-group" onSubmit={(e) => e.preventDefault()}>
+              <input 
+                type="email" 
+                className="cyber-input" 
+                placeholder="Nhập email của bạn..." 
+                required
+              />
+              <button type="submit" className="cyber-btn-inside">
+                ĐĂNG KÝ
+              </button>
+            </form>
           </div>
         </div>
 

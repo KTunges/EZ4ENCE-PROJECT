@@ -72,6 +72,7 @@ class ProductSKU(Base):
     cart_items = relationship("CartItem", back_populates="sku")
     order_items = relationship("OrderItem", back_populates="sku")
     reviews = relationship("Review", back_populates="sku", cascade="all, delete-orphan")
+    stock_receipt_items = relationship("StockReceiptItem", back_populates="sku", cascade="all, delete-orphan")
     wishlist_items = relationship("WishlistItem", back_populates="sku", cascade="all, delete-orphan")
 
 

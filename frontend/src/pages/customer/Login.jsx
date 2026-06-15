@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, LogIn, User } from 'lucide-react';
-import CyberBackground from '../components/ui/CyberBackground';
-import { useAuth } from '../context/AuthContext';
+import CyberBackground from '../../components/ui/CyberBackground';
+import { useAuth } from '../../context/AuthContext';
 import { useGoogleLogin } from '@react-oauth/google';
 
 export default function Login() {

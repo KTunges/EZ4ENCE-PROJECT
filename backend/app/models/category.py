@@ -19,3 +19,7 @@ class Category(Base):
     parent = relationship("Category", remote_side=[id], back_populates="children")
     children = relationship("Category", back_populates="parent", cascade="all, delete-orphan")
     products = relationship("Product", back_populates="category")
+
+    @property
+    def product_count(self) -> int:
+        return len(self.products) if self.products else 0

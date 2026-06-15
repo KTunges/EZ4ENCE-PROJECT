@@ -1,11 +1,12 @@
 import { lazy, Suspense, useState, useEffect } from 'react';
-import { ArrowRight, Zap, Shield, ChevronRight, Star, Cpu } from 'lucide-react';
+import { ArrowRight, Zap, Shield, ChevronRight, Star, Cpu, Laptop, Monitor, MonitorPlay, Keyboard, Mouse } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import MarqueeBanner from '../components/ui/MarqueeBanner';
-import ProductCard from '../components/ui/ProductCard';
-import CyberBackground from '../components/ui/CyberBackground';
-import { useHackerText } from '../hooks/useHackerText';
+import MarqueeBanner from '../../components/ui/MarqueeBanner';
+import ProductCard from '../../components/ui/ProductCard';
+import CyberBackground from '../../components/ui/CyberBackground';
+import FullWidthBanner from '../../components/ui/FullWidthBanner';
+import { useHackerText } from '../../hooks/useHackerText';
 
 // A wrapper component to handle hover state for hacker text
 function HackerFeatureCard({ feature, index }) {
@@ -30,44 +31,32 @@ function HackerFeatureCard({ feature, index }) {
   );
 }
 
-const GamepadScene = lazy(() => import('../components/3d/GamepadScene'));
-
-const MOCK_NEWS = [
-  {
-    id: 1,
-    title: 'NVIDIA RTX 5090 rò rỉ thông số khủng, mạnh gấp đôi RTX 4090?',
-    image: 'https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=400&q=80',
-    date: '10/06/2026',
-    category: 'Phần Cứng'
-  },
-  {
-    id: 2,
-    title: 'Intel Core Ultra 200 series chính thức ra mắt, thiết lập tiêu chuẩn mới',
-    image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=400&q=80',
-    date: '08/06/2026',
-    category: 'CPU'
-  },
-  {
-    id: 3,
-    title: 'Apple hé lộ chip M4 Max cực mạnh trên MacBook Pro thế hệ mới',
-    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=400&q=80',
-    date: '05/06/2026',
-    category: 'Laptop'
-  },
-  {
-    id: 4,
-    title: 'Top 5 bàn phím cơ Custom đáng mua nhất tầm giá dưới 2 triệu',
-    image: 'https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=400&q=80',
-    date: '01/06/2026',
-    category: 'Đánh Giá'
-  }
-];
-
+import GamepadScene from '../../components/3d/GamepadScene';
 const stats = [
   { number: '10,000+', label: 'Sản phẩm' },
   { number: '50,000+', label: 'Khách hàng' },
   { number: '99.8%', label: 'Hài lòng' },
   { number: '24/7', label: 'Hỗ trợ' },
+];
+
+const FEATURED_CATEGORIES = [
+  { id: 1, name: 'Laptop Gaming', slug: 'laptop-gaming', icon: <Laptop size={36} />, color: 'var(--cyan)' },
+  { id: 2, name: 'PC Lắp Ráp', slug: 'pc-lap-rap', icon: <Monitor size={36} />, color: 'var(--purple)' },
+  { id: 3, name: 'Linh Kiện PC', slug: 'linh-kien-pc', icon: <Cpu size={36} />, color: 'var(--pink)' },
+  { id: 4, name: 'Màn Hình', slug: 'man-hinh', icon: <MonitorPlay size={36} />, color: 'var(--cyan)' },
+  { id: 5, name: 'Bàn Phím Cơ', slug: 'ban-phim-co', icon: <Keyboard size={36} />, color: 'var(--purple)' },
+  { id: 6, name: 'Chuột Gaming', slug: 'chuot-gaming', icon: <Mouse size={36} />, color: 'var(--pink)' },
+];
+
+const PARTNER_BRANDS = [
+  { id: 1, name: 'ASUS', logo: 'https://cdn.simpleicons.org/asus/white' },
+  { id: 2, name: 'MSI', logo: 'https://cdn.simpleicons.org/msi/white' },
+  { id: 3, name: 'Corsair', logo: 'https://cdn.simpleicons.org/corsair/white' },
+  { id: 4, name: 'NVIDIA', logo: 'https://cdn.simpleicons.org/nvidia/white' },
+  { id: 5, name: 'Intel', logo: 'https://cdn.simpleicons.org/intel/white' },
+  { id: 6, name: 'AMD', logo: 'https://cdn.simpleicons.org/amd/white' },
+  { id: 7, name: 'Razer', logo: 'https://cdn.simpleicons.org/razer/white' },
+  { id: 8, name: 'SteelSeries', logo: 'https://cdn.simpleicons.org/steelseries/white' },
 ];
 
 const features = [
@@ -90,8 +79,14 @@ const features = [
 
 export default function Home() {
   const [bestSellers, setBestSellers] = useState([]);
+  const [newsList, setNewsList] = useState([]);
 
   useEffect(() => {
+    fetch('http://localhost:8000/api/news?limit=4')
+      .then(res => res.json())
+      .then(data => setNewsList(data))
+      .catch(console.error);
+
     fetch('http://localhost:8000/api/products?limit=100')
       .then(res => res.json())
       .then(data => {
@@ -182,13 +177,7 @@ export default function Home() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
           >
-            <Suspense fallback={
-              <div className="hero-3d-loading">
-                <div className="hero-3d-spinner" />
-              </div>
-            }>
-              <GamepadScene />
-            </Suspense>
+            <GamepadScene />
           </motion.div>
 
         </div>
@@ -228,6 +217,47 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── FEATURED CATEGORIES ── */}
+      <section className="container relative z-10" style={{ padding: '0 28px 100px' }}>
+        <motion.div 
+          className="section-header"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
+          <span className="section-tag">// EXPLORE</span>
+          <h2 className="section-title glitch-text" data-text="Danh Mục Nổi Bật">Danh Mục Nổi Bật</h2>
+        </motion.div>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '20px' }}>
+          {FEATURED_CATEGORIES.map((cat, index) => (
+            <motion.div
+              key={cat.id}
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+            >
+              <Link to={`/products?category=${cat.slug}`} className="glass-premium neon-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px 20px', borderRadius: '16px', textDecoration: 'none', height: '100%' }}>
+                <div className="neon-icon" style={{ color: cat.color, marginBottom: '16px', transition: 'all 0.3s ease' }}>
+                  {cat.icon}
+                </div>
+                <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#fff', textAlign: 'center', margin: 0 }}>{cat.name}</h3>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── PARALLAX BANNER (Giữa trang) ── */}
+      <FullWidthBanner 
+        position="home_middle"
+        fallbackImage="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1920&q=80"
+        fallbackTitle="SETUP MƠ ƯỚC"
+        fallbackDesc="Trải nghiệm không gian giải trí đỉnh cao với các thiết bị Gaming Gear xịn xò nhất từ EZ4ENCE."
+      />
+
       {/* ── FEATURED PRODUCTS placeholder ── */}
       <section className="container relative z-10" style={{ padding: '0 28px 100px' }}>
         <motion.div 
@@ -251,6 +281,27 @@ export default function Home() {
       </section>
 
 
+      {/* ── PARTNER BRANDS ── */}
+      <section className="brand-marquee-container relative z-10" style={{ marginBottom: '100px' }}>
+        <div className="container" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '100%', pointerEvents: 'none', zIndex: 2 }}>
+          {/* Fading edges on the container are handled by CSS linear-gradient */}
+        </div>
+        <div className="brand-marquee-track">
+          {/* Double the list for infinite scroll effect */}
+          {[...PARTNER_BRANDS, ...PARTNER_BRANDS].map((brand, index) => (
+            <img key={`${brand.id}-${index}`} src={brand.logo} alt={brand.name} className="brand-logo" />
+          ))}
+        </div>
+      </section>
+
+      {/* ── PARALLAX BANNER (Dưới cùng) ── */}
+      <FullWidthBanner 
+        position="home_bottom"
+        fallbackImage="https://images.unsplash.com/photo-1600861194942-f883de0dfe96?auto=format&fit=crop&w=1920&q=80"
+        fallbackTitle="BÙNG NỔ ƯU ĐÃI"
+        fallbackDesc="Săn ngay các voucher cực khủng dành riêng cho thành viên của EZ4ENCE. Số lượng có hạn!"
+      />
+
       {/* ── TECHNOLOGY NEWS ── */}
       <section className="container relative z-10" style={{ padding: '0 28px 100px' }}>
         <motion.div 
@@ -266,7 +317,7 @@ export default function Home() {
         </motion.div>
         
         <div className="news-grid-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
-          {MOCK_NEWS.map((news, index) => (
+          {newsList.map((news, index) => (
             <motion.div
               key={news.id}
               initial={{ opacity: 0, scale: 0.9 }}
@@ -274,13 +325,13 @@ export default function Home() {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
             >
-              <Link to="#" className="news-card glass-panel" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '12px', transition: 'all 0.3s ease', height: '100%' }}>
+              <Link to={`/news/${news.slug}`} className="news-card glass-panel" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '12px', transition: 'all 0.3s ease', height: '100%' }}>
                 <div className="news-image-wrapper" style={{ height: '160px', overflow: 'hidden', position: 'relative' }}>
-                  <img src={news.image} alt={news.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }} />
-                  <span className="news-category-badge" style={{ position: 'absolute', bottom: '10px', left: '10px', background: 'var(--cyan)', color: '#000', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>{news.category}</span>
+                  <img src={news.image_url || news.image} alt={news.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }} />
+                  <span className="news-category-badge" style={{ position: 'absolute', bottom: '10px', left: '10px', background: 'var(--cyan)', color: '#000', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>{news.category || 'Chung'}</span>
                 </div>
                 <div className="news-content" style={{ padding: '16px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-                  <span className="news-date" style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '8px' }}>{news.date}</span>
+                  <span className="news-date" style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '8px' }}>{new Date(news.published_at || news.date || news.created_at).toLocaleDateString('vi-VN')}</span>
                   <h3 className="news-title" style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-color)', lineHeight: '1.4', marginBottom: '12px', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{news.title}</h3>
                 </div>
               </Link>
