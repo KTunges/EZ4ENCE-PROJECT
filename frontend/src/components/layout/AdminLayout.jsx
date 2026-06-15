@@ -9,12 +9,12 @@ import {
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminLayout() {
-  const { user, logout } = useAuth();
+  const { adminUser, adminLogout } = useAuth();
   const navigate = useNavigate();
   const [isSidebarOpen, setSidebarOpen] = useState(true);
 
   const handleLogout = () => {
-    logout();
+    adminLogout();
     navigate('/');
   };
 
@@ -40,8 +40,8 @@ export default function AdminLayout() {
       { id: 'stock-out', label: 'Phiếu xuất kho', icon: <ArrowUpFromLine size={18} />, path: '/admin/stock-out', active: false }
     ]},
     { section: 'KHÁCH HÀNG', items: [
-      { id: 'customers', label: 'Khách hàng', icon: <Users size={18} />, path: '/admin/customers', active: false },
-      { id: 'reviews', label: 'Đánh giá/Bình luận', icon: <Star size={18} />, path: '/admin/reviews', active: false },
+      { id: 'customers', label: 'Khách hàng', icon: <Users size={18} />, path: '/admin/customers', active: true },
+      { id: 'reviews', label: 'Đánh giá/Bình luận', icon: <Star size={18} />, path: '/admin/reviews', active: true },
       { id: 'chat', label: 'Live Chat', icon: <MessageSquare size={18} />, path: '/admin/chat', active: false },
       { id: 'returns', label: 'Đổi/Trả hàng', icon: <RefreshCcw size={18} />, path: '/admin/returns', active: false }
     ]},
@@ -52,7 +52,7 @@ export default function AdminLayout() {
   ];
 
   return (
-    <div  style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-page)', color: 'var(--text)', fontFamily: 'var(--font-sans)' }}>
+    <div data-theme="light" style={{ display: 'flex', minHeight: '100vh', background: '#ffffff', color: 'var(--text)', fontFamily: 'var(--font-sans)' }}>
       {/* Sidebar */}
       <aside style={{ 
         width: isSidebarOpen ? '260px' : '0px', 
@@ -156,11 +156,11 @@ export default function AdminLayout() {
             
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', borderLeft: '1px solid var(--border-hover)', paddingLeft: '24px' }}>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--text)', letterSpacing: '0.5px' }}>{user?.fullName || 'Admin'}</div>
-                <div style={{ fontSize: '12px', color: '#38bdf8', fontWeight: '500', letterSpacing: '0.5px' }}>Super Administrator</div>
+                <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--text)', letterSpacing: '0.5px' }}>{adminUser?.fullName || 'Admin'}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'right' }}>{adminUser?.role || 'System Admin'}</div>
               </div>
-              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text)', fontWeight: 'bold', fontSize: '16px', boxShadow: '0 4px 10px rgba(14, 165, 233, 0.3)' }}>
-                {user?.fullName?.charAt(0) || 'A'}
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '16px', boxShadow: '0 4px 10px rgba(14, 165, 233, 0.3)' }}>
+                {adminUser?.fullName?.charAt(0) || 'A'}
               </div>
               <button onClick={handleLogout} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', marginLeft: '4px', transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'} title="Đăng xuất">
                 <LogOut size={20} />
@@ -170,7 +170,7 @@ export default function AdminLayout() {
         </header>
 
         {/* Dynamic Content */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: '30px', background: 'var(--bg-page)' }}>
+        <main style={{ flex: 1, overflowY: 'auto', padding: '30px', background: '#ffffff' }}>
           <Outlet />
         </main>
       </div>

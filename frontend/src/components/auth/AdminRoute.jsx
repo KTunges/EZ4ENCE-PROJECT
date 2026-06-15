@@ -2,9 +2,9 @@ import { useAuth } from '../../context/AuthContext';
 import { ShieldAlert, LogIn } from 'lucide-react';
 
 export default function AdminRoute({ children }) {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { adminUser, isAdminAuthenticated, isAdminLoading } = useAuth();
 
-  if (isLoading) {
+  if (isAdminLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'var(--bg-dark)' }}>
         <div className="spinner-border text-cyan w-8 h-8 border-4 rounded-full border-t-transparent animate-spin"></div>
@@ -12,7 +12,7 @@ export default function AdminRoute({ children }) {
     );
   }
 
-  if (!isAuthenticated || !user) {
+  if (!isAdminAuthenticated || !adminUser) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'var(--bg-dark)', color: 'white', textAlign: 'center', padding: '20px' }}>
         <LogIn size={64} color="var(--cyan)" style={{ marginBottom: '20px' }} />
@@ -25,7 +25,7 @@ export default function AdminRoute({ children }) {
     );
   }
 
-  if (user.role !== 'ADMIN') {
+  if (adminUser.role !== 'ADMIN' && adminUser.role !== 'SUPER_ADMIN') {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'var(--bg-dark)', color: 'white', textAlign: 'center', padding: '20px' }}>
         <ShieldAlert size={64} color="var(--pink)" style={{ marginBottom: '20px' }} />

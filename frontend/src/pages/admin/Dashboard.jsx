@@ -1,13 +1,34 @@
+import { useState, useEffect } from 'react';
 import { DollarSign, Users, ShoppingCart, Package, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
+import { getDashboardStats } from '../../services/adminApi';
 
 export default function Dashboard() {
-  // Dummy data for phase 1 UI
+  const [dashboardData, setDashboardData] = useState({
+    totalRevenue: 0,
+    totalOrders: 0,
+    activeProducts: 1240,
+    newCustomers: 12
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const stats = await getDashboardStats();
+        setDashboardData(prev => ({ ...prev, ...stats }));
+      } catch (error) {
+        console.error("Lỗi lấy dữ liệu dashboard", error);
+      }
+    };
+    fetchStats();
+  }, []);
+  const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+
   const stats = [
-    { title: 'Tổng doanh thu', value: '145.250.000 đ', trend: '+12.5%', isPositive: true, icon: <DollarSign size={24} /> },
-    { title: 'Đơn hàng mới', value: '45', trend: '+5.2%', isPositive: true, icon: <ShoppingCart size={24} /> },
-    { title: 'Khách hàng mới', value: '12', trend: '-2.4%', isPositive: false, icon: <Users size={24} /> },
-    { title: 'Tổng sản phẩm', value: '1,240', trend: '+0.0%', isPositive: true, icon: <Package size={24} /> }
+    { title: 'Tổng doanh thu', value: formatCurrency(dashboardData.totalRevenue), trend: '+12.5%', isPositive: true, icon: <DollarSign size={24} /> },
+    { title: 'Đơn hàng mới', value: dashboardData.totalOrders.toString(), trend: '+5.2%', isPositive: true, icon: <ShoppingCart size={24} /> },
+    { title: 'Khách hàng mới', value: dashboardData.newCustomers.toString(), trend: '-2.4%', isPositive: false, icon: <Users size={24} /> },
+    { title: 'Tổng sản phẩm', value: dashboardData.activeProducts.toString(), trend: '+0.0%', isPositive: true, icon: <Package size={24} /> }
   ];
 
   const revenueData = [

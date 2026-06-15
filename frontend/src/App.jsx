@@ -29,6 +29,8 @@ import AdminProductForm from './pages/admin/AdminProductForm';
 import AdminOrderDetails from './pages/admin/AdminOrderDetails';
 import AdminCategories from './pages/admin/AdminCategories';
 import AdminBrands from './pages/admin/AdminBrands';
+import AdminCustomers from './pages/admin/AdminCustomers';
+import AdminReviews from './pages/admin/AdminReviews';
 
 // Google Client ID (đọc từ file .env)
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -82,6 +84,8 @@ function App() {
                   <Route path="orders/:id" element={<AdminOrderDetails />} />
                   <Route path="categories" element={<AdminCategories />} />
                   <Route path="brands" element={<AdminBrands />} />
+                  <Route path="customers" element={<AdminCustomers />} />
+                  <Route path="reviews" element={<AdminReviews />} />
                   {/* Các route tương lai sẽ thêm vào đây */}
                 </Route>
               </Routes>

@@ -8,11 +8,22 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Admin states
+  const [adminUser, setAdminUser] = useState(null);
+  const [adminToken, setAdminToken] = useState(localStorage.getItem('admin_token') || null);
+  const [isAdminLoading, setIsAdminLoading] = useState(true);
+
   // Logout handler
   const logout = useCallback(() => {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+  }, []);
+
+  const adminLogout = useCallback(() => {
+    localStorage.removeItem('admin_token');
+    setAdminToken(null);
+    setAdminUser(null);
   }, []);
 
   // Fetch current user details
@@ -39,15 +50,46 @@ export const AuthProvider = ({ children }) => {
     }
   }, [logout]);
 
+  const fetchCurrentAdmin = useCallback(async (authToken) => {
+    try {
+      const res = await fetch('http://localhost:8000/api/auth/me', {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      if (res.ok) {
+        const userData = await res.json();
+        if (userData.role === 'ADMIN' || userData.role === 'SUPER_ADMIN') {
+          setAdminUser(userData);
+        } else {
+          adminLogout();
+        }
+      } else {
+        adminLogout();
+      }
+    } catch (err) {
+      console.error('Lỗi khi lấy thông tin admin:', err);
+      adminLogout();
+    } finally {
+      setIsAdminLoading(false);
+    }
+  }, [adminLogout]);
+
   // Initialize and verify token
   useEffect(() => {
     if (token) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchCurrentUser(token);
     } else {
       setIsLoading(false);
     }
-  }, [token, fetchCurrentUser]);
+
+    if (adminToken) {
+      fetchCurrentAdmin(adminToken);
+    } else {
+      setIsAdminLoading(false);
+    }
+  }, [token, adminToken, fetchCurrentUser, fetchCurrentAdmin]);
 
   // Login handler
   const login = async (email, password) => {
@@ -105,9 +147,9 @@ export const AuthProvider = ({ children }) => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || 'Xác thực OTP thất bại.');
 
-      localStorage.setItem('token', data.access_token);
-      setToken(data.access_token);
-      setUser(data.user);
+      localStorage.setItem('admin_token', data.access_token);
+      setAdminToken(data.access_token);
+      setAdminUser(data.user);
       return data.user;
     } finally {
       setIsLoading(false);
@@ -263,7 +305,12 @@ export const AuthProvider = ({ children }) => {
         updateProfile,
         updateAvatar,
         logout,
+        adminLogout,
         isAuthenticated: !!user,
+        isAdminAuthenticated: !!adminUser,
+        adminUser,
+        adminToken,
+        isAdminLoading,
       }}
     >
       {children}

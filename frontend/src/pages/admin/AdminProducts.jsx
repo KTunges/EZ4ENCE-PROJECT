@@ -1,24 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getAdminProducts, deleteProduct } from '../../services/adminApi';
 
 export default function AdminProducts() {
   const navigate = useNavigate();
-  const [products] = useState([
-    { id: 'PROD-001', name: 'Laptop Gaming HP Victus 16', category: 'Laptop', price: '24.990.000 đ', stock: 15, status: 'active', img: 'https://via.placeholder.com/40/1a1a2e/00d2ff?text=HP' },
-    { id: 'PROD-002', name: 'Card Màn Hình ASUS ROG Strix RTX 4070 Ti', category: 'VGA', price: '28.500.000 đ', stock: 5, status: 'active', img: 'https://via.placeholder.com/40/1a1a2e/00d2ff?text=VGA' },
-    { id: 'PROD-003', name: 'CPU Intel Core i9-14900K', category: 'CPU', price: '15.200.000 đ', stock: 0, status: 'out_of_stock', img: 'https://via.placeholder.com/40/1a1a2e/00d2ff?text=CPU' },
-    { id: 'PROD-004', name: 'RAM Corsair Dominator Platinum RGB 32GB', category: 'RAM', price: '4.500.000 đ', stock: 32, status: 'active', img: 'https://via.placeholder.com/40/1a1a2e/00d2ff?text=RAM' },
-    { id: 'PROD-005', name: 'Ổ Cứng SSD Samsung 990 PRO 2TB', category: 'SSD', price: '5.100.000 đ', stock: 20, status: 'active', img: 'https://via.placeholder.com/40/1a1a2e/00d2ff?text=SSD' },
-  ]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const getStatusBadge = (status) => {
-    switch(status) {
-      case 'active': return <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(76, 175, 80, 0.2)', color: '#4caf50', fontSize: '12px', fontWeight: 'bold' }}>Đang bán</span>;
-      case 'out_of_stock': return <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(244, 67, 54, 0.2)', color: '#f44336', fontSize: '12px', fontWeight: 'bold' }}>Hết hàng</span>;
-      case 'hidden': return <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(158, 158, 158, 0.2)', color: '#9e9e9e', fontSize: '12px', fontWeight: 'bold' }}>Đã ẩn</span>;
-      default: return null;
+  const loadProducts = async () => {
+    try {
+      const data = await getAdminProducts({ limit: 50 });
+      setProducts(data);
+    } catch (error) {
+      console.error("Lỗi khi tải sản phẩm:", error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
+      try {
+        await deleteProduct(id);
+        loadProducts();
+      } catch (error) {
+        console.error("Lỗi khi xóa:", error);
+        alert("Có lỗi xảy ra khi xóa");
+      }
+    }
+  };
+
+  const getStatusBadge = (is_published) => {
+    if (is_published) return <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(76, 175, 80, 0.2)', color: '#4caf50', fontSize: '12px', fontWeight: 'bold' }}>Đang bán</span>;
+    return <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(158, 158, 158, 0.2)', color: '#9e9e9e', fontSize: '12px', fontWeight: 'bold' }}>Đã ẩn</span>;
   };
 
   return (
@@ -58,35 +77,47 @@ export default function AdminProducts() {
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--text-muted)' }}>
                 <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px', width: '60px' }}>Ảnh</th>
-                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>Tên sản phẩm</th>
-                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>Danh mục</th>
-                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>Giá bán</th>
-                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>Tồn kho</th>
-                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>Trạng thái</th>
-                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px', textAlign: 'right' }}>Thao tác</th>
+                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px', minWidth: '250px' }}>Tên sản phẩm</th>
+                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px', width: '150px' }}>Danh mục</th>
+                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px', width: '150px' }}>Giá bán</th>
+                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px', width: '100px' }}>Tồn kho</th>
+                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px', width: '120px' }}>Trạng thái</th>
+                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px', width: '140px', textAlign: 'right' }}>Thao tác</th>
               </tr>
             </thead>
             <tbody>
-              {products.map((product, idx) => (
-                <tr key={idx} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.2s' }} className="hover:bg-white/5">
+              {loading ? (
+                <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>Đang tải dữ liệu...</td></tr>
+              ) : products.length === 0 ? (
+                <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>Chưa có sản phẩm nào</td></tr>
+              ) : products.map((product) => {
+                const primaryImage = product.images?.find(img => img.is_primary)?.url || product.images?.[0]?.url || 'https://via.placeholder.com/40/1a1a2e/00d2ff?text=No+Img';
+                // Lấy giá từ SKU đầu tiên
+                const price = product.skus && product.skus.length > 0 ? product.skus[0].price : 0;
+                const stock = product.skus ? product.skus.reduce((sum, sku) => sum + (sku.stock_quantity || 0), 0) : 0;
+                
+                return (
+                <tr key={product.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.2s' }} className="hover:bg-white/5">
                   <td style={{ padding: '16px 12px' }}>
                     <div style={{ width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden', background: 'var(--bg-card)' }}>
-                      <img src={product.img} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={primaryImage} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                   </td>
                   <td style={{ padding: '16px 12px' }}>
                     <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{product.name}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{product.id}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{product.slug}</div>
                   </td>
-                  <td style={{ padding: '16px 12px', color: 'var(--text-muted)' }}>{product.category}</td>
-                  <td style={{ padding: '16px 12px', fontWeight: 'bold', fontFamily: 'var(--font-mono)', color: 'var(--cyan)' }}>{product.price}</td>
+                  <td style={{ padding: '16px 12px', color: 'var(--text-muted)' }}>{product.category?.name || '---'}</td>
+                  <td style={{ padding: '16px 12px', fontWeight: 'bold', fontFamily: 'var(--font-mono)', color: 'var(--cyan)' }}>
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)}
+                  </td>
                   <td style={{ padding: '16px 12px' }}>
-                    <span style={{ color: product.stock === 0 ? '#f44336' : 'var(--text)' }}>{product.stock}</span>
+                    <span style={{ color: stock === 0 ? '#f44336' : 'var(--text)' }}>{stock}</span>
                   </td>
-                  <td style={{ padding: '16px 12px' }}>{getStatusBadge(product.status)}</td>
+                  <td style={{ padding: '16px 12px' }}>{getStatusBadge(product.is_published)}</td>
                   <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <button style={{ padding: '6px', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }} title="Xem chi tiết trên Web">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'flex-end' }}>
+                      <button onClick={() => window.open(`/products/${product.slug}`, '_blank')} style={{ padding: '6px', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }} title="Xem trên Web">
                         <Eye size={16} />
                       </button>
                       <button 
@@ -96,20 +127,20 @@ export default function AdminProducts() {
                       >
                         <Edit size={16} />
                       </button>
-                      <button style={{ padding: '6px', background: 'rgba(255, 23, 68, 0.1)', border: 'none', color: '#ff1744', borderRadius: '6px', cursor: 'pointer' }} title="Xóa">
+                      <button onClick={() => handleDelete(product.id)} style={{ padding: '6px', background: 'rgba(255, 23, 68, 0.1)', border: 'none', color: '#ff1744', borderRadius: '6px', cursor: 'pointer' }} title="Xóa">
                         <Trash2 size={16} />
                       </button>
                     </div>
                   </td>
                 </tr>
-              ))}
+              )})}
             </tbody>
           </table>
         </div>
         
         {/* Pagination */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', color: 'var(--text-muted)', fontSize: '14px' }}>
-          <div>Hiển thị 1 - 5 của 240 sản phẩm</div>
+          <div>Hiển thị 1 - {Math.min(50, products.length)} của {products.length} sản phẩm</div>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button style={{ padding: '6px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '4px', color: 'var(--text)', cursor: 'pointer' }}>Trước</button>
             <button style={{ padding: '6px 12px', background: 'var(--cyan)', border: 'none', borderRadius: '4px', color: 'black', fontWeight: 'bold', cursor: 'pointer' }}>1</button>

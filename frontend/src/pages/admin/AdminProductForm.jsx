@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Save, ArrowLeft, Image as ImageIcon, Cpu, HardDrive, MemoryStick, Monitor, Zap, Plus, X } from 'lucide-react';
+import { Save, ArrowLeft, Image as ImageIcon, Cpu, HardDrive, MemoryStick, Monitor, Zap, Plus, X, Upload } from 'lucide-react';
+import { createProduct, updateProduct, getAdminProductById, getCategories, getBrands, uploadAdminImage } from '../../services/adminApi';
 
 export default function AdminProductForm() {
   const { id } = useParams();
@@ -8,9 +9,12 @@ export default function AdminProductForm() {
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
-    category: 'CPU',
+    category: '',
     brand: '',
     price: '',
     salePrice: '',
@@ -29,36 +33,67 @@ export default function AdminProductForm() {
     }
   });
 
-  // Mock data loading
   useEffect(() => {
-    if (isEditing) {
-      // Simulate fetch
-      setFormData({
-        name: 'PC Gaming EZ4-Destroyer i9',
-        category: 'PC_ASSEMBLED',
-        brand: 'EZ4ENCE Build',
-        price: '45000000',
-        salePrice: '42990000',
-        stock: '5',
-        status: 'ACTIVE',
-        description: 'Cỗ máy chiến game tối thượng...',
-        imageUrl: 'https://images.unsplash.com/photo-1587202372634-32705e3bf49c?q=80&w=1000&auto=format&fit=crop',
-        specs: {
-          cpu: 'Intel Core i9-14900K',
-          ram: '32GB (2x16GB) DDR5 6000MHz',
-          vga: 'RTX 4080 Super 16GB',
-          storage: '2TB NVMe Gen4',
-          mainboard: 'Z790 AORUS ELITE',
-          psu: '1000W 80 Plus Gold',
-          case: 'Lian Li O11 Dynamic EVO'
+    const fetchData = async () => {
+      try {
+        const [catsData, brandsData] = await Promise.all([
+          getCategories(),
+          getBrands()
+        ]);
+        setCategories(catsData);
+        setBrands(brandsData);
+        if (catsData.length > 0) setFormData(prev => ({ ...prev, category: catsData[0].name }));
+        if (brandsData.length > 0) setFormData(prev => ({ ...prev, brand: brandsData[0].name }));
+        
+        if (isEditing) {
+          setIsLoading(true);
+          const product = await getAdminProductById(id);
+          setFormData({
+            name: product.name || '',
+            category: product.category || (catsData.length > 0 ? catsData[0].name : ''),
+            brand: product.brand || (brandsData.length > 0 ? brandsData[0].name : ''),
+            price: product.price || '',
+            salePrice: product.sale_price || '',
+            stock: product.stock || '',
+            status: product.is_published ? 'ACTIVE' : 'HIDDEN',
+            description: product.description || '',
+            imageUrl: product.image_url || '',
+            specs: {
+              cpu: product.specifications?.cpu || '',
+              ram: product.specifications?.ram || '',
+              vga: product.specifications?.vga || '',
+              storage: product.specifications?.storage || '',
+              mainboard: product.specifications?.mainboard || '',
+              psu: product.specifications?.psu || '',
+              case: product.specifications?.case || ''
+            }
+          });
         }
-      });
-    }
-  }, [isEditing]);
+      } catch (error) {
+        console.error("Lỗi tải dữ liệu form:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [id, isEditing]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (['cpu', 'ram', 'vga', 'storage', 'mainboard', 'psu', 'case'].includes(name)) {
+      setFormData(prev => ({
+        ...prev,
+        specs: {
+          ...prev.specs,
+          [name]: value
+        }
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSpecChange = (e) => {
@@ -69,14 +104,53 @@ export default function AdminProductForm() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    setIsUploading(true);
+    try {
+      const url = await uploadAdminImage(file);
+      setFormData(prev => ({ ...prev, imageUrl: url }));
+    } catch (error) {
+      console.error("Lỗi upload ảnh:", error);
+      alert("Không thể tải ảnh lên. Vui lòng kiểm tra cấu hình Cloudinary trên Backend.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    
+    try {
+      const payload = {
+        name: formData.name,
+        category: formData.category,
+        brand: formData.brand,
+        description: formData.description,
+        specifications: formData.specs,
+        is_published: formData.status === 'ACTIVE',
+        price: parseFloat(formData.price) || 0,
+        sale_price: formData.salePrice ? parseFloat(formData.salePrice) : null,
+        stock: parseInt(formData.stock) || 0,
+        image_url: formData.imageUrl
+      };
+      
+      if (isEditing) {
+        await updateProduct(id, payload);
+      } else {
+        await createProduct(payload);
+        alert("Thêm sản phẩm thành công!");
+      }
       navigate('/admin/products');
-    }, 1000);
+    } catch (error) {
+      console.error("Lỗi khi lưu sản phẩm", error);
+      alert("Có lỗi xảy ra khi lưu. Vui lòng kiểm tra console.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -102,10 +176,8 @@ export default function AdminProductForm() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
-        {/* Left Column: Basic Info & Specs */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
-          {/* General Information */}
           <div className="glass" style={{ padding: '24px', borderRadius: '12px' }}>
             <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '20px', color: 'var(--text)' }}>Thông tin cơ bản</h2>
             
@@ -118,19 +190,14 @@ export default function AdminProductForm() {
               <div>
                 <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>Danh mục *</label>
                 <select name="category" value={formData.category} onChange={handleChange} style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '15px', appearance: 'none' }}>
-                  <option value="PC_ASSEMBLED" style={{ color: '#000' }}>PC Lắp ráp</option>
-                  <option value="VGA" style={{ color: '#000' }}>Card Đồ Họa (VGA)</option>
-                  <option value="CPU" style={{ color: '#000' }}>Vi xử lý (CPU)</option>
-                  <option value="MAINBOARD" style={{ color: '#000' }}>Bo mạch chủ (Mainboard)</option>
-                  <option value="RAM" style={{ color: '#000' }}>RAM</option>
-                  <option value="SSD" style={{ color: '#000' }}>Ổ cứng (SSD/HDD)</option>
-                  <option value="PSU" style={{ color: '#000' }}>Nguồn máy tính (PSU)</option>
-                  <option value="CASE" style={{ color: '#000' }}>Vỏ máy tính (Case)</option>
+                  {categories.map(cat => <option key={cat.id} value={cat.name}>{cat.name}</option>)}
                 </select>
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>Thương hiệu</label>
-                <input type="text" name="brand" value={formData.brand} onChange={handleChange} style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '15px' }} placeholder="VD: ASUS, Gigabyte, Intel..." />
+                <select name="brand" value={formData.brand} onChange={handleChange} style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '15px', appearance: 'none' }}>
+                  {brands.map(brand => <option key={brand.id} value={brand.name}>{brand.name}</option>)}
+                </select>
               </div>
             </div>
             
@@ -213,8 +280,19 @@ export default function AdminProductForm() {
             <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '20px', color: 'var(--text)' }}>Ảnh sản phẩm</h2>
             
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>URL Ảnh (Link trực tiếp)</label>
-              <input type="text" name="imageUrl" value={formData.imageUrl} onChange={handleChange} style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '15px' }} placeholder="https://..." />
+              <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>Tải ảnh từ máy tính</label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input type="file" id="image-upload" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
+                <label htmlFor="image-upload" style={{ flex: 1, padding: '10px 16px', background: 'rgba(0, 210, 255, 0.1)', border: '1px dashed var(--cyan)', color: 'var(--cyan)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: 'bold' }}>
+                  <Upload size={16} /> {isUploading ? 'Đang tải lên...' : 'Chọn file ảnh'}
+                </label>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px' }}>Hoặc nhập URL trực tiếp:</div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <input type="text" name="imageUrl" value={formData.imageUrl} onChange={handleChange} style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '13px' }} placeholder="https://..." />
             </div>
 
             <div style={{ 
