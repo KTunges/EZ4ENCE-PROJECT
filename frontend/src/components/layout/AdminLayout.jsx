@@ -66,7 +66,7 @@ export default function AdminLayout() {
   ];
 
   return (
-    <div data-theme="light" style={{ display: 'flex', minHeight: '100vh', background: '#ffffff', color: 'var(--text)', fontFamily: 'var(--font-sans)' }}>
+    <div data-theme="light" style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#ffffff', color: 'var(--text)', fontFamily: 'var(--font-sans)' }}>
       {/* Sidebar */}
       <aside style={{ 
         width: isSidebarOpen ? '260px' : '0px', 
@@ -80,7 +80,7 @@ export default function AdminLayout() {
       }}>
         <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <h2 style={{ color: '#ffffff', fontSize: '22px', fontWeight: '900', letterSpacing: '1px', margin: 0 }}>EZ4ENCE</h2>
+            <h2 style={{ color: '#ffffff', fontSize: '22px', fontWeight: '900', letterSpacing: '1px', margin: 0 }}>EZ4GEAR</h2>
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '10px', letterSpacing: '2px', fontWeight: '600', margin: '4px 0 0 0' }}>ADMINISTRATOR</p>
           </div>
         </div>

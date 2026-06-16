@@ -20,7 +20,7 @@ const categories = [
     ]
   },
   {
-    icon: <Monitor size={18} />, label: 'PC EZ4ENCE', slug: 'PC',
+    icon: <Monitor size={18} />, label: 'PC EZ4GEAR', slug: 'PC',
     subMenu: [
       { title: 'Theo Nhu Cầu', items: ['PC Gaming', 'PC Đồ họa - Render', 'PC Văn phòng', 'PC Mini', 'PC Custom Nước'] },
       { title: 'Theo Mức Giá', items: ['Dưới 10 triệu', '10 - 20 triệu', '20 - 30 triệu', '30 - 50 triệu', 'Hi-End Trên 50 triệu'] },

@@ -26,7 +26,7 @@ export default function CheckoutSuccess() {
         
         <h1 className="glitch-text text-4xl font-bold mb-4" data-text="THÀNH CÔNG!">THÀNH CÔNG!</h1>
         <p className="text-muted text-lg mb-8">
-          Cảm ơn bạn đã tin tưởng EZ4ENCE. Đơn hàng của bạn đã được thanh toán và đặt thành công.
+          Cảm ơn bạn đã tin tưởng EZ4GEAR. Đơn hàng của bạn đã được thanh toán và đặt thành công.
         </p>
 
         <div className="rounded-lg p-6 mb-8 border" style={{ background: 'var(--bg-card, rgba(0,0,0,0.05))', borderColor: 'var(--border-color, rgba(255,255,255,0.1))' }}>

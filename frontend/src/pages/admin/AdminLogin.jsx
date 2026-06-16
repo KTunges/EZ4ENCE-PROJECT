@@ -167,7 +167,7 @@ export default function AdminLogin() {
               <ShieldCheck size={32} color="#0056b3" />
             </div>
             <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#111', marginBottom: '8px', letterSpacing: '-0.5px' }}>ADMIN PORTAL</h1>
-            <p style={{ color: '#666', fontSize: '14px' }}>Hệ thống quản trị nội bộ EZ4ENCE</p>
+            <p style={{ color: '#666', fontSize: '14px' }}>Hệ thống quản trị nội bộ EZ4GEAR</p>
           </div>
 
           {error && step === 1 && (
@@ -183,7 +183,7 @@ export default function AdminLogin() {
                 <Mail size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
                 <input 
                   type="email" 
-                  placeholder="admin@ez4ence.com"
+                  placeholder="admin@ez4gear.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -253,7 +253,7 @@ export default function AdminLogin() {
             transform: step === 1 ? 'translateX(0)' : 'translateX(-20%)',
             pointerEvents: step === 1 ? 'auto' : 'none'
           }}>
-            <h1 style={{ fontSize: '56px', fontWeight: '900', letterSpacing: '4px', margin: '0 0 8px 0', textShadow: '0 4px 12px rgba(0,0,0,0.3)', color: '#ffffff' }}>EZ4ENCE</h1>
+            <h1 style={{ fontSize: '56px', fontWeight: '900', letterSpacing: '4px', margin: '0 0 8px 0', textShadow: '0 4px 12px rgba(0,0,0,0.3)', color: '#ffffff' }}>EZ4GEAR</h1>
             <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#bfdbfe', margin: '0 0 24px 0', letterSpacing: '1px' }}>ADMINISTRATION</h2>
             <div style={{ width: '40px', height: '4px', background: '#93c5fd', marginBottom: '24px', borderRadius: '2px' }}></div>
             <p style={{ color: '#dbeafe', lineHeight: '1.7', fontSize: '15px', maxWidth: '300px' }}>

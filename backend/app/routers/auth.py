@@ -96,18 +96,18 @@ def send_otp_email_task(email: str, otp: str):
             msg = MIMEMultipart()
             msg['From'] = settings.SMTP_EMAIL
             msg['To'] = email
-            msg['Subject'] = "EZ4ENCE - Mã xác thực Admin (2FA)"
+            msg['Subject'] = "EZ4GEAR - Mã xác thực Admin (2FA)"
             
             html_body = f"""
             <html>
               <body style="font-family: Arial, sans-serif; background-color: #f4f7fb; padding: 40px 0; margin: 0; color: #333;">
                 <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
                   <div style="background-color: #0056b3; padding: 24px; text-align: center;">
-                    <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">EZ4ENCE ADMIN PORTAL</h1>
+                    <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">EZ4GEAR ADMIN PORTAL</h1>
                   </div>
                   <div style="padding: 32px; text-align: center;">
                     <p style="font-size: 16px; color: #555; margin-bottom: 24px; text-align: left;">Xin chào,</p>
-                    <p style="font-size: 16px; color: #555; margin-bottom: 32px; text-align: left;">Bạn đang thực hiện đăng nhập vào hệ thống Quản trị viên của EZ4ENCE. Đây là mã xác thực 2 lớp (2FA) của bạn:</p>
+                    <p style="font-size: 16px; color: #555; margin-bottom: 32px; text-align: left;">Bạn đang thực hiện đăng nhập vào hệ thống Quản trị viên của EZ4GEAR. Đây là mã xác thực 2 lớp (2FA) của bạn:</p>
                     
                     <div style="background-color: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 20px; margin-bottom: 32px;">
                       <span style="font-size: 36px; font-weight: bold; letter-spacing: 12px; color: #0056b3;">{otp}</span>
@@ -116,7 +116,7 @@ def send_otp_email_task(email: str, otp: str):
                     <p style="font-size: 14px; color: #888; text-align: left; margin-bottom: 8px;">* Tuyệt đối <strong>KHÔNG</strong> chia sẻ mã này cho bất kỳ ai.</p>
                   </div>
                   <div style="background-color: #f8fafc; padding: 16px; text-align: center; border-top: 1px solid #e2e8f0;">
-                    <p style="font-size: 12px; color: #94a3b8; margin: 0;">&copy; 2026 EZ4ENCE. Hệ thống an ninh mạng.</p>
+                    <p style="font-size: 12px; color: #94a3b8; margin: 0;">&copy; 2026 EZ4GEAR. Hệ thống an ninh mạng.</p>
                   </div>
                 </div>
               </body>
@@ -306,7 +306,7 @@ def upload_avatar(
 
     try:
         # Upload file to cloudinary
-        result = cloudinary.uploader.upload(file.file, folder="ez4ence/avatars")
+        result = cloudinary.uploader.upload(file.file, folder="ez4gear/avatars")
         
         # Update user avatar URL
         current_user.avatar = result.get("secure_url")

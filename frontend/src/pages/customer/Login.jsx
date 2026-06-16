@@ -89,7 +89,7 @@ export default function Login() {
           transition={{ duration: 0.8, ease: 'easeOut' }}
         >
           <div className="auth-branding-inner">
-            <Link to="/" className="auth-logo glitch-text" data-text="EZ4ENCE">EZ4ENCE</Link>
+            <Link to="/" className="auth-logo glitch-text" data-text="EZ4GEAR">EZ4GEAR</Link>
             <h2 className="auth-branding-title">Chào Mừng Trở Lại</h2>
             <p className="auth-branding-desc">
               Đăng nhập để truy cập vào hệ thống linh kiện, gaming gear và custom PC hàng đầu Việt Nam.

@@ -183,7 +183,7 @@ export default function Profile() {
                 </label>
               </div>
               <div className="profile-info">
-                <h3>{user.fullName || 'Người dùng EZ4ENCE'}</h3>
+                <h3>{user.fullName || 'Người dùng EZ4GEAR'}</h3>
                 <p>{user.email}</p>
               </div>
             </div>

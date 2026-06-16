@@ -413,13 +413,13 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                 </div>
 
                 <div className="auth-overlay-panel auth-overlay-left">
-                  <span className="auth-modal-logo glitch-text" data-text="EZ4ENCE">EZ4ENCE</span>
+                  <span className="auth-modal-logo glitch-text" data-text="EZ4GEAR">EZ4GEAR</span>
                   <h2 className="auth-overlay-title">Chào Mừng Trở Lại!</h2>
                   <p className="auth-overlay-desc">Để giữ kết nối với chúng tôi vui lòng đăng nhập bằng tài khoản của bạn</p>
                   <button className="auth-ghost-btn" onClick={() => switchMode(false)}>Đăng Nhập</button>
                 </div>
                 <div className="auth-overlay-panel auth-overlay-right">
-                  <span className="auth-modal-logo glitch-text" data-text="EZ4ENCE">EZ4ENCE</span>
+                  <span className="auth-modal-logo glitch-text" data-text="EZ4GEAR">EZ4GEAR</span>
                   <h2 className="auth-overlay-title">Chào Bạn Mới!</h2>
                   <p className="auth-overlay-desc">Nhập thông tin cá nhân của bạn và bắt đầu hành trình với chúng tôi</p>
                   <button className="auth-ghost-btn" onClick={() => switchMode(true)}>Đăng Ký</button>

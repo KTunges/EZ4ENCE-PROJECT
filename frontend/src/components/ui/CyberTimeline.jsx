@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 
 export default function CyberTimeline() {
   const events = [
-    { year: "2026", title: "Khởi tạo Hệ thống", desc: "EZ4ENCE ra mắt nền tảng thương mại điện tử công nghệ thế hệ mới." },
+    { year: "2026", title: "Khởi tạo Hệ thống", desc: "EZ4GEAR ra mắt nền tảng thương mại điện tử công nghệ thế hệ mới." },
     { year: "2027", title: "Trí Tuệ Nhân Tạo", desc: "Tích hợp AI tư vấn cấu hình tự động hóa và tối ưu trải nghiệm người dùng." },
     { year: "2028", title: "Thực Tế Ảo (VR/AR)", desc: "Phát triển hệ sinh thái VR để khách hàng trải nghiệm sản phẩm trực tuyến ngay tại nhà." },
     { year: "2030", title: "Kỷ Nguyên Metaverse", desc: "Tiên phong phân phối thiết bị Neuralink và gia nhập hoàn toàn vào thế giới số hóa." }

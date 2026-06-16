@@ -34,7 +34,7 @@ def upload_image(file: UploadFile) -> str:
         # Upload to Cloudinary
         result = cloudinary.uploader.upload(
             content,
-            folder="ez4ence/products", # Thư mục trên Cloudinary
+            folder="ez4gear/products", # Thư mục trên Cloudinary
             resource_type="image"
         )
         

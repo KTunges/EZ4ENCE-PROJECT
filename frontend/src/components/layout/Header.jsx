@@ -37,7 +37,7 @@ export default function Header() {
       <header className="header glass">
         <div className="container flex items-center justify-between">
           <Link to="/" className="header-logo text-gradient">
-            EZ4ENCE
+            EZ4GEAR
           </Link>
 
           <nav className="header-nav">

@@ -77,7 +77,34 @@
    ============================= */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; }
+html { 
+  scroll-behavior: smooth; 
+  scrollbar-width: thin;
+  scrollbar-color: var(--cyan-dim) var(--bg-surface);
+}
+
+/* =============================
+   CUSTOM SCROLLBAR
+   ============================= */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-page);
+  border-left: 1px solid var(--border);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--cyan-dim);
+  border-radius: 8px;
+  border: 1px solid var(--cyan-glow);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cyan);
+}
 
 html, body {
   transition: background-color 0.4s ease, color 0.4s ease;

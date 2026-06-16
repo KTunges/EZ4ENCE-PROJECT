@@ -101,7 +101,7 @@ export default function Register() {
           transition={{ duration: 0.8, ease: 'easeOut' }}
         >
           <div className="auth-branding-inner">
-            <Link to="/" className="auth-logo glitch-text" data-text="EZ4ENCE">EZ4ENCE</Link>
+            <Link to="/" className="auth-logo glitch-text" data-text="EZ4GEAR">EZ4GEAR</Link>
             <h2 className="auth-branding-title">Gia Nhập Hệ Thống</h2>
             <p className="auth-branding-desc">
               Tạo tài khoản để trải nghiệm hệ sinh thái gaming & tech hàng đầu. Nhận ưu đãi độc quyền ngay khi đăng ký.

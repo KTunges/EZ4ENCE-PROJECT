@@ -468,7 +468,7 @@ export default function Checkout() {
                     <input 
                       type="text" 
                       className="checkout-input flex-1 uppercase" 
-                      placeholder="Mã giảm giá (VD: EZ4ENCE)" 
+                      placeholder="Mã giảm giá (VD: EZ4GEAR)" 
                       value={promoCode}
                       onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                       disabled={promoLoading || appliedPromo}
@@ -600,7 +600,7 @@ export default function Checkout() {
                         note: note
                       };
 
-                      // Tạo đơn EZ4ENCE
+                      // Tạo đơn EZ4GEAR
                       const orderRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/orders`, {
                         method: "POST",
                         headers: { 
