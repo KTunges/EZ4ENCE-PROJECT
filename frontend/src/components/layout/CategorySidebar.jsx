@@ -20,7 +20,7 @@ const categories = [
     ]
   },
   {
-    icon: <Monitor size={18} />, label: 'PC EZ4GEAR', slug: 'PC',
+    icon: <Monitor size={18} />, label: 'PC EZ4ENCE', slug: 'PC EZ4ENCE',
     subMenu: [
       { title: 'Theo Nhu Cầu', items: ['PC Gaming', 'PC Đồ họa - Render', 'PC Văn phòng', 'PC Mini', 'PC Custom Nước'] },
       { title: 'Theo Mức Giá', items: ['Dưới 10 triệu', '10 - 20 triệu', '20 - 30 triệu', '30 - 50 triệu', 'Hi-End Trên 50 triệu'] },
@@ -28,74 +28,54 @@ const categories = [
     ]
   },
   {
-    icon: <Cpu size={18} />, label: 'Main, CPU, VGA', slug: 'Mainboard',
+    icon: <Cpu size={18} />, label: 'Linh Kiện Máy Tính', slug: 'Linh Kiện Máy Tính',
     subMenu: [
-      { title: 'Bo Mạch Chủ (Mainboard)', items: ['Mainboard Intel', 'Mainboard AMD', 'Mainboard ASUS', 'Mainboard MSI', 'Mainboard Gigabyte'] },
-      { title: 'Vi Xử Lý (CPU)', items: ['CPU Intel Core i3/i5', 'CPU Intel Core i7/i9', 'CPU AMD Ryzen 3/5', 'CPU AMD Ryzen 7/9'] },
-      { title: 'Card Màn Hình (VGA)', items: ['VGA NVIDIA (RTX)', 'VGA AMD (Radeon)', 'VGA ASUS', 'VGA Gigabyte', 'VGA MSI'] }
-    ]
-  },
-  {
-    icon: <Box size={18} />, label: 'Case, Nguồn, Tản', slug: 'Case',
-    subMenu: [
-      { title: 'Case - Theo hãng', items: ['Case ASUS', 'Case Corsair', 'Case Lianli', 'Case NZXT', 'Case Jonsbo', 'Xem tất cả'] },
-      { title: 'Case - Theo giá', items: ['Dưới 1 triệu', 'Từ 1 triệu đến 2 triệu', 'Trên 2 triệu', 'Xem tất cả'] },
-      { title: 'Nguồn - Theo Hãng', items: ['Nguồn ASUS', 'Nguồn DeepCool', 'Nguồn Corsair', 'Nguồn NZXT', 'Nguồn MSI', 'Xem tất cả'] },
-      { title: 'Nguồn - Theo công suất', items: ['Từ 400w - 500w', 'Từ 500w - 600w', 'Từ 700w - 800w', 'Trên 1000w', 'Xem tất cả'] },
-      { title: 'Phụ kiện PC', items: ['Dây LED', 'Dây rise - Dựng VGA', 'Giá đỡ VGA', 'Keo tản nhiệt', 'Xem tất cả'] },
-      { title: 'Loại tản nhiệt', items: ['Tản nhiệt AIO 240mm', 'Tản nhiệt AIO 280mm', 'Tản nhiệt AIO 360mm', 'Tản nhiệt AIO 420mm', 'Tản nhiệt khí', 'Fan RGB', 'Xem tất cả'] }
-    ]
-  },
-  {
-    icon: <HardDrive size={18} />, label: 'Ổ cứng, RAM', slug: 'RAM',
-    subMenu: [
-      { title: 'RAM Máy Tính', items: ['RAM DDR4', 'RAM DDR5', 'RAM Laptop', 'RAM Có LED RGB'] },
-      { title: 'Ổ Cứng Thể Rắn (SSD)', items: ['SSD 2.5 inch SATA', 'SSD M.2 NVMe PCIe', 'SSD Dung lượng 256GB-512GB', 'SSD Dung lượng 1TB+'] },
-      { title: 'Ổ Cứng Cơ (HDD)', items: ['HDD 1TB', 'HDD 2TB', 'HDD 4TB+'] }
-    ]
-  },
-  {
-    icon: <Speaker size={18} />, label: 'Loa, Webcam', slug: 'Loa',
-    subMenu: [
-      { title: 'Loa', items: ['Loa Bluetooth', 'Loa Soundbar', 'Loa Vi Tính 2.0/2.1', 'Loa Gaming'] },
-      { title: 'Webcam', items: ['Webcam 720p', 'Webcam 1080p', 'Webcam 4K', 'Webcam Livestream'] },
-      { title: 'Microphone', items: ['Microphone USB', 'Microphone Condenser', 'Arm/Stand Kẹp Mic'] }
+      { title: 'Bo Mạch Chủ (Mainboard)', items: ['Intel', 'AMD', 'ASUS', 'MSI', 'Gigabyte'] },
+      { title: 'Vi Xử Lý (CPU)', items: ['Intel Core i3', 'Intel Core i5', 'Intel Core i7', 'Intel Core i9', 'AMD Ryzen 5', 'AMD Ryzen 7', 'AMD Ryzen 9'] },
+      { title: 'Card Màn Hình (VGA)', items: ['NVIDIA RTX', 'AMD Radeon', 'ASUS', 'Gigabyte', 'MSI'] },
+      { title: 'RAM Máy Tính', items: ['DDR4', 'DDR5', 'RAM Laptop', 'RGB'] },
+      { title: 'Ổ Cứng', items: ['SATA', 'NVMe PCIe', '1TB', 'HDD'] },
+      { title: 'Vỏ Case', items: ['ASUS', 'Corsair', 'NZXT', 'Lianli'] },
+      { title: 'Nguồn Máy Tính', items: ['ASUS', 'DeepCool', 'Corsair', '500W', '650W', '850W', '1000W'] },
+      { title: 'Tản Nhiệt', items: ['AIO 240mm', 'AIO 360mm', 'Tản nhiệt khí', 'Fan RGB'] }
     ]
   },
   {
     icon: <Monitor size={18} />, label: 'Màn hình', slug: 'Màn hình',
     subMenu: [
-      { title: 'Thương hiệu', items: ['Màn hình ASUS', 'Màn hình LG', 'Màn hình Samsung', 'Màn hình Dell', 'Màn hình MSI'] },
-      { title: 'Nhu cầu', items: ['Màn hình Gaming', 'Màn hình Đồ họa', 'Màn hình Văn phòng', 'Màn hình Cảm ứng'] },
-      { title: 'Thông số', items: ['Màn hình 144Hz+', 'Màn hình 240Hz+', 'Màn hình 4K', 'Màn hình Ultrawide'] }
+      { title: 'Thương hiệu', items: ['ASUS', 'LG', 'Samsung', 'Dell', 'MSI'] },
+      { title: 'Nhu cầu', items: ['Gaming', 'Đồ họa', 'Văn phòng', 'Cảm ứng'] },
+      { title: 'Tần số quét & Phân giải', items: ['144Hz', '165Hz', '240Hz', '4K', 'Ultrawide'] }
     ]
   },
   {
     icon: <Keyboard size={18} />, label: 'Bàn phím', slug: 'Bàn phím',
     subMenu: [
-      { title: 'Thương hiệu', items: ['Bàn phím Akko', 'Bàn phím Razer', 'Bàn phím Corsair', 'Bàn phím Logitech', 'Bàn phím Keychron'] },
-      { title: 'Loại bàn phím', items: ['Bàn phím Cơ', 'Bàn phím Giả cơ', 'Bàn phím Không dây', 'Bàn phím Custom'] },
-      { title: 'Size', items: ['Fullsize (104 phím)', 'TKL (87 phím)', 'Mini (60-65%)'] }
+      { title: 'Thương hiệu', items: ['Akko', 'Razer', 'Corsair', 'Logitech', 'Keychron'] },
+      { title: 'Kết nối', items: ['Có dây', 'Không dây', 'Bluetooth'] },
+      { title: 'Kích thước', items: ['Fullsize', 'TKL', 'Mini'] }
     ]
   },
   {
-    icon: <Mouse size={18} />, label: 'Chuột + Lót chuột', slug: 'Chuột',
+    icon: <Mouse size={18} />, label: 'Chuột + Lót chuột', slug: 'Chuột + Lót chuột',
     subMenu: [
-      { title: 'Chuột Gaming', items: ['Logitech G', 'Razer', 'Corsair', 'Zowie', 'Pulsar'] },
-      { title: 'Chuột Văn phòng', items: ['Chuột Không dây', 'Chuột Bluetooth', 'Chuột Ergonomic'] },
-      { title: 'Lót chuột', items: ['Lót chuột Size nhỏ', 'Lót chuột Size lớn (Deskmat)', 'Lót chuột RGB', 'Lót chuột Kính/Nhôm'] }
+      { title: 'Thương hiệu', items: ['Logitech', 'Razer', 'Corsair', 'Zowie', 'Pulsar'] },
+      { title: 'Kết nối', items: ['Có dây', 'Không dây', 'Bluetooth'] },
+      { title: 'Lót chuột', items: ['Size nhỏ', 'Deskmat', 'RGB', 'Kính'] }
     ]
   },
   {
-    icon: <Headphones size={18} />, label: 'Tai Nghe', slug: 'Tai nghe',
+    icon: <Headphones size={18} />, label: 'Âm thanh - Webcam', slug: 'Âm thanh - Webcam',
     subMenu: [
-      { title: 'Loại Tai Nghe', items: ['Tai nghe Over-ear', 'Tai nghe In-ear', 'Tai nghe True Wireless', 'Tai nghe Có dây'] },
-      { title: 'Nhu Cầu', items: ['Tai nghe Gaming', 'Tai nghe Âm nhạc/Studio', 'Tai nghe Thể thao'] },
-      { title: 'Thương Hiệu', items: ['HyperX', 'Logitech', 'Razer', 'Sony', 'Corsair'] }
+      { title: 'Tai Nghe', items: ['Over-ear', 'In-ear', 'True Wireless', 'Có dây'] },
+      { title: 'Thương Hiệu', items: ['HyperX', 'Logitech', 'Razer', 'Sony', 'Corsair'] },
+      { title: 'Loa Máy Tính', items: ['Bluetooth', 'Soundbar', '2.0', '2.1'] },
+      { title: 'Webcam', items: ['720p', '1080p', '4K'] },
+      { title: 'Microphone', items: ['USB', 'Condenser'] }
     ]
   },
   {
-    icon: <AppWindow size={18} />, label: 'Phần mềm, mạng', slug: 'Phần mềm',
+    icon: <AppWindow size={18} />, label: 'Phần mềm, mạng', slug: 'Phần mềm, mạng',
     subMenu: [
       { title: 'Thiết bị mạng', items: ['Router Wifi', 'Bộ phát Wifi Mesh', 'Switch', 'USB Thu Wifi'] },
       { title: 'Phần mềm', items: ['Windows Bản quyền', 'Microsoft Office', 'Phần mềm Diệt Virus', 'Phần mềm Đồ họa'] }

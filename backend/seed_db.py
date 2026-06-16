@@ -922,6 +922,70 @@ CATEGORIES_DATA = [
 
 BRANDS_DATA = [
   {
+    "id": "5da698cc-6b22-4eff-9493-e619bdbd387a",
+    "name": "Logitech",
+    "slug": "logitech",
+    "description": "",
+    "logo_url": "",
+    "created_at": "2026-06-16T20:57:25.300471",
+    "updated_at": "2026-06-16T20:57:25.300471"
+  },
+  {
+    "id": "ae145fd2-c6e9-4841-88e3-03bac25c3b56",
+    "name": "Razer",
+    "slug": "razer",
+    "description": "",
+    "logo_url": "",
+    "created_at": "2026-06-16T20:57:25.300471",
+    "updated_at": "2026-06-16T20:57:25.300471"
+  },
+  {
+    "id": "f75e0e15-034d-4e21-adbb-10f75685a10f",
+    "name": "Akko",
+    "slug": "akko",
+    "description": "",
+    "logo_url": "",
+    "created_at": "2026-06-16T20:57:25.300471",
+    "updated_at": "2026-06-16T20:57:25.300471"
+  },
+  {
+    "id": "d35a1862-b253-4855-bc3f-05282e96ea67",
+    "name": "HyperX",
+    "slug": "hyperx",
+    "description": "",
+    "logo_url": "",
+    "created_at": "2026-06-16T20:57:25.300471",
+    "updated_at": "2026-06-16T20:57:25.300471"
+  },
+  {
+    "id": "69f7c933-4f05-4b6f-8a73-6ad04ebbd774",
+    "name": "Harman Kardon",
+    "slug": "harman-kardon",
+    "description": "",
+    "logo_url": "",
+    "created_at": "2026-06-16T20:57:25.300471",
+    "updated_at": "2026-06-16T20:57:25.300471"
+  },
+  {
+    "id": "6341491c-f795-4096-8ed1-13519a1f3b1a",
+    "name": "Lian Li",
+    "slug": "lian-li",
+    "description": "",
+    "logo_url": "",
+    "created_at": "2026-06-16T20:57:25.300471",
+    "updated_at": "2026-06-16T20:57:25.300471"
+  },
+  {
+    "id": "7a594ee7-5656-4318-954c-e85481663b61",
+    "name": "Wooting",
+    "slug": "wooting",
+    "description": "",
+    "logo_url": "",
+    "created_at": "2026-06-16T20:57:25.300471",
+    "updated_at": "2026-06-16T20:57:25.300471"
+  },
+
+  {
     "id": "0eacc349-0eb7-44be-a970-310b68cbe645",
     "name": "Asus",
     "slug": "asus",
@@ -1012,33 +1076,6 @@ BRANDS_DATA = [
     "updated_at": "2026-06-15T14:37:04.269867+07:00"
   },
   {
-    "id": "a0d8f24b-6880-4d92-aeed-f71afb813fac",
-    "name": "Logitech",
-    "slug": "logitech",
-    "description": null,
-    "logo_url": "",
-    "created_at": "2026-06-15T14:37:04.269867+07:00",
-    "updated_at": "2026-06-15T14:37:04.269867+07:00"
-  },
-  {
-    "id": "4afffe0d-118d-424d-9a43-09a0276e7436",
-    "name": "HyperX",
-    "slug": "hyperx",
-    "description": null,
-    "logo_url": "",
-    "created_at": "2026-06-15T14:37:04.269867+07:00",
-    "updated_at": "2026-06-15T14:37:04.269867+07:00"
-  },
-  {
-    "id": "b40cdaaf-c0b3-4b09-af44-440da0f542a3",
-    "name": "Razer",
-    "slug": "razer",
-    "description": null,
-    "logo_url": "",
-    "created_at": "2026-06-15T14:37:04.269867+07:00",
-    "updated_at": "2026-06-15T14:37:04.269867+07:00"
-  },
-  {
     "id": "31bffa70-e26f-4965-941b-cb4b3021502b",
     "name": "SteelSeries",
     "slug": "steelseries",
@@ -1093,24 +1130,6 @@ BRANDS_DATA = [
     "updated_at": "2026-06-15T22:01:08.256719+07:00"
   },
   {
-    "id": "839267e8-f82c-4d5d-be94-fc3ec90d83e3",
-    "name": "ASUS",
-    "slug": "asus-839267e8",
-    "description": "Th\u01b0\u01a1ng hi\u1ec7u ASUS",
-    "logo_url": null,
-    "created_at": "2026-06-15T22:01:08.256719+07:00",
-    "updated_at": "2026-06-15T22:01:08.256719+07:00"
-  },
-  {
-    "id": "feeba4f2-d5a6-4b57-82fa-9ff772a856e9",
-    "name": "GIGABYTE",
-    "slug": "gigabyte-feeba4f2",
-    "description": "Th\u01b0\u01a1ng hi\u1ec7u GIGABYTE",
-    "logo_url": null,
-    "created_at": "2026-06-15T22:01:08.256719+07:00",
-    "updated_at": "2026-06-15T22:01:08.256719+07:00"
-  },
-  {
     "id": "c308ee69-36f0-44c9-b0de-220f9bb2e5a4",
     "name": "Kingston",
     "slug": "kingston-c308ee69",
@@ -1121,7 +1140,113 @@ BRANDS_DATA = [
   }
 ]
 
+
 PRODUCTS_DATA = [
+  {
+    "id": "eafee440-d395-4ff3-9334-bd036b7fb183",
+    "name": "Chuột Logitech G Pro X Superlight",
+    "slug": "logitech-g-pro-x-superlight",
+    "description": "Chuột không dây siêu nhẹ cho game thủ",
+    "category_id": null,
+    "brand_id": "5da698cc-6b22-4eff-9493-e619bdbd387a",
+    "base_price": 2500000,
+    "is_published": True,
+    "created_at": "2026-06-16T20:57:25.300471",
+    "updated_at": "2026-06-16T20:57:25.300471",
+    "full_specs": {"Kết nối": "Không dây Lightspeed", "DPI": "25000", "Trọng lượng": "63g"}
+  },
+  {
+    "id": "ce4bc865-756c-481a-a495-9d04caf0f1c6",
+    "name": "Chuột Razer DeathAdder V3 Pro",
+    "slug": "razer-deathadder-v3-pro",
+    "description": "Chuột gaming công thái học cao cấp",
+    "category_id": "17755134-577b-40c3-a4c5-511f0594e413",
+    "brand_id": "ae145fd2-c6e9-4841-88e3-03bac25c3b56",
+    "base_price": 3200000,
+    "is_published": True,
+    "created_at": "2026-06-16T20:57:25.300471",
+    "updated_at": "2026-06-16T20:57:25.300471",
+    "full_specs": {"Kết nối": "Không dây Hyperspeed", "DPI": "30000", "Trọng lượng": "63g"}
+  },
+  {
+    "id": "4eabb709-4283-4082-9605-a185c83513ea",
+    "name": "Bàn phím cơ Akko MOD007 PC",
+    "slug": "akko-mod007-pc",
+    "description": "Bàn phím cơ custom giá rẻ",
+    "category_id": null,
+    "brand_id": "f75e0e15-034d-4e21-adbb-10f75685a10f",
+    "base_price": 1800000,
+    "is_published": True,
+    "created_at": "2026-06-16T20:57:25.300471",
+    "updated_at": "2026-06-16T20:57:25.300471",
+    "full_specs": {"Loại Switch": "Akko CS", "Kích thước": "TKL", "Kết nối": "Có dây"}
+  },
+  {
+    "id": "e9f81682-06fc-49d3-b2d4-3794cecb1fd8",
+    "name": "Bàn phím Wooting 60HE",
+    "slug": "wooting-60he",
+    "description": "Bàn phím analog tốt nhất thế giới",
+    "category_id": null,
+    "brand_id": "7a594ee7-5656-4318-954c-e85481663b61",
+    "base_price": 4500000,
+    "is_published": True,
+    "created_at": "2026-06-16T20:57:25.300471",
+    "updated_at": "2026-06-16T20:57:25.300471",
+    "full_specs": {"Loại Switch": "Lekker", "Kích thước": "60%", "Kết nối": "Có dây"}
+  },
+  {
+    "id": "6f21aaf4-1b4d-4d0e-a670-96a58c2754cb",
+    "name": "Tai nghe HyperX Cloud III",
+    "slug": "hyperx-cloud-iii",
+    "description": "Tai nghe gaming thoải mái nhất",
+    "category_id": "c1923d9a-740e-4808-aa7e-87fd429e990a",
+    "brand_id": "d35a1862-b253-4855-bc3f-05282e96ea67",
+    "base_price": 2200000,
+    "is_published": True,
+    "created_at": "2026-06-16T20:57:25.300471",
+    "updated_at": "2026-06-16T20:57:25.300471",
+    "full_specs": {"Kết nối": "Có dây 3.5mm/USB", "Kiểu dáng": "Over-ear", "Microphone": "Có"}
+  },
+  {
+    "id": "6fbb6c4b-a401-40f2-b49b-0ab6d41b3b4b",
+    "name": "Tai nghe Razer BlackShark V2",
+    "slug": "razer-blackshark-v2-mock",
+    "description": "Tai nghe e-sports chuyên nghiệp",
+    "category_id": "c1923d9a-740e-4808-aa7e-87fd429e990a",
+    "brand_id": "ae145fd2-c6e9-4841-88e3-03bac25c3b56",
+    "base_price": 2500000,
+    "is_published": True,
+    "created_at": "2026-06-16T20:57:25.300471",
+    "updated_at": "2026-06-16T20:57:25.300471",
+    "full_specs": {"Kết nối": "Có dây 3.5mm/USB", "Kiểu dáng": "Over-ear", "Microphone": "Có"}
+  },
+  {
+    "id": "50dd943f-98c9-42b6-a666-2637bb3ced7e",
+    "name": "Vỏ Case Lian Li O11 Dynamic EVO",
+    "slug": "lian-li-o11-dynamic-evo",
+    "description": "Vỏ case bể cá huyền thoại",
+    "category_id": "1cadbb93-661c-445a-bba6-f8a469e61b7c",
+    "brand_id": "6341491c-f795-4096-8ed1-13519a1f3b1a",
+    "base_price": 3800000,
+    "is_published": True,
+    "created_at": "2026-06-16T20:57:25.300471",
+    "updated_at": "2026-06-16T20:57:25.300471",
+    "full_specs": {"Kích thước": "Mid Tower", "Màu sắc": "Trắng", "Chất liệu": "Nhôm, Kính cường lực"}
+  },
+  {
+    "id": "24db29a0-5f28-4aca-b6ff-a9d004cda6b8",
+    "name": "Loa Harman Kardon SoundSticks 4",
+    "slug": "harman-kardon-soundsticks-4",
+    "description": "Loa bluetooth thiết kế trong suốt",
+    "category_id": null,
+    "brand_id": "69f7c933-4f05-4b6f-8a73-6ad04ebbd774",
+    "base_price": 6500000,
+    "is_published": True,
+    "created_at": "2026-06-16T20:57:25.300471",
+    "updated_at": "2026-06-16T20:57:25.300471",
+    "full_specs": {"Kết nối": "Bluetooth", "Công suất": "140W", "Màu sắc": "Trắng"}
+  },
+
   {
     "id": "7624c1c8-ac4e-44bb-a942-cc2889721300",
     "name": "Router Wi-Fi 6 ASUS RT-AX82U v2 Chu\u1ea9n Gaming",

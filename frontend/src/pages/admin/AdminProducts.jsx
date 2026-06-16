@@ -10,7 +10,7 @@ export default function AdminProducts() {
 
   const loadProducts = async () => {
     try {
-      const data = await getAdminProducts({ limit: 50 });
+      const data = await getAdminProducts({ limit: 1000 });
       setProducts(data);
     } catch (error) {
       console.error("Lỗi khi tải sản phẩm:", error);
@@ -97,7 +97,7 @@ export default function AdminProducts() {
                 const stock = product.skus ? product.skus.reduce((sum, sku) => sum + (sku.stock_quantity || 0), 0) : 0;
                 
                 return (
-                <tr key={product.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.2s' }} className="hover:bg-white/5">
+                <tr key={product.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.2s' }} className="hover:bg-black/5">
                   <td style={{ padding: '16px 12px' }}>
                     <div style={{ width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden', background: 'var(--bg-card)' }}>
                       <img src={primaryImage} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

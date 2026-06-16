@@ -8,8 +8,8 @@ import CustomSelect from '../../components/ui/CustomSelect';
 import CategorySidebar from '../../components/layout/CategorySidebar';
 import BentoBanners from '../../components/ui/BentoBanners';
 
-const CATEGORIES = ['Tất cả', 'VGA', 'CPU', 'Mainboard', 'RAM', 'Lưu trữ', 'Màn hình', 'Chuột', 'Bàn phím', 'Tai nghe', 'Nguồn', 'Case', 'Phụ kiện'];
-const BRANDS = ['Tất cả', 'ASUS', 'Logitech', 'Razer', 'SteelSeries', 'Intel', 'MSI', 'G.Skill', 'Samsung', 'LG', 'Corsair', 'NZXT', 'Artisan'];
+const CATEGORIES = ['Tất cả', 'Laptop', 'Laptop Gaming', 'PC EZ4ENCE', 'Linh Kiện Máy Tính', 'Màn hình', 'Bàn phím', 'Chuột + Lót chuột', 'Âm thanh - Webcam', 'Phần mềm, mạng', 'Console', 'Phụ kiện', 'Dịch vụ'];
+const BRANDS = ['Tất cả', 'ASUS', 'Acer', 'Lenovo', 'Dell', 'HP', 'Gigabyte', 'Logitech', 'Razer', 'SteelSeries', 'Intel', 'MSI', 'G.Skill', 'Samsung', 'LG', 'Corsair', 'NZXT', 'Artisan'];
 const SORT_OPTIONS = [
   { value: 'popular', label: 'Phổ biến nhất' },
   { value: 'newest', label: 'Mới nhất' },
@@ -63,7 +63,26 @@ export default function Products() {
   useEffect(() => {
     // Build query params
     const params = new URLSearchParams();
-    if (selectedCategory !== 'Tất cả') params.append('category_slug', selectedCategory.toLowerCase().replace(/ /g, '-'));
+    params.append('limit', '1000');
+    
+    // Ánh xạ danh mục Frontend sang Backend slug (nếu có 1-1)
+    // Các danh mục tổng hợp (Linh kiện, Âm thanh...) sẽ không gửi category_slug để Frontend tự lọc
+    const backendCategoryMap = {
+      'laptop': 'laptop',
+      'laptop gaming': 'laptop-gaming',
+      'pc ez4ence': 'pc-ez4ence',
+      'màn hình': 'màn-hình',
+      'bàn phím': 'ban-phim',
+      'chuột + lót chuột': 'chuot'
+    };
+    
+    if (selectedCategory !== 'Tất cả') {
+      const catLower = selectedCategory.toLowerCase();
+      if (backendCategoryMap[catLower]) {
+        params.append('category_slug', backendCategoryMap[catLower]);
+      }
+    }
+
     if (selectedBrand !== 'Tất cả') params.append('brand_slug', selectedBrand.toLowerCase());
     if (searchQuery.trim()) params.append('search', searchQuery.trim());
     
@@ -71,16 +90,18 @@ export default function Products() {
     Object.entries(activeSpecsFilters).forEach(([key, val]) => {
       if (val) params.append(key, val);
     });
-    // Handle urlSub from Sidebar
-    if (urlSub && Object.keys(activeSpecsFilters).length === 0) {
-      if (urlSub.includes('RTX') || urlSub.includes('GTX')) params.append('VGA', urlSub);
-      else if (urlSub.includes('Hz')) params.append('Màn hình', urlSub);
-      else if (urlSub.includes('Core') || urlSub.includes('Ryzen')) params.append('CPU', urlSub);
-    }
+    // Dynamic specs filtering is handled by frontend search phrases, so no need to send specific spec keys to backend.
+
 
     fetch(`http://localhost:8000/api/products?${params.toString()}`)
       .then(res => res.json())
       .then(data => {
+        if (!Array.isArray(data)) {
+            console.error("API did not return an array:", data);
+            setProductsList([]);
+            setIsLoading(false);
+            return;
+        }
         // Map backend schema to frontend schema
         const mapped = data.map(item => ({
           id: item.id,
@@ -147,9 +168,95 @@ export default function Products() {
       });
     }
 
-    // Category and Brand are already filtered by the API, so we skip exact string match here
-    // to avoid mismatch between "Tất cả" and actual category names.
-    // We only filter by price range and sort below.
+    // Filter by Category
+    if (selectedCategory !== 'Tất cả') {
+      const catLower = selectedCategory.toLowerCase();
+      const categoryMatch = catLower.replace(/ /g, '-');
+      const removeAccents = (str) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      
+      const aliases = {
+        'linh kiện máy tính': ['main', 'cpu', 'vga', 'card', 'bo mạch', 'bộ vi', 'mainboard', 'case', 'nguồn', 'tản', 'vỏ', 'ram', 'ổ cứng', 'ssd', 'hdd', 'bộ nhớ'],
+        'pc ez4ence': ['pc ez4ence', 'pc lắp ráp', 'pc'],
+        'chuột + lót chuột': ['chuột', 'lót chuột', 'chuot'],
+        'âm thanh - webcam': ['loa', 'webcam', 'tai nghe', 'microphone', 'soundbar'],
+        'phần mềm, mạng': ['phần mềm', 'mạng']
+      };
+
+      const matchedAliases = aliases[catLower] || [catLower];
+
+      result = result.filter(p => {
+        const pCat = (p.category?.name || p.category || '').toLowerCase();
+        const pSlug = (p.categorySlug || '').toLowerCase();
+        
+        // Exclusion rule: if filtering for "Màn hình", exclude items containing "Card"
+        if (catLower === 'màn hình' && pCat.includes('card')) return false;
+
+        const normalizedCat = removeAccents(pCat);
+        const normalizedSlug = removeAccents(pSlug);
+        const normalizedCategoryMatch = removeAccents(categoryMatch);
+
+        return matchedAliases.some(alias => {
+            const normalizedAlias = removeAccents(alias);
+            return normalizedCat.includes(normalizedAlias) || 
+                   normalizedSlug.includes(removeAccents(alias.replace(/ /g, '-'))) ||
+                   normalizedSlug === normalizedCategoryMatch ||
+                   pCat.includes(alias) ||
+                   pSlug.includes(alias.replace(/ /g, '-'));
+        });
+      });
+    }
+
+    // Filter by Brand
+    if (selectedBrand !== 'Tất cả') {
+      result = result.filter(p => 
+        p.brand && p.brand.toLowerCase() === selectedBrand.toLowerCase()
+      );
+    }
+
+    // Advanced Sub-category (urlSub) text & price filter
+    if (urlSub) {
+      const lowerSub = urlSub.toLowerCase();
+      
+      if (lowerSub.includes('triệu')) {
+        let min = 0, max = 999999999;
+        if (lowerSub.includes('dưới 1 triệu')) max = 1000000;
+        else if (lowerSub.includes('từ 1 triệu đến 2 triệu')) { min = 1000000; max = 2000000; }
+        else if (lowerSub.includes('dưới 10 triệu')) max = 10000000;
+        else if (lowerSub.includes('dưới 15 triệu')) max = 15000000;
+        else if (lowerSub.includes('10 - 20 triệu')) { min = 10000000; max = 20000000; }
+        else if (lowerSub.includes('15 - 20 triệu')) { min = 15000000; max = 20000000; }
+        else if (lowerSub.includes('20 - 25 triệu')) { min = 20000000; max = 25000000; }
+        else if (lowerSub.includes('20 - 30 triệu')) { min = 20000000; max = 30000000; }
+        else if (lowerSub.includes('30 - 50 triệu')) { min = 30000000; max = 50000000; }
+        else if (lowerSub.includes('trên 50 triệu')) min = 50000000;
+        else if (lowerSub.includes('trên 25 triệu')) min = 25000000;
+        else if (lowerSub.includes('trên 2 triệu')) min = 2000000;
+        
+        result = result.filter(p => p.price >= min && p.price <= max);
+      } else {
+        let searchPhrases = [lowerSub.replace('xem tất cả', '').trim()];
+        if (lowerSub.includes('/')) {
+            searchPhrases = lowerSub.split('/').map(s => s.replace('xem tất cả', '').trim()).filter(Boolean);
+        }
+
+        result = result.filter(p => {
+            const pool = [
+                p.name, 
+                p.category?.name || p.category, 
+                p.categorySlug,
+                p.brand?.name || p.brand, 
+                p.description,
+                ...(p.fullSpecs ? Object.values(p.fullSpecs) : [])
+            ].join(' ').toLowerCase();
+
+            return searchPhrases.some(phrase => {
+                const words = phrase.replace(/[+,()]/g, ' ').split(/\s+/).filter(w => w.length > 1);
+                if (words.length === 0) return true;
+                return words.every(w => pool.includes(w));
+            });
+        });
+      }
+    }
 
     // Price range
     if (selectedPrice !== 'all') {

@@ -87,7 +87,7 @@ export default function Home() {
       .then(data => setNewsList(data))
       .catch(console.error);
 
-    fetch('http://localhost:8000/api/products?limit=100')
+    fetch('http://localhost:8000/api/products?limit=1000')
       .then(res => res.json())
       .then(data => {
         // Filter for beautiful products (have images, and preferably on sale)

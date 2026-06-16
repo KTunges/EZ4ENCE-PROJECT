@@ -1195,7 +1195,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns: 1.6fr 1fr 1fr 2.4fr;
   gap: 48px;
   margin-bottom: 48px;
 }
@@ -5176,45 +5176,54 @@ textarea.checkout-input {
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 400px;
+  max-width: 100%;
 }
 
 .cyber-input {
   width: 100%;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--bg-card);
   border: 1px solid var(--border);
   color: var(--text);
-  padding: 14px 20px;
-  padding-right: 140px; /* Space for button */
-  border-radius: var(--radius-sm);
-  font-family: var(--font-mono);
-  font-size: 14px;
+  padding: 16px 20px;
+  padding-right: 130px; /* Space for button */
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 15px;
   outline: none;
   transition: var(--transition);
+}
+
+.cyber-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.8;
 }
 
 .cyber-input:focus {
   border-color: var(--cyan);
   box-shadow: 0 0 15px var(--cyan-dim);
+  background: var(--bg-surface);
 }
 
 .cyber-btn-inside {
   position: absolute;
-  right: 4px;
-  top: 4px;
-  bottom: 4px;
-  padding: 0 20px;
+  right: 6px;
+  top: 6px;
+  bottom: 6px;
+  padding: 0 24px;
   background: var(--cyan);
   color: #000;
-  font-weight: bold;
-  border-radius: 4px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 14px;
+  border-radius: var(--radius-sm);
   transition: all 0.3s ease;
+  letter-spacing: 0.5px;
 }
 
 .cyber-btn-inside:hover {
   background: var(--purple);
   color: #fff;
-  box-shadow: 0 0 10px var(--purple-glow);
+  box-shadow: 0 0 15px var(--purple-glow);
 }
 
 /* Brand Marquee */
