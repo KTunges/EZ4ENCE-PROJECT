@@ -1,4 +1,7 @@
 import uuid
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from datetime import datetime, timezone
 import json
 from sqlalchemy import create_engine
@@ -6211,14 +6214,17 @@ def seed_all(db):
     print("Seeding Users...")
     for u in USERS_DATA:
         if not db.query(User).filter(User.id == u['id']).first():
-            user = User(**u)
-            db.add(user)
+            if not db.query(User).filter(User.email == u['email']).first():
+                user = User(**u)
+                db.add(user)
+    db.flush()
     
     for mu in MOCK_USERS:
         if not db.query(User).filter(User.email == mu['email']).first():
             mu['password'] = hash_password(str(mu['password'])) # type: ignore
             user = User(**mu)
             db.add(user)
+            db.flush()
     db.commit()
 
     print("Seeding Categories...")
@@ -6235,30 +6241,8 @@ def seed_all(db):
             db.add(brand)
     db.commit()
 
-    print("Seeding Products...")
-    for p in PRODUCTS_DATA:
-        if not db.query(Product).filter(Product.id == p['id']).first():
-            # handle datetime strings
-            p['created_at'] = datetime.fromisoformat(str(p['created_at'])) if p.get('created_at') else datetime.now(timezone.utc) # type: ignore
-            p['updated_at'] = datetime.fromisoformat(str(p['updated_at'])) if p.get('updated_at') else datetime.now(timezone.utc) # type: ignore
-            prod = Product(**p)
-            db.add(prod)
-    db.commit()
-
-    print("Seeding SKUs...")
-    for s in SKUS_DATA:
-        if not db.query(ProductSKU).filter(ProductSKU.id == s['id']).first():
-            s['created_at'] = datetime.fromisoformat(str(s['created_at'])) if s.get('created_at') else datetime.now(timezone.utc) # type: ignore
-            s['updated_at'] = datetime.fromisoformat(str(s['updated_at'])) if s.get('updated_at') else datetime.now(timezone.utc) # type: ignore
-            sku = ProductSKU(**s)
-            db.add(sku)
-    db.commit()
-
-    print("Seeding Images...")
-    for img in IMAGES_DATA:
-        if not db.query(ProductImage).filter(ProductImage.id == img['id']).first():
-            db.add(ProductImage(**img))
-    db.commit()
+    # Old PRODUCTS_DATA/SKUS_DATA/IMAGES_DATA skipped - handled by seed_all_products.py
+    print("Skipping old product data (replaced by seed_all_products)...")
 
     print("Seeding News...")
     for n in NEWS_DATA:
@@ -6280,25 +6264,37 @@ def seed_all(db):
     db.commit()
     
     print("Seeding Orders...")
-    for o in ORDERS_DATA:
-        if not db.query(Order).filter(Order.id == o['id']).first():
-            o['created_at'] = datetime.fromisoformat(str(o['created_at'])) if o.get('created_at') else datetime.now(timezone.utc) # type: ignore
-            o['updated_at'] = datetime.fromisoformat(str(o['updated_at'])) if o.get('updated_at') else datetime.now(timezone.utc) # type: ignore
-            db.add(Order(**o))
-    db.commit()
+    try:
+        for o in ORDERS_DATA:
+            if not db.query(Order).filter(Order.id == o['id']).first():
+                o['created_at'] = datetime.fromisoformat(str(o['created_at'])) if o.get('created_at') else datetime.now(timezone.utc) # type: ignore
+                o['updated_at'] = datetime.fromisoformat(str(o['updated_at'])) if o.get('updated_at') else datetime.now(timezone.utc) # type: ignore
+                db.add(Order(**o))
+        db.commit()
 
-    print("Seeding Order Items...")
-    for oi in ORDER_ITEMS_DATA:
-        if not db.query(OrderItem).filter(OrderItem.id == oi['id']).first():
-            db.add(OrderItem(**oi))
-    db.commit()
+        print("Seeding Order Items...")
+        for oi in ORDER_ITEMS_DATA:
+            if not db.query(OrderItem).filter(OrderItem.id == oi['id']).first():
+                db.add(OrderItem(**oi))
+        db.commit()
+    except Exception as e:
+        print(f"  ⚠️ Orders/OrderItems skipped (missing addresses): {str(e)[:60]}")
+        db.rollback()
+
+    # Seed Products (149 sản phẩm phủ hết menu)
+    from seed_all_products import run_seed_products
+    run_seed_products()
 
     print("Seeding Reviews...")
-    for rv in REVIEWS_DATA:
-        if not db.query(Review).filter(Review.id == rv['id']).first():
-            rv['created_at'] = datetime.fromisoformat(str(rv['created_at'])) if rv.get('created_at') else datetime.now(timezone.utc) # type: ignore
-            db.add(Review(**rv))
-    db.commit()
+    try:
+        for rv in REVIEWS_DATA:
+            if not db.query(Review).filter(Review.id == rv['id']).first():
+                rv['created_at'] = datetime.fromisoformat(str(rv['created_at'])) if rv.get('created_at') else datetime.now(timezone.utc) # type: ignore
+                db.add(Review(**rv))
+        db.commit()
+    except Exception as e:
+        print(f"  ⚠️ Reviews skipped: {str(e)[:60]}")
+        db.rollback()
 
 def main():
     print("Starting Mega Seed...")

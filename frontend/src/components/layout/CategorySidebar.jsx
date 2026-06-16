@@ -57,11 +57,17 @@ const categories = [
     ]
   },
   {
-    icon: <Mouse size={18} />, label: 'Chuột + Lót chuột', slug: 'Chuột + Lót chuột',
+    icon: <Mouse size={18} />, label: 'Chuột', slug: 'Chuột',
     subMenu: [
       { title: 'Thương hiệu', items: ['Logitech', 'Razer', 'Corsair', 'Zowie', 'Pulsar'] },
       { title: 'Kết nối', items: ['Có dây', 'Không dây', 'Bluetooth'] },
-      { title: 'Lót chuột', items: ['Size nhỏ', 'Deskmat', 'RGB', 'Kính'] }
+    ]
+  },
+  {
+    icon: <Box size={18} />, label: 'Lót chuột', slug: 'Lót chuột',
+    subMenu: [
+      { title: 'Loại', items: ['Size nhỏ', 'Deskmat', 'RGB', 'Kính'] },
+      { title: 'Thương hiệu', items: ['Razer', 'SteelSeries', 'Artisan', 'Pulsar'] },
     ]
   },
   {
@@ -82,7 +88,7 @@ const categories = [
     ]
   },
   {
-    icon: <Gamepad size={18} />, label: 'Handheld, Console', slug: 'Console',
+    icon: <Gamepad size={18} />, label: 'Handheld, Console', slug: 'Handheld, Console',
     subMenu: [
       { title: 'Máy chơi game', items: ['PS5', 'Xbox Series X/S', 'Nintendo Switch', 'Steam Deck', 'ASUS ROG Ally'] },
       { title: 'Tay cầm', items: ['Tay cầm PS5', 'Tay cầm Xbox', 'Tay cầm PC', 'Vô lăng đua xe'] },
@@ -137,7 +143,7 @@ export default function CategorySidebar() {
                         {column.items.map((item, itemIdx) => (
                           <li key={itemIdx}>
                             <Link
-                              to={`/products?category=${cat.slug}&sub=${encodeURIComponent(item)}`}
+                              to={`/products?category=${cat.slug}&sub=${encodeURIComponent(column.title + ': ' + item)}`}
                               className="mega-menu-item"
                               onClick={() => setHiddenMenuIdx(idx)}
                             >

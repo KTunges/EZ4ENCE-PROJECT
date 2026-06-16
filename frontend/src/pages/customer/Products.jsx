@@ -8,8 +8,8 @@ import CustomSelect from '../../components/ui/CustomSelect';
 import CategorySidebar from '../../components/layout/CategorySidebar';
 import BentoBanners from '../../components/ui/BentoBanners';
 
-const CATEGORIES = ['Tất cả', 'Laptop', 'Laptop Gaming', 'PC EZ4ENCE', 'Linh Kiện Máy Tính', 'Màn hình', 'Bàn phím', 'Chuột + Lót chuột', 'Âm thanh - Webcam', 'Phần mềm, mạng', 'Console', 'Phụ kiện', 'Dịch vụ'];
-const BRANDS = ['Tất cả', 'ASUS', 'Acer', 'Lenovo', 'Dell', 'HP', 'Gigabyte', 'Logitech', 'Razer', 'SteelSeries', 'Intel', 'MSI', 'G.Skill', 'Samsung', 'LG', 'Corsair', 'NZXT', 'Artisan'];
+const CATEGORIES = ['Tất cả', 'Laptop', 'Laptop Gaming', 'PC EZ4ENCE', 'Linh Kiện Máy Tính', 'Màn hình', 'Bàn phím', 'Chuột + Lót chuột', 'Âm thanh - Webcam', 'Phần mềm, mạng', 'Handheld, Console', 'Phụ kiện', 'Dịch vụ'];
+const BRANDS = ['Tất cả', 'ASUS', 'Acer', 'Lenovo', 'Dell', 'HP', 'Gigabyte', 'Logitech', 'Razer', 'SteelSeries', 'Intel', 'AMD', 'MSI', 'G.Skill', 'Samsung', 'LG', 'Corsair', 'NZXT', 'Artisan', 'HyperX', 'Sony', 'Kingston', 'Akko', 'Keychron', 'Zowie', 'Pulsar'];
 const SORT_OPTIONS = [
   { value: 'popular', label: 'Phổ biến nhất' },
   { value: 'newest', label: 'Mới nhất' },
@@ -18,16 +18,33 @@ const SORT_OPTIONS = [
   { value: 'rating', label: 'Đánh giá cao nhất' },
 ];
 
+// Key = tên hiển thị trên CATEGORIES / Sidebar, khớp chính xác
 const CATEGORY_FILTERS_CONFIG = {
-  'Mainboard': ['Chipset', 'Kích thước', 'Loại RAM', 'Socket'],
-  'Laptop': ['CPU', 'RAM', 'Ổ cứng', 'VGA', 'Màn hình'],
-  'PC': ['CPU', 'RAM', 'VGA', 'Tản nhiệt'],
-  'Case': ['Kích thước', 'Màu sắc', 'Chất liệu'],
-  'RAM': ['Loại RAM', 'Dung lượng', 'Bus'],
+  'Linh Kiện Máy Tính': ['Socket', 'Chipset', 'Bộ nhớ'],
+  'Laptop': ['cpu', 'ram', 'storage', 'vga'],
+  'Laptop Gaming': ['cpu', 'ram', 'vga', 'storage'],
+  'PC EZ4ENCE': ['cpu', 'ram', 'vga'],
   'Màn hình': ['Kích thước', 'Độ phân giải', 'Tần số quét', 'Tấm nền'],
   'Bàn phím': ['Loại Switch', 'Kết nối', 'Kích thước'],
-  'Chuột': ['Kết nối', 'DPI', 'Trọng lượng'],
-  'Tai nghe': ['Kết nối', 'Kiểu dáng', 'Microphone']
+  'Chuột + Lót chuột': ['Mắt đọc', 'DPI', 'Kết nối', 'Trọng lượng'],
+  'Âm thanh - Webcam': ['Kết nối', 'Kiểu dáng', 'Microphone'],
+};
+
+// Ánh xạ mỗi danh mục Sidebar → danh sách backend slug tương ứng
+const CATEGORY_SLUG_MAP = {
+  'Laptop': ['laptop'],
+  'Laptop Gaming': ['laptop-gaming'],
+  'PC EZ4ENCE': ['pc-ez4ence'],
+  'Linh Kiện Máy Tính': ['cpu', 'mainboard', 'vga', 'ram', 'storage', 'psu', 'case', 'cooler'],
+  'Màn hình': ['man-hinh'],
+  'Bàn phím': ['ban-phim'],
+  'Chuột': ['chuot'],
+  'Lót chuột': ['lot-chuot'],
+  'Âm thanh - Webcam': ['tai-nghe', 'loa', 'webcam', 'microphone'],
+  'Phần mềm, mạng': ['phan-mem-mang'],
+  'Handheld, Console': ['console'],
+  'Phụ kiện': ['phu-kien'],
+  'Dịch vụ': ['dich-vu'],
 };
 
 const PRICE_RANGES = [
@@ -61,48 +78,35 @@ export default function Products() {
   const [activeSpecsFilters, setActiveSpecsFilters] = useState({});
 
   useEffect(() => {
-    // Build query params
     const params = new URLSearchParams();
     params.append('limit', '1000');
-    
-    // Ánh xạ danh mục Frontend sang Backend slug (nếu có 1-1)
-    // Các danh mục tổng hợp (Linh kiện, Âm thanh...) sẽ không gửi category_slug để Frontend tự lọc
-    const backendCategoryMap = {
-      'laptop': 'laptop',
-      'laptop gaming': 'laptop-gaming',
-      'pc ez4ence': 'pc-ez4ence',
-      'màn hình': 'màn-hình',
-      'bàn phím': 'ban-phim',
-      'chuột + lót chuột': 'chuot'
-    };
-    
+
+    // Gửi category_slug chính xác cho danh mục đơn (1 slug)
+    // Với danh mục tổng hợp (nhiều slug), fetch ALL rồi frontend tự lọc
     if (selectedCategory !== 'Tất cả') {
-      const catLower = selectedCategory.toLowerCase();
-      if (backendCategoryMap[catLower]) {
-        params.append('category_slug', backendCategoryMap[catLower]);
+      const slugs = CATEGORY_SLUG_MAP[selectedCategory];
+      if (slugs && slugs.length === 1) {
+        params.append('category_slug', slugs[0]);
       }
+      // Nếu slugs.length > 1 → không gửi, để frontend lọc
     }
 
     if (selectedBrand !== 'Tất cả') params.append('brand_slug', selectedBrand.toLowerCase());
     if (searchQuery.trim()) params.append('search', searchQuery.trim());
-    
-    // Add dynamic specs filtering from state
+
+    // Dynamic specs filtering
     Object.entries(activeSpecsFilters).forEach(([key, val]) => {
       if (val) params.append(key, val);
     });
-    // Dynamic specs filtering is handled by frontend search phrases, so no need to send specific spec keys to backend.
-
 
     fetch(`http://localhost:8000/api/products?${params.toString()}`)
       .then(res => res.json())
       .then(data => {
         if (!Array.isArray(data)) {
-            console.error("API did not return an array:", data);
-            setProductsList([]);
-            setIsLoading(false);
-            return;
+          console.error('API did not return an array:', data);
+          setProductsList([]);
+          return;
         }
-        // Map backend schema to frontend schema
         const mapped = data.map(item => ({
           id: item.id,
           slug: item.slug,
@@ -124,9 +128,9 @@ export default function Products() {
         setProductsList(mapped);
       })
       .catch(err => {
-        console.error("Failed to fetch products", err);
+        console.error('Failed to fetch products', err);
       });
-  }, [selectedCategory, selectedBrand, searchQuery, urlSub, activeSpecsFilters]);
+  }, [selectedCategory, selectedBrand, searchQuery, activeSpecsFilters]);
 
   useEffect(() => {
     if (urlCategory) {
@@ -163,47 +167,26 @@ export default function Products() {
     if (searchQuery.trim()) {
       const keywords = searchQuery.toLowerCase().trim().split(/\s+/);
       result = result.filter(p => {
-        const textToSearch = (p.name + " " + p.brand).toLowerCase();
+        const textToSearch = [p.name, p.brand, p.category, ...Object.values(p.fullSpecs || {})].join(' ').toLowerCase();
         return keywords.every(kw => textToSearch.includes(kw));
       });
     }
 
-    // Filter by Category
+    // Filter by Category — dùng CATEGORY_SLUG_MAP chính xác
     if (selectedCategory !== 'Tất cả') {
-      const catLower = selectedCategory.toLowerCase();
-      const categoryMatch = catLower.replace(/ /g, '-');
-      const removeAccents = (str) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-      
-      const aliases = {
-        'linh kiện máy tính': ['main', 'cpu', 'vga', 'card', 'bo mạch', 'bộ vi', 'mainboard', 'case', 'nguồn', 'tản', 'vỏ', 'ram', 'ổ cứng', 'ssd', 'hdd', 'bộ nhớ'],
-        'pc ez4ence': ['pc ez4ence', 'pc lắp ráp', 'pc'],
-        'chuột + lót chuột': ['chuột', 'lót chuột', 'chuot'],
-        'âm thanh - webcam': ['loa', 'webcam', 'tai nghe', 'microphone', 'soundbar'],
-        'phần mềm, mạng': ['phần mềm', 'mạng']
-      };
-
-      const matchedAliases = aliases[catLower] || [catLower];
-
-      result = result.filter(p => {
-        const pCat = (p.category?.name || p.category || '').toLowerCase();
-        const pSlug = (p.categorySlug || '').toLowerCase();
-        
-        // Exclusion rule: if filtering for "Màn hình", exclude items containing "Card"
-        if (catLower === 'màn hình' && pCat.includes('card')) return false;
-
-        const normalizedCat = removeAccents(pCat);
-        const normalizedSlug = removeAccents(pSlug);
-        const normalizedCategoryMatch = removeAccents(categoryMatch);
-
-        return matchedAliases.some(alias => {
-            const normalizedAlias = removeAccents(alias);
-            return normalizedCat.includes(normalizedAlias) || 
-                   normalizedSlug.includes(removeAccents(alias.replace(/ /g, '-'))) ||
-                   normalizedSlug === normalizedCategoryMatch ||
-                   pCat.includes(alias) ||
-                   pSlug.includes(alias.replace(/ /g, '-'));
+      const slugs = CATEGORY_SLUG_MAP[selectedCategory];
+      if (slugs && slugs.length > 1) {
+        // Danh mục tổng hợp → lọc frontend theo danh sách slug
+        result = result.filter(p => slugs.includes(p.categorySlug));
+      }
+      // Nếu slugs.length === 1 → đã lọc từ backend, không cần lọc thêm
+      // Nếu không có trong map → lọc bằng tên danh mục
+      if (!slugs) {
+        result = result.filter(p => {
+          const pCat = (p.category || '').toLowerCase();
+          return pCat.includes(selectedCategory.toLowerCase());
         });
-      });
+      }
     }
 
     // Filter by Brand
@@ -214,13 +197,13 @@ export default function Products() {
     }
 
     // Advanced Sub-category (urlSub) text & price filter
+    // Format mới: "Column Title: Item" (VD: "Bo Mạch Chủ (Mainboard): ASUS")
     if (urlSub) {
       const lowerSub = urlSub.toLowerCase();
       
-      if (lowerSub.includes('triệu')) {
+      if (lowerSub.includes('triệu') || lowerSub.includes('hi-end')) {
         let min = 0, max = 999999999;
         if (lowerSub.includes('dưới 1 triệu')) max = 1000000;
-        else if (lowerSub.includes('từ 1 triệu đến 2 triệu')) { min = 1000000; max = 2000000; }
         else if (lowerSub.includes('dưới 10 triệu')) max = 10000000;
         else if (lowerSub.includes('dưới 15 triệu')) max = 15000000;
         else if (lowerSub.includes('10 - 20 triệu')) { min = 10000000; max = 20000000; }
@@ -228,33 +211,71 @@ export default function Products() {
         else if (lowerSub.includes('20 - 25 triệu')) { min = 20000000; max = 25000000; }
         else if (lowerSub.includes('20 - 30 triệu')) { min = 20000000; max = 30000000; }
         else if (lowerSub.includes('30 - 50 triệu')) { min = 30000000; max = 50000000; }
-        else if (lowerSub.includes('trên 50 triệu')) min = 50000000;
+        else if (lowerSub.includes('trên 50 triệu') || lowerSub.includes('hi-end')) min = 50000000;
         else if (lowerSub.includes('trên 25 triệu')) min = 25000000;
         else if (lowerSub.includes('trên 2 triệu')) min = 2000000;
         
         result = result.filter(p => p.price >= min && p.price <= max);
       } else {
-        let searchPhrases = [lowerSub.replace('xem tất cả', '').trim()];
-        if (lowerSub.includes('/')) {
-            searchPhrases = lowerSub.split('/').map(s => s.replace('xem tất cả', '').trim()).filter(Boolean);
+        // Tách "Column Title: Item" → chỉ dùng Item để lọc
+        let searchKeyword = lowerSub;
+
+        if (urlSub.includes(': ')) {
+          const parts = urlSub.split(': ');
+          searchKeyword = parts.slice(1).join(': ').toLowerCase();
         }
 
-        result = result.filter(p => {
+        // Bỏ prefix trùng tên category: "Laptop ASUS" → "asus" (vì đã lọc category rồi)
+        const catLabel = (selectedCategory || '').toLowerCase();
+        let cleanedKeyword = searchKeyword;
+        if (catLabel && cleanedKeyword.startsWith(catLabel + ' ')) {
+          cleanedKeyword = cleanedKeyword.slice(catLabel.length).trim();
+        }
+
+        // Xử lý "/" là OR: "ASUS ROG/TUF" → match "rog" HOẶC "tuf"
+        // "Acer Nitro/Predator" → match "nitro" HOẶC "predator"
+        if (cleanedKeyword.includes('/')) {
+          const parts = cleanedKeyword.split('/').map(s => s.trim()).filter(Boolean);
+          // Lấy phần chung trước dấu / (nếu có): "ASUS ROG/TUF" → base="asus", alternatives=["rog","tuf"]
+          const firstPart = parts[0];
+          const firstWords = firstPart.split(/\s+/);
+          let baseWords = [];
+          let alternatives = [];
+          
+          if (firstWords.length > 1) {
+            // "asus rog" → base=["asus"], first alternative="rog"
+            baseWords = firstWords.slice(0, -1);
+            alternatives = [firstWords[firstWords.length - 1], ...parts.slice(1)];
+          } else {
+            // "rog/tuf" → no base, alternatives=["rog","tuf"]
+            alternatives = parts;
+          }
+
+          result = result.filter(p => {
             const pool = [
-                p.name, 
-                p.category?.name || p.category, 
-                p.categorySlug,
-                p.brand?.name || p.brand, 
-                p.description,
-                ...(p.fullSpecs ? Object.values(p.fullSpecs) : [])
+              p.name, p.category, p.categorySlug, p.brand,
+              ...(p.fullSpecs ? Object.values(p.fullSpecs) : [])
             ].join(' ').toLowerCase();
 
-            return searchPhrases.some(phrase => {
-                const words = phrase.replace(/[+,()]/g, ' ').split(/\s+/).filter(w => w.length > 1);
-                if (words.length === 0) return true;
-                return words.every(w => pool.includes(w));
+            const baseMatch = baseWords.length === 0 || baseWords.every(w => pool.includes(w));
+            const altMatch = alternatives.some(alt => pool.includes(alt));
+            return baseMatch && altMatch;
+          });
+        } else {
+          // Lọc thông thường: tất cả từ phải match (AND)
+          const keywordWords = cleanedKeyword.split(/\s+/).filter(w => w.length > 0);
+          
+          if (keywordWords.length > 0) {
+            result = result.filter(p => {
+              const pool = [
+                p.name, p.category, p.categorySlug, p.brand,
+                ...(p.fullSpecs ? Object.values(p.fullSpecs) : [])
+              ].join(' ').toLowerCase();
+
+              return keywordWords.every(w => pool.includes(w));
             });
-        });
+          }
+        }
       }
     }
 
@@ -283,7 +304,7 @@ export default function Products() {
     }
 
     return result;
-  }, [searchQuery, selectedCategory, selectedBrand, selectedPrice, sortBy, productsList]);
+  }, [searchQuery, selectedCategory, selectedBrand, selectedPrice, sortBy, productsList, urlSub]);
 
   // Pagination
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);

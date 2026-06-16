@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, User, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
@@ -42,22 +42,24 @@ export default function Header() {
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
+  const searchInputRef = useRef(null);
+
   const handleSearch = (e) => {
     if (e && e.preventDefault) e.preventDefault();
     
     // Nếu thanh tìm kiếm đang đóng, bấm vào icon sẽ mở nó ra
     if (!isSearchOpen) {
       setIsSearchOpen(true);
+      setTimeout(() => searchInputRef.current?.focus(), 100);
       return;
     }
 
     // Nếu đang mở và có text, thực hiện tìm kiếm
     if (searchQuery.trim()) {
       navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
-      setIsSearchOpen(false);
       setShowSuggestions(false);
+      // Đừng đóng search bar ngay, để user thấy họ vừa tìm gì
     } else {
-      // Nếu đang mở nhưng rỗng, bấm vào icon sẽ đóng lại
       setIsSearchOpen(false);
     }
   };
@@ -67,7 +69,6 @@ export default function Header() {
       e.preventDefault();
       if (searchQuery.trim()) {
         navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
-        setIsSearchOpen(false);
         setShowSuggestions(false);
       }
     }
@@ -91,6 +92,7 @@ export default function Header() {
           <div className="header-actions">
             <div className={`header-search-container ${isSearchOpen ? 'open' : ''}`} style={{ position: 'relative' }}>
               <input 
+                ref={searchInputRef}
                 type="text" 
                 className="header-search-input" 
                 placeholder="Tìm kiếm linh kiện, gear..." 
