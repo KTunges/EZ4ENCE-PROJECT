@@ -92,7 +92,7 @@ export const AuthProvider = ({ children }) => {
   }, [token, adminToken, fetchCurrentUser, fetchCurrentAdmin]);
 
   // Login handler
-  const login = async (email, password) => {
+  const login = async (username, password) => {
     setIsLoading(true);
     try {
       const res = await fetch('http://localhost:8000/api/auth/login', {
@@ -100,7 +100,7 @@ export const AuthProvider = ({ children }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
@@ -157,7 +157,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Register handler
-  const register = async (fullName, email, password) => {
+  const register = async (fullName, username, password) => {
     setIsLoading(true);
     try {
       const res = await fetch('http://localhost:8000/api/auth/register', {
@@ -165,7 +165,7 @@ export const AuthProvider = ({ children }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ fullName, email, password }),
+        body: JSON.stringify({ fullName, username, password }),
       });
 
       const data = await res.json();

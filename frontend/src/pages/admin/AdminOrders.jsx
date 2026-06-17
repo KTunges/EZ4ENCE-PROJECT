@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Eye, Trash2, ChevronDown, Filter } from 'lucide-react';
+import { Search, Eye, Trash2, ChevronDown, Filter, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAdminOrders, deleteOrder } from '../../services/adminApi';
 
@@ -51,7 +51,9 @@ export default function AdminOrders() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <h1 className="text-2xl font-bold">Quản lý Đơn hàng</h1>
-        <button className="btn btn-primary">Tạo đơn thủ công</button>
+        <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--cyan)', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
+          <Plus size={18} /> Tạo đơn thủ công
+        </button>
       </div>
 
       <div className="glass" style={{ borderRadius: '12px', padding: '20px' }}>

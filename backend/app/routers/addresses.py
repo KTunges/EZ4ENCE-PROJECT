@@ -13,7 +13,7 @@ router = APIRouter(prefix="/addresses", tags=["addresses"])
 
 @router.get("", response_model=List[AddressResponse])
 def get_addresses(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return db.query(Address).filter(Address.user_id == current_user.id).order_by(Address.is_default.desc(), Address.created_at.desc()).all()
+    return db.query(Address).filter(Address.user_id == current_user.id).order_by(Address.created_at.desc()).all()
 
 @router.post("", response_model=AddressResponse)
 def create_address(req: AddressCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):

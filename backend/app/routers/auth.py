@@ -50,20 +50,23 @@ def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(user_in: UserCreate, db: Session = Depends(get_db)):
-    # Kiểm tra email tồn tại
-    existing_user = db.query(User).filter(User.email == user_in.email).first()
+    # Kiểm tra username tồn tại
+    existing_user = db.query(User).filter(User.username == user_in.username).first()
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email này đã được sử dụng"
+            detail="Tên đăng nhập này đã được sử dụng"
         )
     
     # Tạo user mới
     new_user = User(
         id=str(uuid.uuid4()),
-        email=user_in.email,
+        username=user_in.username,
+        email=user_in.email if user_in.email else None,
         password=security.hash_password(user_in.password),
-        full_name=user_in.fullName
+        full_name=user_in.fullName,
+        provider="LOCAL",
+        is_email_verified=False
     )
     db.add(new_user)
     db.commit()
@@ -72,12 +75,12 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=TokenResponse)
 def login(login_in: UserLogin, db: Session = Depends(get_db)):
-    # Tìm user qua email
-    user = db.query(User).filter(User.email == login_in.email).first()
+    # Tìm user qua username
+    user = db.query(User).filter(User.username == login_in.username).first()
     if not user or not security.verify_password(login_in.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email hoặc mật khẩu không chính xác"
+            detail="Tên đăng nhập hoặc mật khẩu không chính xác"
         )
     
     # Tạo JWT Token
@@ -179,6 +182,87 @@ def admin_login_step2(login_in: AdminLoginStep2, db: Session = Depends(get_db)):
         "user": user
     }
 
+from app.schemas.user import EmailOTPSend, EmailOTPVerify
+
+email_verification_store = {}
+
+def send_verification_otp_email_task(email: str, otp: str):
+    if settings.SMTP_EMAIL and settings.SMTP_PASSWORD:
+        try:
+            msg = MIMEMultipart()
+            msg['From'] = settings.SMTP_EMAIL
+            msg['To'] = email
+            msg['Subject'] = "EZ4GEAR - Mã xác thực Email"
+            
+            html_body = f"""
+            <html>
+              <body style="font-family: Arial, sans-serif; background-color: #0f172a; padding: 40px 0; margin: 0; color: #f8fafc;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: #1e293b; border-radius: 12px; overflow: hidden; border: 1px solid #334155; box-shadow: 0 4px 15px rgba(0, 212, 255, 0.1);">
+                  <div style="background: linear-gradient(90deg, #1e40af 0%, #00d4ff 100%); padding: 24px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 28px; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">EZ4GEAR</h1>
+                  </div>
+                  <div style="padding: 32px; text-align: center;">
+                    <p style="font-size: 16px; color: #cbd5e1; margin-bottom: 24px; text-align: left;">Xin chào,</p>
+                    <p style="font-size: 16px; color: #cbd5e1; margin-bottom: 32px; text-align: left;">Bạn đang thực hiện <strong>Xác thực Email</strong> tại EZ4GEAR. Dưới đây là mã xác thực OTP của bạn:</p>
+                    
+                    <div style="background-color: #0f172a; border: 2px dashed #00d4ff; border-radius: 8px; padding: 20px; margin-bottom: 32px; box-shadow: inset 0 0 10px rgba(0,212,255,0.1);">
+                      <span style="font-size: 36px; font-weight: bold; letter-spacing: 12px; color: #00d4ff; text-shadow: 0 0 8px rgba(0,212,255,0.5);">{otp}</span>
+                    </div>
+                    
+                    <p style="font-size: 14px; color: #94a3b8; text-align: left; margin-bottom: 8px;">* Tuyệt đối <strong>KHÔNG</strong> chia sẻ mã này cho bất kỳ ai.</p>
+                  </div>
+                  <div style="background-color: #0f172a; padding: 16px; text-align: center; border-top: 1px solid #334155;">
+                    <p style="font-size: 12px; color: #64748b; margin: 0;">&copy; 2026 EZ4GEAR. The Ultimate Gaming Gear.</p>
+                  </div>
+                </div>
+              </body>
+            </html>
+            """
+            msg.attach(MIMEText(html_body, 'html'))
+            
+            server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT, timeout=10)
+            server.starttls()
+            server.login(settings.SMTP_EMAIL, settings.SMTP_PASSWORD)
+            server.sendmail(settings.SMTP_EMAIL, email, msg.as_string())
+            server.quit()
+            print(f"Đã gửi OTP xác thực email cho {email}")
+        except Exception as e:
+            print(f"Lỗi khi gửi email: {e}")
+
+@router.post("/send-email-otp")
+def send_email_otp(data: EmailOTPSend, background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.provider != "LOCAL":
+        raise HTTPException(status_code=400, detail="Không thể đổi email cho tài khoản đăng nhập qua mạng xã hội")
+        
+    existing_user = db.query(User).filter(User.email == data.email, User.id != current_user.id).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email này đã được sử dụng bởi người dùng khác")
+        
+    otp = f"{random.randint(0, 999999):06d}"
+    email_verification_store[data.email] = otp
+    print(f"\\n=========================================")
+    print(f"MÃ OTP XÁC THỰC EMAIL CỦA {data.email} LÀ: {otp}")
+    print(f"=========================================\\n")
+    
+    background_tasks.add_task(send_verification_otp_email_task, data.email, otp)
+    
+    return {"message": "OTP đã được tạo và gửi"}
+
+@router.post("/verify-email-otp")
+def verify_email_otp(data: EmailOTPVerify, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    stored_otp = email_verification_store.get(data.email)
+    if not stored_otp or stored_otp != data.otp:
+        raise HTTPException(status_code=400, detail="Mã OTP không hợp lệ hoặc đã hết hạn")
+        
+    current_user.email = str(data.email)  # type: ignore
+    current_user.is_email_verified = True  # type: ignore
+    db.commit()
+    db.refresh(current_user)
+    
+    del email_verification_store[data.email]
+    
+    return {"message": "Xác thực email thành công", "user": current_user}
+
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
@@ -209,14 +293,21 @@ def google_auth(token_in: TokenGoogle, db: Session = Depends(get_db)):
     is_new_user = False
     
     if not user:
-        # Generate random password for google user
+        # Generate random password and username
         random_pwd = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+        base_username = email.split('@')[0]
+        unique_username = base_username
+        while db.query(User).filter(User.username == unique_username).first():
+            unique_username = f"{base_username}_{random.randint(1000, 9999)}"
         
         user = User(
             id=str(uuid.uuid4()),
+            username=unique_username,
             email=email,
             password=security.hash_password(random_pwd),
-            full_name=None  # Force user to input Display Name later
+            full_name=None,  # Force user to input Display Name later
+            provider="GOOGLE",
+            is_email_verified=True
         )
         db.add(user)
         db.commit()
@@ -226,6 +317,13 @@ def google_auth(token_in: TokenGoogle, db: Session = Depends(get_db)):
         # If user exists but full_name is None, treat as needing profile update
         if not user.full_name:
             is_new_user = True
+        
+        # Update user to Google provider and mark email as verified
+        if not user.is_email_verified or user.provider == 'LOCAL':
+            user.is_email_verified = True  # type: ignore
+            user.provider = "GOOGLE"
+            db.commit()
+            db.refresh(user)
 
     access_token = security.create_access_token(subject=user.id)
     return {
@@ -261,18 +359,34 @@ def facebook_auth(token_in: TokenFacebook, db: Session = Depends(get_db)):
     
     if not user:
         random_pwd = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+        base_username = email.split('@')[0]
+        unique_username = base_username
+        while db.query(User).filter(User.username == unique_username).first():
+            unique_username = f"{base_username}_{random.randint(1000, 9999)}"
         
         user = User(
             id=str(uuid.uuid4()),
+            username=unique_username,
             email=email,
             password=security.hash_password(random_pwd),
             full_name=fb_user.get("name"),
-            avatar=fb_user.get("picture", {}).get("data", {}).get("url")
+            avatar=fb_user.get("picture", {}).get("data", {}).get("url"),
+            provider="FACEBOOK",
+            is_email_verified=True
         )
         db.add(user)
         db.commit()
         db.refresh(user)
         is_new_user = True
+    else:
+        if not user.full_name:
+            is_new_user = True
+        
+        if not user.is_email_verified or user.provider == 'LOCAL':
+            user.is_email_verified = True  # type: ignore
+            user.provider = "FACEBOOK"
+            db.commit()
+            db.refresh(user)
 
     access_token = security.create_access_token(subject=user.id)
     return {

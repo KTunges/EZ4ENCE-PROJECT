@@ -56,7 +56,7 @@ const PRICE_RANGES = [
   { value: '20000000-999999999', label: 'Trên 20 triệu' },
 ];
 
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 24;
 
 export default function Products() {
 
@@ -114,12 +114,12 @@ export default function Products() {
           brand: item.brand?.name || 'Unknown',
           category: item.category?.name || 'Unknown',
           categorySlug: item.category?.slug || '',
-          price: item.skus?.[0]?.price || 0,
-          originalPrice: item.skus?.[0]?.promotional_price || null,
+          price: item.skus?.[0]?.promotional_price || item.skus?.[0]?.price || 0,
+          originalPrice: item.skus?.[0]?.promotional_price ? item.skus?.[0]?.price : null,
           image: item.images?.[0]?.url || '',
           rating: item.rating || 5,
           reviewCount: item.review_count || 0,
-          badge: item.skus?.[0]?.promotional_price > item.skus?.[0]?.price ? 'HOT' : null,
+          badge: item.skus?.[0]?.promotional_price ? 'HOT' : null,
           specs: Object.values(item.specifications || {}).slice(0, 4),
           fullSpecs: item.specifications || {},
           stock: item.skus?.[0]?.stock_quantity || 0,
@@ -354,13 +354,13 @@ export default function Products() {
   const isFiltering = activeFilterCount > 0;
   const showDashboard = !isFiltering;
   const promoProducts = productsList.filter(p => p.originalPrice > p.price).slice(0, 5);
-  const hotProducts = productsList.filter(p => p.badge === 'HOT').slice(0, 5);
+  const hotProducts = [...productsList].sort((a, b) => b.reviewCount - a.reviewCount).filter(p => !p.originalPrice).slice(0, 5);
 
   return (
     <div className="products-page">
       <CyberBackground />
 
-      <div className="container home-dashboard-wrapper" style={{ paddingTop: '100px', paddingBottom: '40px' }}>
+      <div className="container home-dashboard-wrapper" style={{ paddingTop: '80px', paddingBottom: '40px' }}>
         {/* ── LEFT SIDEBAR ── */}
         <aside className="home-sidebar">
           <CategorySidebar />
@@ -573,7 +573,7 @@ export default function Products() {
       </section>
 
       {/* ── PRODUCT GRID ── */}
-      <section className="container products-grid-section">
+      <section className="products-grid-section">
         {paginatedProducts.length === 0 ? (
           <div className="products-empty glass">
             <div className="products-empty-icon">🔍</div>

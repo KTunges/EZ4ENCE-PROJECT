@@ -46,7 +46,7 @@ export default function AdminProducts() {
         <h1 className="text-2xl font-bold">Quản lý Sản phẩm</h1>
         <button 
           onClick={() => navigate('/admin/products/new')}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--cyan)', color: '#000', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--cyan)', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}
         >
           <Plus size={18} /> Thêm Sản phẩm
         </button>

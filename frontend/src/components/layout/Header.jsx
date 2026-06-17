@@ -128,9 +128,11 @@ export default function Header() {
                   borderRadius: '8px',
                   marginTop: '8px',
                   padding: '8px 0',
-                  zIndex: 50,
+                  zIndex: 9999,
                   boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
-                  backdropFilter: 'blur(10px)'
+                  backdropFilter: 'blur(10px)',
+                  maxHeight: '400px',
+                  overflowY: 'auto'
                 }}>
                   {suggestions.map(p => (
                     <Link 
@@ -152,10 +154,10 @@ export default function Header() {
                         setIsSearchOpen(false);
                       }}
                     >
-                      <img src={(p.images && p.images[0] && p.images[0].url) || '/images/placeholder.jpg'} alt={p.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', background: '#fff' }} />
-                      <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                        <span style={{ fontSize: '13px', fontWeight: '500', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{p.name}</span>
-                        <span style={{ fontSize: '12px', color: 'var(--cyan)' }}>{((p.skus && p.skus[0] && p.skus[0].promotional_price) || (p.skus && p.skus[0] && p.skus[0].price) || 0).toLocaleString('vi-VN')} ₫</span>
+                      <img src={(p.images && p.images[0] && p.images[0].url) || '/images/placeholder.jpg'} alt={p.name} style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '6px', background: '#fff', flexShrink: 0 }} />
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
+                        <span style={{ fontSize: '13px', fontWeight: '500', lineHeight: '1.4', wordBreak: 'break-word', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.name}</span>
+                        <span style={{ fontSize: '12px', color: 'var(--cyan)', fontWeight: '600' }}>{((p.skus && p.skus[0] && p.skus[0].promotional_price) || (p.skus && p.skus[0] && p.skus[0].price) || 0).toLocaleString('vi-VN')} ₫</span>
                       </div>
                     </Link>
                   ))}
