@@ -19,7 +19,7 @@ def seed_users(db):
     print("Seeding users...")
     admins = [
         {"email": "kimtung5576@gmail.com", "name": "Kim Tùng (Super Admin)", "password": "123456"},
-        {"email": "phanleminh1@gmail.com", "name": "Phan Lê Minh (Super Admin)", "password": "123456"}
+        {"email": "phanluuminh473@gmail.com", "name": "Phan Lê Minh (Super Admin)", "password": "123456"}
     ]
     for ad in admins:
         if not db.query(User).filter(User.email == ad["email"]).first():
@@ -29,6 +29,7 @@ def seed_users(db):
                 password=hash_password(ad["password"]),
                 full_name=ad["name"],
                 role=Role.ADMIN,
+                staff_role='SUPER_ADMIN',
                 is_active=True
             )
             db.add(user)
@@ -45,7 +46,7 @@ def seed_categories(db):
         {"name": "Chuột Gaming", "slug": "chuot-gaming"}
     ]
     for c in cats:
-        if not db.query(Category).filter(Category.name == c["name"]).first():
+        if not db.query(Category).filter(Category.slug == c["slug"]).first():
             cat = Category(id=str(uuid.uuid4()), name=c["name"], slug=c["slug"])
             db.add(cat)
     db.commit()
@@ -60,7 +61,7 @@ def seed_brands(db):
         {"name": "Intel", "slug": "intel", "logo_url": "https://cdn.simpleicons.org/intel/white"}
     ]
     for b in brands:
-        if not db.query(Brand).filter(Brand.name == b["name"]).first():
+        if not db.query(Brand).filter(Brand.slug == b["slug"]).first():
             brand = Brand(id=str(uuid.uuid4()), name=b["name"], slug=b["slug"], logo_url=b["logo_url"])
             db.add(brand)
     db.commit()

@@ -9,6 +9,7 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 
 
 # revision identifiers, used by Alembic.
@@ -24,16 +25,16 @@ def upgrade() -> None:
     op.create_table('order_status_history',
     sa.Column('id', sa.String(), nullable=False),
     sa.Column('order_id', sa.String(), nullable=False),
-    sa.Column('status', sa.Enum('PENDING', 'CONFIRMED', 'SHIPPING', 'DELIVERED', 'CANCELLED', name='orderstatus'), nullable=False),
+    sa.Column('status', postgresql.ENUM('PENDING', 'CONFIRMED', 'SHIPPING', 'DELIVERED', 'CANCELLED', name='orderstatus', create_type=False), nullable=False),
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['order_id'], ['orders.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_order_status_history_id'), 'order_status_history', ['id'], unique=False)
-    op.add_column('addresses', sa.Column('province_id', sa.Integer(), nullable=True))
-    op.add_column('addresses', sa.Column('district_id', sa.Integer(), nullable=True))
-    op.add_column('addresses', sa.Column('ward_code', sa.String(), nullable=True))
+    # op.add_column('addresses', sa.Column('province_id', sa.Integer(), nullable=True))
+    # op.add_column('addresses', sa.Column('district_id', sa.Integer(), nullable=True))
+    # op.add_column('addresses', sa.Column('ward_code', sa.String(), nullable=True))
     # ### end Alembic commands ###
 
 
