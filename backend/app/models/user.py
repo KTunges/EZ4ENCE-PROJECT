@@ -13,7 +13,8 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(String, primary_key=True, index=True)  # UUID dạng chuỗi
-    email = Column(String, unique=True, index=True, nullable=False)
+    username = Column(String, unique=True, index=True, nullable=True)
+    email = Column(String, unique=True, index=True, nullable=True)
     password = Column(String, nullable=False)
     full_name = Column(String, nullable=True)
     phone = Column(String, nullable=True)
@@ -21,6 +22,8 @@ class User(Base):
     role = Column(Enum(Role), default=Role.USER, nullable=False)
     staff_role = Column(String, nullable=True) # e.g. SUPER_ADMIN, SALES, INVENTORY
     is_active = Column(Boolean, default=True, nullable=False)
+    is_email_verified = Column(Boolean, default=False, nullable=False)
+    provider = Column(String, default="LOCAL", nullable=False) # LOCAL, GOOGLE, FACEBOOK
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 

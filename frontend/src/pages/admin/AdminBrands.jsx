@@ -107,7 +107,7 @@ export default function AdminBrands() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <h1 className="text-2xl font-bold">Quản lý Thương hiệu</h1>
-        <button onClick={handleOpenAddModal} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--cyan)', color: '#000', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
+        <button onClick={handleOpenAddModal} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--cyan)', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
           <Plus size={18} /> Thêm Thương hiệu
         </button>
       </div>
@@ -188,7 +188,7 @@ export default function AdminBrands() {
                 <label style={{ display: 'block', fontSize: '14px', marginBottom: '8px' }}>Slug *</label>
                 <input required type="text" value={formData.slug} onChange={(e) => setFormData(p => ({...p, slug: e.target.value}))} style={{ width: '100%', padding: '10px', borderRadius: '8px', background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text)' }} />
               </div>
-              <button disabled={isSubmitting} type="submit" style={{ padding: '12px', background: 'var(--cyan)', color: '#000', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: isSubmitting ? 'not-allowed' : 'pointer', marginTop: '8px' }}>
+              <button disabled={isSubmitting} type="submit" style={{ padding: '12px', background: 'var(--cyan)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: isSubmitting ? 'not-allowed' : 'pointer', marginTop: '8px' }}>
                 {isSubmitting ? 'Đang lưu...' : 'Lưu lại'}
               </button>
             </form>

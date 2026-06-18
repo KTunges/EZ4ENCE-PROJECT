@@ -200,7 +200,7 @@ export default function AdminStaffs() {
                   <Mail size={16} color="var(--text-muted)" />
                   <input 
                     type="email" required disabled={!!editingId} value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
-                    style={{ width: '100%', padding: '10px', background: 'transparent', border: 'none', color: 'var(--text)', outline: 'none' }} placeholder="nhanvien@ez4ence.com"
+                    style={{ width: '100%', padding: '10px', background: 'transparent', border: 'none', color: 'var(--text)', outline: 'none' }} placeholder="nhanvien@ez4gear.com"
                   />
                 </div>
                 {editingId && <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Không thể đổi email sau khi tạo</span>}

@@ -22,16 +22,100 @@ export default function AdminProductForm() {
     status: 'ACTIVE',
     description: '',
     imageUrl: '',
-    specs: {
-      cpu: '',
-      ram: '',
-      vga: '',
-      storage: '',
-      mainboard: '',
-      psu: '',
-      case: ''
-    }
+    specs: {}
   });
+
+  const specTemplates = {
+    'Mặc định': [
+      { name: 'Kích thước', label: 'Kích thước' },
+      { name: 'Trọng lượng', label: 'Trọng lượng' },
+      { name: 'Màu sắc', label: 'Màu sắc' },
+      { name: 'Chất liệu', label: 'Chất liệu' },
+      { name: 'Bảo hành', label: 'Bảo hành' },
+    ],
+    'PC / Laptop': [
+      { name: 'cpu', label: 'CPU' },
+      { name: 'ram', label: 'RAM' },
+      { name: 'vga', label: 'VGA (Card Màn Hình)' },
+      { name: 'storage', label: 'Ổ cứng (SSD/HDD)' },
+      { name: 'mainboard', label: 'Bo mạch chủ (Mainboard)' },
+      { name: 'psu', label: 'Nguồn (PSU)' },
+      { name: 'case', label: 'Vỏ Case' },
+    ],
+    'Chuột': [
+      { name: 'Mắt đọc', label: 'Mắt đọc (Sensor)' },
+      { name: 'DPI', label: 'DPI tối đa' },
+      { name: 'Kết nối', label: 'Chuẩn kết nối' },
+      { name: 'Trọng lượng', label: 'Trọng lượng' },
+      { name: 'Switch', label: 'Loại Switch' },
+      { name: 'Pin', label: 'Thời lượng Pin' },
+    ],
+    'Bàn phím': [
+      { name: 'Loại Switch', label: 'Loại Switch' },
+      { name: 'Kích thước', label: 'Kích thước (Layout)' },
+      { name: 'Kết nối', label: 'Chuẩn kết nối' },
+      { name: 'Keycap', label: 'Chất liệu Keycap' },
+      { name: 'LED', label: 'Đèn nền (LED)' },
+      { name: 'Pin', label: 'Thời lượng Pin' },
+    ],
+    'Tai nghe': [
+      { name: 'Kiểu dáng', label: 'Kiểu dáng' },
+      { name: 'Kết nối', label: 'Chuẩn kết nối' },
+      { name: 'Microphone', label: 'Microphone' },
+      { name: 'Tần số đáp ứng', label: 'Tần số đáp ứng' },
+      { name: 'Trở kháng', label: 'Trở kháng' },
+    ],
+    'Loa': [
+      { name: 'Công suất', label: 'Công suất (W)' },
+      { name: 'Kết nối', label: 'Chuẩn kết nối' },
+      { name: 'Kích thước', label: 'Kích thước' },
+      { name: 'Trọng lượng', label: 'Trọng lượng' },
+    ],
+    'Màn hình': [
+      { name: 'Kích thước', label: 'Kích thước' },
+      { name: 'Độ phân giải', label: 'Độ phân giải' },
+      { name: 'Tần số quét', label: 'Tần số quét (Hz)' },
+      { name: 'Tấm nền', label: 'Loại tấm nền' },
+      { name: 'Độ sáng', label: 'Độ sáng' },
+      { name: 'Cổng kết nối', label: 'Cổng kết nối' },
+    ],
+    'Ổ cứng, RAM': [
+      { name: 'Dung lượng', label: 'Dung lượng' },
+      { name: 'Chuẩn kết nối', label: 'Chuẩn kết nối / Loại RAM' },
+      { name: 'Tốc độ đọc', label: 'Tốc độ đọc / Bus' },
+      { name: 'Tốc độ ghi', label: 'Tốc độ ghi / Cas' },
+    ],
+    'Main, CPU, VGA': [
+      { name: 'Socket', label: 'Socket / Chuẩn cắm' },
+      { name: 'Chipset', label: 'Chipset / GPU' },
+      { name: 'Bộ nhớ', label: 'VRAM / Cache' },
+      { name: 'Kích thước', label: 'Kích thước' },
+      { name: 'Cổng xuất hình', label: 'Cổng xuất hình' },
+    ]
+  };
+
+  const getTemplateForCategory = (catName) => {
+    if (!catName) return 'PC / Laptop';
+    const lower = catName.toLowerCase();
+    if (lower.includes('laptop') || lower.includes('pc') || lower.includes('máy tính')) return 'PC / Laptop';
+    if (lower.includes('chuột')) return 'Chuột';
+    if (lower.includes('bàn phím')) return 'Bàn phím';
+    if (lower.includes('tai nghe')) return 'Tai nghe';
+    if (lower.includes('loa')) return 'Loa';
+    if (lower.includes('màn hình')) return 'Màn hình';
+    if (lower.includes('ổ cứng') || lower.includes('ram')) return 'Ổ cứng, RAM';
+    if (lower.includes('main') || lower.includes('cpu') || lower.includes('vga') || lower.includes('bo mạch')) return 'Main, CPU, VGA';
+    return 'Mặc định';
+  };
+
+  // Combine template fields and any custom fields already in formData.specs
+  const templateName = getTemplateForCategory(formData.category);
+  const templateFields = specTemplates[templateName] || specTemplates['Mặc định'];
+  const customFieldKeys = Object.keys(formData.specs).filter(key => !templateFields.find(f => f.name === key));
+  const currentSpecFields = [
+    ...templateFields,
+    ...customFieldKeys.map(key => ({ name: key, label: key }))
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,15 +142,7 @@ export default function AdminProductForm() {
             status: product.is_published ? 'ACTIVE' : 'HIDDEN',
             description: product.description || '',
             imageUrl: product.image_url || '',
-            specs: {
-              cpu: product.specifications?.cpu || '',
-              ram: product.specifications?.ram || '',
-              vga: product.specifications?.vga || '',
-              storage: product.specifications?.storage || '',
-              mainboard: product.specifications?.mainboard || '',
-              psu: product.specifications?.psu || '',
-              case: product.specifications?.case || ''
-            }
+            specs: product.specifications || {}
           });
         }
       } catch (error) {
@@ -80,20 +156,10 @@ export default function AdminProductForm() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (['cpu', 'ram', 'vga', 'storage', 'mainboard', 'psu', 'case'].includes(name)) {
-      setFormData(prev => ({
-        ...prev,
-        specs: {
-          ...prev.specs,
-          [name]: value
-        }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSpecChange = (e) => {
@@ -168,7 +234,7 @@ export default function AdminProductForm() {
         <button 
           onClick={handleSubmit}
           disabled={isLoading}
-          style={{ padding: '10px 20px', background: 'var(--cyan)', color: '#000', borderRadius: '8px', fontWeight: 'bold', border: 'none', display: 'flex', alignItems: 'center', gap: '8px', cursor: isLoading ? 'not-allowed' : 'pointer' }}
+          style={{ padding: '10px 20px', background: 'var(--cyan)', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', display: 'flex', alignItems: 'center', gap: '8px', cursor: isLoading ? 'not-allowed' : 'pointer' }}
         >
           {isLoading ? <span className="spinner-border w-4 h-4 border-2 rounded-full border-t-transparent animate-spin"></span> : <Save size={18} />}
           LƯU SẢN PHẨM
@@ -207,38 +273,61 @@ export default function AdminProductForm() {
             </div>
           </div>
 
-          {/* PC Specifications */}
+          {/* Dynamic Specifications */}
           <div className="glass" style={{ padding: '24px', borderRadius: '12px' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Cpu size={20} color="var(--cyan)" /> Thông số Kỹ thuật (PC Specs)
-            </h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: '20px' }}>Chỉ nhập các trường liên quan đến sản phẩm này. Bỏ trống nếu không áp dụng.</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Cpu size={20} color="var(--cyan)" /> Thông số Kỹ thuật ({getTemplateForCategory(formData.category)})
+              </h2>
+              <button 
+                type="button" 
+                onClick={() => {
+                  const newKey = prompt("Nhập tên thông số mới (VD: Tản nhiệt, Bluetooth...):");
+                  if (newKey && newKey.trim() !== '') {
+                    setFormData(prev => ({ ...prev, specs: { ...prev.specs, [newKey]: '' } }));
+                  }
+                }}
+                style={{ background: 'transparent', border: '1px dashed var(--cyan)', color: 'var(--cyan)', padding: '4px 12px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+              >
+                <Plus size={14} /> Thêm trường
+              </button>
+            </div>
+            <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: '20px' }}>
+              Mẫu thông số tự động thay đổi theo danh mục bạn chọn. Bỏ trống nếu không áp dụng.
+            </p>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}><Cpu size={14} /> CPU</label>
-                <input type="text" name="cpu" value={formData.specs.cpu} onChange={handleSpecChange} style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '14px' }} placeholder="VD: Core i7 13700K" />
-              </div>
-              <div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}><MemoryStick size={14} /> RAM</label>
-                <input type="text" name="ram" value={formData.specs.ram} onChange={handleSpecChange} style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '14px' }} placeholder="VD: 32GB DDR5 6000MHz" />
-              </div>
-              <div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}><Monitor size={14} /> VGA (Card Màn Hình)</label>
-                <input type="text" name="vga" value={formData.specs.vga} onChange={handleSpecChange} style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '14px' }} placeholder="VD: RTX 4070 Ti 12GB" />
-              </div>
-              <div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}><HardDrive size={14} /> Ổ cứng (SSD/HDD)</label>
-                <input type="text" name="storage" value={formData.specs.storage} onChange={handleSpecChange} style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '14px' }} placeholder="VD: 1TB NVMe PCIe Gen 4" />
-              </div>
-              <div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>Bo mạch chủ (Mainboard)</label>
-                <input type="text" name="mainboard" value={formData.specs.mainboard} onChange={handleSpecChange} style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '14px' }} placeholder="VD: Z790 AORUS MASTER" />
-              </div>
-              <div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}><Zap size={14} /> Nguồn (PSU)</label>
-                <input type="text" name="psu" value={formData.specs.psu} onChange={handleSpecChange} style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '14px' }} placeholder="VD: 850W 80 Plus Gold" />
-              </div>
+              {currentSpecFields.map(field => (
+                <div key={field.name}>
+                  <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ color: 'var(--cyan)' }}>•</span> {field.label || field.name}
+                    </span>
+                    {/* Only show delete button for custom fields not in template */}
+                    {!specTemplates[getTemplateForCategory(formData.category)]?.find(f => f.name === field.name) && (
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          const newSpecs = { ...formData.specs };
+                          delete newSpecs[field.name];
+                          setFormData(prev => ({ ...prev, specs: newSpecs }));
+                        }}
+                        style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 0 }}
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
+                  </label>
+                  <input 
+                    type="text" 
+                    name={field.name} 
+                    value={formData.specs[field.name] || ''} 
+                    onChange={handleSpecChange} 
+                    style={{ width: '100%', padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '14px' }} 
+                    placeholder={`VD: Nhập ${field.label || field.name}...`} 
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </div>

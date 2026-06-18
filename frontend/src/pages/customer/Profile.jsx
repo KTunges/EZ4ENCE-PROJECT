@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { User, Package, Clock, LogOut, Edit3, CheckCircle, Clock3, Truck, ShoppingCart, MapPin, Settings } from 'lucide-react';
 import AddressBook from '../../components/profile/AddressBook';
@@ -24,7 +24,17 @@ const mockOrders = [
 export default function Profile() {
   const { user, isAuthenticated, logout, updateProfile, updateAvatar } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('account');
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'account');
+
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setActiveTab(location.state.activeTab);
+      // Clear state so refresh doesn't force tab
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
   const [isEditing, setIsEditing] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [orders, setOrders] = useState([]);
@@ -35,6 +45,15 @@ export default function Profile() {
     phone: user?.phone || '0988123456'
   });
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Email OTP state
+  const [emailToVerify, setEmailToVerify] = useState(user?.email || '');
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [showOtpInput, setShowOtpInput] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [emailSuccess, setEmailSuccess] = useState('');
+  const [emailError, setEmailError] = useState('');
 
   useEffect(() => {
     if (activeTab === 'orders') {
@@ -147,6 +166,59 @@ export default function Profile() {
     }
   };
 
+  const handleSendEmailOtp = async () => {
+    if (!emailToVerify) { setEmailError('Vui lòng nhập email'); return; }
+    setEmailError('');
+    setIsSendingOtp(true);
+    try {
+      const res = await fetch('http://localhost:8000/api/auth/send-email-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ email: emailToVerify })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Không thể gửi OTP');
+      setShowOtpInput(true);
+      setEmailSuccess('Đã gửi mã OTP đến email của bạn');
+    } catch (err) {
+      setEmailError(err.message);
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  const handleVerifyEmailOtp = async () => {
+    if (otp.length < 6) return;
+    setIsSendingOtp(true);
+    try {
+      const res = await fetch('http://localhost:8000/api/auth/verify-email-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ email: emailToVerify, otp })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Xác thực OTP thất bại');
+      
+      // Update local user state
+      user.email = emailToVerify;
+      user.is_email_verified = true;
+      setIsEditingEmail(false);
+      setShowOtpInput(false);
+      setEmailSuccess('Xác thực email thành công!');
+      setTimeout(() => setEmailSuccess(''), 3000);
+    } catch (err) {
+      setEmailError(err.message);
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
   return (
     <div className="profile-page-container fade-in">
       <div className="container">
@@ -183,7 +255,7 @@ export default function Profile() {
                 </label>
               </div>
               <div className="profile-info">
-                <h3>{user.fullName || 'Người dùng EZ4ENCE'}</h3>
+                <h3>{user.fullName || 'Người dùng EZ4GEAR'}</h3>
                 <p>{user.email}</p>
               </div>
             </div>
@@ -235,6 +307,7 @@ export default function Profile() {
               <div className="tab-pane fade-in">
                 <div className="tab-header flex justify-between items-center mb-6">
                   <h2 className="text-xl font-bold">Thông Tin Cá Nhân</h2>
+                  {console.log('Force update CSS')}
                   {!isEditing && (
                     <button className="btn btn-outline btn-sm flex items-center gap-2" onClick={() => setIsEditing(true)}>
                       <Edit3 size={16} /> Chỉnh sửa
@@ -250,7 +323,7 @@ export default function Profile() {
 
                 <form className="profile-form" onSubmit={handleSaveProfile}>
                   <div className="form-grid">
-                    <div className="form-group col-span-2 md-col-span-1">
+                    <div className="form-group">
                       <label>Họ và tên</label>
                       <input 
                         type="text" 
@@ -260,16 +333,82 @@ export default function Profile() {
                         disabled={!isEditing}
                       />
                     </div>
-                    <div className="form-group col-span-2 md-col-span-1">
-                      <label>Email (Không thể thay đổi)</label>
-                      <input 
-                        type="email" 
-                        className="profile-input" 
-                        value={user.email}
-                        disabled 
-                      />
+                    <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                      <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <span>Email xác thực</span>
+                        {user.is_email_verified ? (
+                          <span className="text-green-400 flex items-center gap-2 text-xs px-2 py-1 bg-green-500/20 rounded border border-green-500/30">
+                            <CheckCircle size={12} /> Đã xác thực
+                          </span>
+                        ) : (
+                          <span className="text-red-400 flex items-center gap-2 text-xs px-2 py-1 bg-red-500/20 rounded border border-red-500/30">
+                            <CheckCircle size={12} /> Chưa xác thực
+                          </span>
+                        )}
+                      </label>
+                      
+                      {!isEditingEmail ? (
+                        <div className="flex gap-4 items-center">
+                          <input 
+                            type="email" 
+                            className="profile-input flex-1" 
+                            value={user.email || 'Chưa cập nhật email'}
+                            disabled 
+                          />
+                          {user.provider === 'LOCAL' && !user.is_email_verified && (
+                            <button type="button" className="btn btn-outline btn-sm" onClick={() => setIsEditingEmail(true)}>
+                              Xác thực / Đổi Email
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="email-verification-flow flex flex-col gap-4 p-4 mt-2 bg-black/20 border border-white/5 rounded-lg">
+                          {emailError && <div className="text-red-400 text-sm">{emailError}</div>}
+                          {emailSuccess && <div className="text-green-400 text-sm">{emailSuccess}</div>}
+                          
+                          <div className="flex gap-4">
+                            <input 
+                              type="email" 
+                              className="profile-input flex-1" 
+                              value={emailToVerify}
+                              onChange={(e) => setEmailToVerify(e.target.value)}
+                              placeholder="Nhập email cần xác thực"
+                              disabled={showOtpInput}
+                            />
+                            {!showOtpInput && (
+                              <button type="button" className="btn btn-primary btn-sm whitespace-nowrap" onClick={handleSendEmailOtp} disabled={isSendingOtp}>
+                                {isSendingOtp ? 'Đang gửi...' : 'Gửi mã OTP'}
+                              </button>
+                            )}
+                          </div>
+
+                          {showOtpInput && (
+                            <div className="flex gap-4 items-center mt-2 p-4 bg-black/30 rounded border border-cyan-500/30">
+                              <input 
+                                type="text" 
+                                className="profile-input" 
+                                value={otp}
+                                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                                placeholder="Nhập 6 chữ số OTP"
+                                maxLength={6}
+                                style={{ width: '150px', letterSpacing: '4px', textAlign: 'center' }}
+                              />
+                              <button type="button" className="btn btn-primary btn-sm" onClick={handleVerifyEmailOtp} disabled={isSendingOtp || otp.length < 6}>
+                                {isSendingOtp ? 'Đang xử lý...' : 'Xác Nhận'}
+                              </button>
+                              <button type="button" className="text-gray-400 text-sm hover:text-white" onClick={() => { setShowOtpInput(false); setOtp(''); }}>
+                                Hủy
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
+                      {user.provider !== 'LOCAL' && (
+                        <p className="text-xs text-gray-500 mt-2">Tài khoản liên kết mạng xã hội không thể đổi email.</p>
+                      )}
                     </div>
-                    <div className="form-group col-span-2 md-col-span-1">
+                    <div className="form-group">
                       <label>Số điện thoại</label>
                       <input 
                         type="tel" 
@@ -282,7 +421,7 @@ export default function Profile() {
                   </div>
 
                   {isEditing && (
-                    <div className="form-actions mt-6 flex gap-4">
+                    <div className="form-actions" style={{ marginTop: '32px', display: 'flex', gap: '24px' }}>
                       <button type="submit" className="btn btn-primary shadow-glow">
                         Lưu Thay Đổi
                       </button>
@@ -326,10 +465,10 @@ export default function Profile() {
                         <div className="order-card-header">
                           <div>
                             <div className="order-id text-lg font-bold">Mã đơn: {order.id.split('-')[0].toUpperCase()}</div>
-                            <div className="text-sm text-gray-400 mt-1 flex gap-2">
-                              <span>Phương thức: <span className="text-white">{order.payment_method}</span></span>
+                            <div className="text-sm mt-1 flex gap-2" style={{ color: 'var(--text-muted)' }}>
+                              <span>Phương thức: <span style={{ color: 'var(--text)', fontWeight: '500' }}>{order.payment_method}</span></span>
                               <span>|</span>
-                              <span>Mã GD: {order.payment_transaction_id ? <span className="text-cyan font-mono">{order.payment_transaction_id}</span> : <span className="text-gray-500">Chưa có</span>}</span>
+                              <span>Mã GD: {order.payment_transaction_id ? <span className="font-mono" style={{ color: 'var(--cyan)' }}>{order.payment_transaction_id}</span> : <span style={{ opacity: 0.7 }}>Chưa có</span>}</span>
                             </div>
                           </div>
                           {renderStatusBadge(order.status)}
@@ -337,15 +476,15 @@ export default function Profile() {
                         <div className="order-card-body">
                           <div className="order-detail-item">
                             <span className="label">Ngày đặt:</span>
-                            <span className="value">{new Date(order.created_at).toLocaleDateString('vi-VN')}</span>
+                            <span className="value" style={{ color: 'var(--text)' }}>{new Date(order.created_at).toLocaleDateString('vi-VN')}</span>
                           </div>
                           <div className="order-detail-item">
                             <span className="label">Số sản phẩm:</span>
-                            <span className="value">{order.items ? order.items.length : 0}</span>
+                            <span className="value" style={{ color: 'var(--text)' }}>{order.items ? order.items.length : 0}</span>
                           </div>
                           <div className="order-detail-item">
                             <span className="label">Tổng tiền:</span>
-                            <span className="value text-cyan font-mono font-bold">
+                            <span className="value font-mono font-bold" style={{ color: 'var(--cyan)' }}>
                               {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.total_amount)}
                             </span>
                           </div>

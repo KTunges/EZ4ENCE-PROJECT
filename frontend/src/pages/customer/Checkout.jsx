@@ -468,7 +468,7 @@ export default function Checkout() {
                     <input 
                       type="text" 
                       className="checkout-input flex-1 uppercase" 
-                      placeholder="Mã giảm giá (VD: EZ4ENCE)" 
+                      placeholder="Mã giảm giá (VD: EZ4GEAR)" 
                       value={promoCode}
                       onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                       disabled={promoLoading || appliedPromo}
@@ -522,165 +522,181 @@ export default function Checkout() {
 
               <div className="checkout-payment-buttons mt-6 mb-6">
                 
-                <div className="relative flex items-center py-2 mb-4 mt-2">
-                  <div className="flex-grow border-t border-white/10" style={{ borderColor: 'var(--border-color)' }}></div>
-                  <span className="flex-shrink-0 mx-4 text-sm font-medium" style={{ color: 'var(--text-muted)' }}>Thanh toán nội địa</span>
-                  <div className="flex-grow border-t border-white/10" style={{ borderColor: 'var(--border-color)' }}></div>
-                </div>
+                {user && !user.is_email_verified ? (
+                  <div className="flex flex-col items-center justify-center p-6 bg-red-900/20 border border-red-500/30 rounded-lg text-center gap-3">
+                    <ShieldCheck size={40} className="text-red-400" />
+                    <h4 className="text-lg font-bold text-red-400">Yêu Cầu Xác Thực Email</h4>
+                    <p className="text-gray-300 text-sm">Để đảm bảo an toàn và nhận thông tin đơn hàng, bạn cần xác thực email trước khi thanh toán.</p>
+                    <button 
+                      className="btn btn-primary mt-2"
+                      onClick={() => navigate('/profile', { state: { activeTab: 'account' } })}
+                    >
+                      Xác Thực Ngay
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="relative flex items-center py-2 mb-4 mt-2">
+                      <div className="flex-grow border-t border-white/10" style={{ borderColor: 'var(--border-color)' }}></div>
+                      <span className="flex-shrink-0 mx-4 text-sm font-medium" style={{ color: 'var(--text-muted)' }}>Thanh toán nội địa</span>
+                      <div className="flex-grow border-t border-white/10" style={{ borderColor: 'var(--border-color)' }}></div>
+                    </div>
 
-                <div className="flex flex-col gap-4 mb-2">
-                  <button 
-                    className="w-full flex items-center justify-center gap-1 transition-all duration-200 ease-out hover:brightness-95 active:scale-[0.99]" 
-                    style={{ 
-                      backgroundColor: '#005BAA', 
-                      borderRadius: '4px', 
-                      height: '45px',
-                      color: '#fff',
-                      fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-                      fontSize: '16px',
-                      border: 'none',
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => handleSpecificCheckout('vnpay')}
-                  >
-                    <span style={{ fontWeight: 600, marginRight: '2px' }}>Pay with</span>
-                    <img src="/vnpay-logo.png" alt="VNPAY" style={{ height: '26px', filter: 'brightness(0) invert(1)' }} />
-                  </button>
+                    <div className="flex flex-col gap-4 mb-2">
+                      <button 
+                        className="w-full flex items-center justify-center gap-1 transition-all duration-200 ease-out hover:brightness-95 active:scale-[0.99]" 
+                        style={{ 
+                          backgroundColor: '#005BAA', 
+                          borderRadius: '4px', 
+                          height: '45px',
+                          color: '#fff',
+                          fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                          fontSize: '16px',
+                          border: 'none',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => handleSpecificCheckout('vnpay')}
+                      >
+                        <span style={{ fontWeight: 600, marginRight: '2px' }}>Pay with</span>
+                        <img src="/vnpay-logo.png" alt="VNPAY" style={{ height: '26px', filter: 'brightness(0) invert(1)' }} />
+                      </button>
 
-                  <button 
-                    className="w-full flex items-center justify-center gap-1 transition-all duration-200 ease-out hover:brightness-95 active:scale-[0.99]" 
-                    style={{ 
-                      backgroundColor: '#A50064', 
-                      borderRadius: '4px', 
-                      height: '45px',
-                      color: '#fff',
-                      fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-                      fontSize: '16px',
-                      border: 'none',
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => handleSpecificCheckout('momo')}
-                  >
-                    <span style={{ fontWeight: 600, marginRight: '4px' }}>Pay with</span>
-                    <img src="https://developers.momo.vn/v3/assets/images/square-8c08a00f550e40a2efafea4a005b1232.png" alt="MoMo" style={{ height: '28px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.3)' }} />
-                  </button>
-                </div>
+                      <button 
+                        className="w-full flex items-center justify-center gap-1 transition-all duration-200 ease-out hover:brightness-95 active:scale-[0.99]" 
+                        style={{ 
+                          backgroundColor: '#A50064', 
+                          borderRadius: '4px', 
+                          height: '45px',
+                          color: '#fff',
+                          fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                          fontSize: '16px',
+                          border: 'none',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => handleSpecificCheckout('momo')}
+                      >
+                        <span style={{ fontWeight: 600, marginRight: '4px' }}>Pay with</span>
+                        <img src="https://developers.momo.vn/v3/assets/images/square-8c08a00f550e40a2efafea4a005b1232.png" alt="MoMo" style={{ height: '28px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.3)' }} />
+                      </button>
+                    </div>
 
-                <div className="relative flex items-center py-2 mb-4 mt-4">
-                  <div className="flex-grow border-t border-white/10" style={{ borderColor: 'var(--border-color)' }}></div>
-                  <span className="flex-shrink-0 mx-4 text-sm font-medium" style={{ color: 'var(--text-muted)' }}>Thanh toán quốc tế</span>
-                  <div className="flex-grow border-t border-white/10" style={{ borderColor: 'var(--border-color)' }}></div>
-                </div>
+                    <div className="relative flex items-center py-2 mb-4 mt-4">
+                      <div className="flex-grow border-t border-white/10" style={{ borderColor: 'var(--border-color)' }}></div>
+                      <span className="flex-shrink-0 mx-4 text-sm font-medium" style={{ color: 'var(--text-muted)' }}>Thanh toán quốc tế</span>
+                      <div className="flex-grow border-t border-white/10" style={{ borderColor: 'var(--border-color)' }}></div>
+                    </div>
 
-                <div className="w-full mb-4">
-                  <PayPalScriptProvider options={{ "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID || "test", currency: "USD" }}>
-                <PayPalButtons
-                  style={{ layout: "vertical", color: "blue", shape: "rect", label: "pay" }}
-                  createOrder={async () => {
-                    if (selectedAddressId === 'new') {
-                      if (!fullName || !phone || !provinceName || !districtName || !wardName || !addressLine) {
-                        alert('Vui lòng điền đầy đủ thông tin giao hàng trước khi thanh toán PayPal!');
-                        return null;
-                      }
-                    }
-                    try {
-                      const payload = selectedAddressId !== 'new' ? {
-                        address_id: selectedAddressId,
-                        payment_method: "PAYPAL",
-                        shipping_fee: shippingFee,
-                        shipping_provider: selectedShipping ? selectedShipping.id : null,
-                        note: note
-                      } : {
-                        full_name: fullName, phone, address_line: addressLine, 
-                        ward: wardName, district: districtName, city: provinceName,
-                        province_id: provinceId, district_id: districtId, ward_code: wardId,
-                        payment_method: "PAYPAL", 
-                        shipping_fee: shippingFee,
-                        shipping_provider: selectedShipping ? selectedShipping.id : null,
-                        note: note
-                      };
+                    <div className="w-full mb-4">
+                      <PayPalScriptProvider options={{ "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID || "test", currency: "USD" }}>
+                    <PayPalButtons
+                      style={{ layout: "vertical", color: "blue", shape: "rect", label: "pay" }}
+                      createOrder={async () => {
+                        if (selectedAddressId === 'new') {
+                          if (!fullName || !phone || !provinceName || !districtName || !wardName || !addressLine) {
+                            alert('Vui lòng điền đầy đủ thông tin giao hàng trước khi thanh toán PayPal!');
+                            return null;
+                          }
+                        }
+                        try {
+                          const payload = selectedAddressId !== 'new' ? {
+                            address_id: selectedAddressId,
+                            payment_method: "PAYPAL",
+                            shipping_fee: shippingFee,
+                            shipping_provider: selectedShipping ? selectedShipping.id : null,
+                            note: note
+                          } : {
+                            full_name: fullName, phone, address_line: addressLine, 
+                            ward: wardName, district: districtName, city: provinceName,
+                            province_id: provinceId, district_id: districtId, ward_code: wardId,
+                            payment_method: "PAYPAL", 
+                            shipping_fee: shippingFee,
+                            shipping_provider: selectedShipping ? selectedShipping.id : null,
+                            note: note
+                          };
 
-                      // Tạo đơn EZ4ENCE
-                      const orderRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/orders`, {
-                        method: "POST",
-                        headers: { 
-                          "Content-Type": "application/json",
-                          "Authorization": `Bearer ${token}`
-                        },
-                        body: JSON.stringify(payload),
-                      });
-                      const orderData = await orderRes.json();
-                      if (!orderRes.ok) throw new Error(orderData.detail || 'Lỗi tạo đơn');
+                          // Tạo đơn EZ4GEAR
+                          const orderRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/orders`, {
+                            method: "POST",
+                            headers: { 
+                              "Content-Type": "application/json",
+                              "Authorization": `Bearer ${token}`
+                            },
+                            body: JSON.stringify(payload),
+                          });
+                          const orderData = await orderRes.json();
+                          if (!orderRes.ok) throw new Error(orderData.detail || 'Lỗi tạo đơn');
 
-                      // Xoá giỏ
-                      await fetchCart();
+                          // Xoá giỏ
+                          await fetchCart();
 
-                      // Gọi PayPal backend proxy
-                      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/payment/paypal/create-order`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                        body: JSON.stringify({ order_id: orderData.id }),
-                      });
-                      const ppData = await response.json();
-                      if (ppData.paypal_order_id) {
-                        return ppData.paypal_order_id;
-                      } else {
-                        throw new Error("Không thể khởi tạo PayPal Order");
-                      }
-                    } catch (error) {
-                      console.error("Create order failed", error);
-                      alert("Không thể tạo đơn hàng PayPal. " + error.message);
-                    }
-                  }}
-                  onApprove={async (data, actions) => {
-                    try {
-                      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/payment/paypal/capture-order`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                        body: JSON.stringify({ order_id: data.orderID }),
-                      });
-                      const orderData = await response.json();
-                      
-                      if (orderData.success) {
-                        navigate('/checkout/success', { state: { method: 'paypal', total: total, orderId: data.orderID } });
-                      } else {
-                        throw new Error("Capture failed");
-                      }
-                    } catch (error) {
-                      console.error("Capture order failed", error);
-                      alert("Thanh toán thất bại. " + error.message);
-                    }
-                  }}
-                />
-                </PayPalScriptProvider>
-                </div>
+                          // Gọi PayPal backend proxy
+                          const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/payment/paypal/create-order`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                            body: JSON.stringify({ order_id: orderData.id }),
+                          });
+                          const ppData = await response.json();
+                          if (ppData.paypal_order_id) {
+                            return ppData.paypal_order_id;
+                          } else {
+                            throw new Error("Không thể khởi tạo PayPal Order");
+                          }
+                        } catch (error) {
+                          console.error("Create order failed", error);
+                          alert("Không thể tạo đơn hàng PayPal. " + error.message);
+                        }
+                      }}
+                      onApprove={async (data, actions) => {
+                        try {
+                          const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/payment/paypal/capture-order`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                            body: JSON.stringify({ order_id: data.orderID }),
+                          });
+                          const orderData = await response.json();
+                          
+                          if (orderData.success) {
+                            navigate('/checkout/success', { state: { method: 'paypal', total: total, orderId: data.orderID } });
+                          } else {
+                            throw new Error("Capture failed");
+                          }
+                        } catch (error) {
+                          console.error("Capture order failed", error);
+                          alert("Thanh toán thất bại. " + error.message);
+                        }
+                      }}
+                    />
+                    </PayPalScriptProvider>
+                    </div>
 
-                <div className="relative flex items-center py-2 mb-4 mt-4">
-                  <div className="flex-grow border-t border-white/10" style={{ borderColor: 'var(--border-color)' }}></div>
-                  <span className="flex-shrink-0 mx-4 text-sm font-medium" style={{ color: 'var(--text-muted)' }}>Thanh toán tiền mặt</span>
-                  <div className="flex-grow border-t border-white/10" style={{ borderColor: 'var(--border-color)' }}></div>
-                </div>
+                    <div className="relative flex items-center py-2 mb-4 mt-4">
+                      <div className="flex-grow border-t border-white/10" style={{ borderColor: 'var(--border-color)' }}></div>
+                      <span className="flex-shrink-0 mx-4 text-sm font-medium" style={{ color: 'var(--text-muted)' }}>Thanh toán tiền mặt</span>
+                      <div className="flex-grow border-t border-white/10" style={{ borderColor: 'var(--border-color)' }}></div>
+                    </div>
 
-                <div className="flex flex-col gap-4 mb-2">
-                  <button 
-                    className="w-full flex items-center justify-center gap-2 transition-all duration-200 ease-out hover:brightness-95 active:scale-[0.99]" 
-                    style={{ 
-                      backgroundColor: '#2d2d2d', 
-                      borderRadius: '4px', 
-                      height: '45px',
-                      color: '#fff',
-                      fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-                      fontSize: '16px',
-                      border: 'none',
-                      cursor: 'pointer'
-                    }}
-                    disabled={loading}
-                    onClick={() => handleSpecificCheckout('cod')}
-                  >
-                    <Truck size={22} style={{ strokeWidth: 1.5 }} />
-                    <span style={{ fontWeight: 500 }}>{loading ? 'Đang xử lý...' : 'Cash on Delivery'}</span>
-                  </button>
-                </div>
+                    <div className="flex flex-col gap-4 mb-2">
+                      <button 
+                        className="w-full flex items-center justify-center gap-2 transition-all duration-200 ease-out hover:brightness-95 active:scale-[0.99]" 
+                        style={{ 
+                          backgroundColor: '#2d2d2d', 
+                          borderRadius: '4px', 
+                          height: '45px',
+                          color: '#fff',
+                          fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                          fontSize: '16px',
+                          border: 'none',
+                          cursor: 'pointer'
+                        }}
+                        disabled={loading}
+                        onClick={() => handleSpecificCheckout('cod')}
+                      >
+                        <Truck size={22} style={{ strokeWidth: 1.5 }} />
+                        <span style={{ fontWeight: 500 }}>{loading ? 'Đang xử lý...' : 'Cash on Delivery'}</span>
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
               <div className="security-note mt-2">
                 <ShieldCheck size={18} className="text-cyan" />

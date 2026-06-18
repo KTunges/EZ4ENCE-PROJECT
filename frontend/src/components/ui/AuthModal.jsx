@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, LogIn, UserPlus, User, X, Gamepad2, Mouse, Headphones, Cpu, Monitor, Keyboard, Crosshair, Speaker, HardDrive, Terminal } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, LogIn, UserPlus, User, X, Gamepad2, Mouse, Headphones, Cpu, Monitor, Keyboard, Crosshair, Speaker, HardDrive, Terminal, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useGoogleLogin } from '@react-oauth/google';
 
@@ -9,13 +9,13 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
   const [isSignUp, setIsSignUp] = useState(initialMode === 'register');
 
   // Login state
-  const [loginEmail, setLoginEmail] = useState('');
+  const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [showLoginPass, setShowLoginPass] = useState(false);
 
   // Register state
   const [regName, setRegName] = useState('');
-  const [regEmail, setRegEmail] = useState('');
+  const [regUsername, setRegUsername] = useState('');
   const [regPassword, setRegPassword] = useState('');
   const [regConfirm, setRegConfirm] = useState('');
   const [showRegPass, setShowRegPass] = useState(false);
@@ -28,6 +28,11 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
   // Name Prompt state
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [displayName, setDisplayName] = useState('');
+
+  // OTP state
+  const [showOtpPrompt, setShowOtpPrompt] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [authAction, setAuthAction] = useState('login');
 
   // Handle switching on mobile where the overlay is hidden
   const [mobileMode, setMobileMode] = useState(initialMode);
@@ -148,7 +153,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
     setIsLoading(true);
 
     try {
-      await login(loginEmail, loginPassword);
+      await login(loginUsername, loginPassword);
       onClose();
     } catch (err) {
       setError(err.message);
@@ -167,12 +172,11 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
 
     setIsLoading(true);
     try {
-      await register(regName, regEmail, regPassword);
-      setSuccess('Đăng ký thành công!');
-      setTimeout(() => {
-        setIsSignUp(false);
-        setMobileMode('login');
-      }, 1200);
+      await register(regName, regUsername, regPassword);
+      setSuccess('Đăng ký thành công! Đang đăng nhập...');
+      // Auto login after register
+      await login(regUsername, regPassword);
+      onClose();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -248,6 +252,8 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
               )}
             </AnimatePresence>
 
+
+
             {/* Sign Up Form */}
             <div className="auth-form-container sign-up-container">
               <div className="auth-form-wrapper">
@@ -270,10 +276,10 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                       </div>
 
                       <div className="auth-field">
-                          <label>Email</label>
+                          <label>Tên đăng nhập</label>
                           <div className="auth-input-wrapper">
-                          <Mail size={18} className="auth-input-icon" />
-                          <input type="email" placeholder="you@email.com" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} required autoComplete="email" />
+                          <User size={18} className="auth-input-icon" />
+                          <input type="text" placeholder="Tên đăng nhập" value={regUsername} onChange={(e) => setRegUsername(e.target.value)} required autoComplete="username" />
                           </div>
                       </div>
 
@@ -341,10 +347,10 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
 
                   <form onSubmit={handleLogin} className="auth-form">
                       <div className="auth-field">
-                          <label>Email</label>
+                          <label>Tên đăng nhập</label>
                           <div className="auth-input-wrapper">
-                          <Mail size={18} className="auth-input-icon" />
-                          <input type="email" placeholder="you@email.com" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required autoComplete="email" />
+                          <User size={18} className="auth-input-icon" />
+                          <input type="text" placeholder="Tên đăng nhập" value={loginUsername} onChange={(e) => setLoginUsername(e.target.value)} required autoComplete="username" />
                           </div>
                       </div>
 
@@ -413,13 +419,13 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                 </div>
 
                 <div className="auth-overlay-panel auth-overlay-left">
-                  <span className="auth-modal-logo glitch-text" data-text="EZ4ENCE">EZ4ENCE</span>
+                  <span className="auth-modal-logo glitch-text" data-text="EZ4GEAR">EZ4GEAR</span>
                   <h2 className="auth-overlay-title">Chào Mừng Trở Lại!</h2>
                   <p className="auth-overlay-desc">Để giữ kết nối với chúng tôi vui lòng đăng nhập bằng tài khoản của bạn</p>
                   <button className="auth-ghost-btn" onClick={() => switchMode(false)}>Đăng Nhập</button>
                 </div>
                 <div className="auth-overlay-panel auth-overlay-right">
-                  <span className="auth-modal-logo glitch-text" data-text="EZ4ENCE">EZ4ENCE</span>
+                  <span className="auth-modal-logo glitch-text" data-text="EZ4GEAR">EZ4GEAR</span>
                   <h2 className="auth-overlay-title">Chào Bạn Mới!</h2>
                   <p className="auth-overlay-desc">Nhập thông tin cá nhân của bạn và bắt đầu hành trình với chúng tôi</p>
                   <button className="auth-ghost-btn" onClick={() => switchMode(true)}>Đăng Ký</button>

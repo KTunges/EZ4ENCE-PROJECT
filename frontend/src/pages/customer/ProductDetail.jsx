@@ -269,7 +269,7 @@ export default function ProductDetail() {
                 <strong>Khuyến mãi cực HOT</strong>
               </div>
               <ul className="promo-list">
-                <li>Nhập mã <strong>EZ4ENCE50</strong> giảm 50K cho đơn từ 2 triệu</li>
+                <li>Nhập mã <strong>EZ4GEAR50</strong> giảm 50K cho đơn từ 2 triệu</li>
                 <li>Tặng lót chuột Gaming XL khi mua kèm Bàn phím / Chuột</li>
                 <li>Giảm thêm 5% khi thanh toán qua VNPAY-QR</li>
               </ul>

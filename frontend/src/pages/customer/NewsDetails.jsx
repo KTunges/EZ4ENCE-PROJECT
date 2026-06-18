@@ -60,7 +60,7 @@ export default function NewsDetails() {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', color: 'var(--text-muted)', fontSize: '14px', marginBottom: '32px', paddingBottom: '24px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Calendar size={16} /> {new Date(news.published_at || news.created_at).toLocaleDateString('vi-VN')}</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Tag size={16} /> {news.category || 'Công nghệ'}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><User size={16} /> EZ4ENCE Admin</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><User size={16} /> EZ4GEAR Admin</span>
           </div>
 
           {news.image_url && (

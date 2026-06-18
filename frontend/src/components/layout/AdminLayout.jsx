@@ -66,7 +66,7 @@ export default function AdminLayout() {
   ];
 
   return (
-    <div data-theme="light" style={{ display: 'flex', minHeight: '100vh', background: '#ffffff', color: 'var(--text)', fontFamily: 'var(--font-sans)' }}>
+    <div data-theme="light" style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--bg-page)', color: 'var(--text)', fontFamily: 'var(--font-sans)' }}>
       {/* Sidebar */}
       <aside style={{ 
         width: isSidebarOpen ? '260px' : '0px', 
@@ -80,8 +80,9 @@ export default function AdminLayout() {
       }}>
         <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <h2 style={{ color: '#ffffff', fontSize: '22px', fontWeight: '900', letterSpacing: '1px', margin: 0 }}>EZ4ENCE</h2>
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '10px', letterSpacing: '2px', fontWeight: '600', margin: '4px 0 0 0' }}>ADMINISTRATOR</p>
+            <h2 style={{ color: '#ffffff', fontSize: '22px', fontWeight: '800', letterSpacing: '0.5px', margin: 0 }}>
+              EZ4GEAR <span style={{ color: '#38bdf8' }}>ADMIN</span>
+            </h2>
           </div>
         </div>
         
@@ -102,7 +103,7 @@ export default function AdminLayout() {
                           display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 24px',
                           color: isActive ? '#ffffff' : 'rgba(255,255,255,0.85)',
                           background: isActive ? 'rgba(255, 255, 255, 0.15)' : 'transparent',
-                          borderRight: isActive ? '3px solid #ffffff' : '3px solid transparent',
+                          borderRight: isActive ? '3px solid #38bdf8' : '3px solid transparent',
                           textDecoration: 'none', fontSize: '14px', fontWeight: isActive ? '700' : '500',
                           transition: 'all 0.2s',
                           opacity: 1
@@ -158,8 +159,8 @@ export default function AdminLayout() {
                   border: '1px solid var(--border-hover)', borderRadius: '8px', color: 'var(--text)', fontSize: '14px', outline: 'none',
                   transition: 'all 0.2s', letterSpacing: '0.3px'
                 }}
-                onFocus={(e) => { e.target.style.background = 'rgba(255,255,255,0.15)'; e.target.style.borderColor = '#38bdf8'; e.target.style.boxShadow = '0 0 0 3px rgba(56, 189, 248, 0.2)'; }}
-                onBlur={(e) => { e.target.style.background = 'var(--border)'; e.target.style.borderColor = 'var(--border-hover)'; e.target.style.boxShadow = 'none'; }}
+                onFocus={(e) => { e.target.style.background = 'var(--bg-card-hover)'; e.target.style.borderColor = 'var(--cyan)'; e.target.style.boxShadow = '0 0 0 3px var(--cyan-dim)'; }}
+                onBlur={(e) => { e.target.style.background = 'var(--bg-card)'; e.target.style.borderColor = 'var(--border-hover)'; e.target.style.boxShadow = 'none'; }}
               />
             </div>
           </div>

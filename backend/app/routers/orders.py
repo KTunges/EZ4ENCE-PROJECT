@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -10,11 +10,12 @@ from app.models.user import User
 from app.models.address import Address
 from app.routers.auth import get_current_user
 from app.schemas.order import OrderCreateRequest, OrderResponse
+from app.services.email_service import send_order_confirmation_email
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
 @router.post("", response_model=OrderResponse)
-def create_order(req: OrderCreateRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     # 1. Fetch user's cart
     cart = db.query(Cart).filter(Cart.user_id == current_user.id).first()
     if not cart or not cart.items:
@@ -135,6 +136,17 @@ def create_order(req: OrderCreateRequest, db: Session = Depends(get_db), current
         
     db.commit()
     db.refresh(new_order)
+    
+    # Send email for COD orders immediately
+    if req.payment_method == PaymentMethod.COD:
+        # Get address details since we might have just created it
+        order_address = db.query(Address).filter(Address.id == address_id_to_use).first()
+        if order_address:
+            try:
+                background_tasks.add_task(send_order_confirmation_email, new_order, current_user, order_address)
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f"Failed to add email task: {e}")
     
     # Prepare response
     response_items = []

@@ -32,7 +32,7 @@ export default function BuildPC() {
   const [productsList, setProductsList] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/products?limit=100')
+    fetch('http://localhost:8000/api/products?limit=1000')
       .then(res => res.json())
       .then(data => {
         const mapped = data.map(item => ({

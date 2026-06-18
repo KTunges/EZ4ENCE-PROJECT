@@ -50,7 +50,7 @@ app.include_router(news.router, prefix="/api")
 def read_root():
     logger.info("Truy cập endpoint /")
     return {
-        "message": "Welcome to EZ4ENCE E-Commerce API",
+        "message": "Welcome to EZ4GEAR E-Commerce API",
         "docs": "/api/docs"
     }
 

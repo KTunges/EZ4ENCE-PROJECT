@@ -4,7 +4,7 @@ from typing import Optional
 class Settings(BaseSettings):
     # API Config
     PORT: int = 3000
-    PROJECT_NAME: str = "EZ4ENCE E-Commerce API"
+    PROJECT_NAME: str = "EZ4GEAR E-Commerce API"
     
     # Database
     DATABASE_URL: str

@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="footer-grid">
           <div>
             <Link to="/" className="header-logo text-gradient" style={{ fontSize: '24px' }}>
-              EZ4ENCE
+              EZ4GEAR
             </Link>
             <p className="footer-desc">
               Điểm đến lý tưởng cho dân công nghệ và game thủ.
@@ -23,7 +23,7 @@ export default function Footer() {
             
             <div style={{ marginTop: '24px', fontSize: '14px', color: 'var(--text-muted)' }}>
               <p>Hotline: 1900 xxxx</p>
-              <p style={{ marginTop: '8px' }}>Email: support@ez4ence.vn</p>
+              <p style={{ marginTop: '8px' }}>Email: support@ez4gear.vn</p>
             </div>
           </div>
 
@@ -69,7 +69,7 @@ export default function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} EZ4ENCE. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} EZ4GEAR. All rights reserved.</p>
         </div>
       </div>
     </footer>

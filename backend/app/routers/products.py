@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, File, Upl
 from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 import uuid
-from sqlalchemy import or_, func
+from sqlalchemy import or_, func, cast, String
 
 from app.database import get_db
 from app.models.product import Product, ProductSKU, ProductImage
@@ -44,7 +44,7 @@ def get_products(
     request: Request,
     db: Session = Depends(get_db),
     skip: int = Query(0, ge=0),
-    limit: int = Query(20, ge=1, le=100),
+    limit: int = Query(20, ge=1, le=1000),
     category_slug: Optional[str] = None,
     brand_slug: Optional[str] = None,
     search: Optional[str] = None
@@ -100,7 +100,7 @@ def get_products(
             # Lọc linh hoạt: cắt từng từ để tìm gần đúng trong JSON
             spec_keywords = value.strip().split()
             for skw in spec_keywords:
-                query = query.filter(Product.specifications[key].astext.ilike(f"%{skw}%"))
+                query = query.filter(cast(Product.specifications[key], String).ilike(f"%{skw}%"))
 
     # Tối ưu truy vấn: load sẵn brand, category và images chính
     query = query.options(

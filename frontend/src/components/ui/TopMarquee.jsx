@@ -63,7 +63,7 @@ export default function TopMarquee() {
             <span className="marquee-icon">🎁</span> TẶNG KÈM CHUỘT LOGITECH KHI MUA LAPTOP GAMING
           </span>
           <span className="marquee-item">
-            <span className="marquee-icon">💎</span> NHẬP MÃ "EZ4ENCE20" GIẢM NGAY 20%
+            <span className="marquee-icon">💎</span> NHẬP MÃ "EZ4GEAR20" GIẢM NGAY 20%
           </span>
         </div>
       </div>

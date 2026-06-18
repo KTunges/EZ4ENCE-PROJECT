@@ -10,7 +10,7 @@ export default function AdminProducts() {
 
   const loadProducts = async () => {
     try {
-      const data = await getAdminProducts({ limit: 50 });
+      const data = await getAdminProducts({ limit: 1000 });
       setProducts(data);
     } catch (error) {
       console.error("Lỗi khi tải sản phẩm:", error);
@@ -46,7 +46,7 @@ export default function AdminProducts() {
         <h1 className="text-2xl font-bold">Quản lý Sản phẩm</h1>
         <button 
           onClick={() => navigate('/admin/products/new')}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--cyan)', color: '#000', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--cyan)', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}
         >
           <Plus size={18} /> Thêm Sản phẩm
         </button>
@@ -97,7 +97,7 @@ export default function AdminProducts() {
                 const stock = product.skus ? product.skus.reduce((sum, sku) => sum + (sku.stock_quantity || 0), 0) : 0;
                 
                 return (
-                <tr key={product.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.2s' }} className="hover:bg-white/5">
+                <tr key={product.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.2s' }} className="hover:bg-black/5">
                   <td style={{ padding: '16px 12px' }}>
                     <div style={{ width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden', background: 'var(--bg-card)' }}>
                       <img src={primaryImage} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

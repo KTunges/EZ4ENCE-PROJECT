@@ -1,5 +1,5 @@
 import base64
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, BackgroundTasks
 from pydantic import BaseModel
 import httpx
 import logging
@@ -9,6 +9,7 @@ from app.config import settings
 from app.database import get_db
 from app.models.order import Order, PaymentStatus
 from app.utils.vnpay import VNPay
+from app.services.email_service import send_order_confirmation_email
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +88,7 @@ def create_paypal_order(req: PayPalOrderRequest, db: Session = Depends(get_db)):
     return {"paypal_order_id": data["id"]}
 
 @router.post("/paypal/capture-order")
-def capture_paypal_order(req: PayPalCaptureRequest, db: Session = Depends(get_db)):
+def capture_paypal_order(req: PayPalCaptureRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     access_token = get_paypal_access_token()
     base_url = "https://api-m.sandbox.paypal.com" if settings.PAYPAL_ENVIRONMENT == "sandbox" else "https://api-m.paypal.com"
     
@@ -116,6 +117,10 @@ def capture_paypal_order(req: PayPalCaptureRequest, db: Session = Depends(get_db
                 )
                 db.add(history)
                 db.commit()
+                
+                # Send confirmation email
+                background_tasks.add_task(send_order_confirmation_email, order, order.user, order.shipping_address)
+                
             return {"success": True, "data": data}
         
     logger.error(f"Failed to capture PayPal order: {response.text}")
@@ -164,7 +169,7 @@ def create_vnpay_url(req: VNPAYOrderRequest, request: Request, db: Session = Dep
     return {"payment_url": vnpay_payment_url}
 
 @router.get("/vnpay/verify-return")
-def verify_vnpay_return(request: Request, db: Session = Depends(get_db)):
+def verify_vnpay_return(request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     inputData = request.query_params
     vnp = VNPay()
     vnp.responseData = dict(inputData)
@@ -192,6 +197,9 @@ def verify_vnpay_return(request: Request, db: Session = Depends(get_db)):
                 )
                 db.add(history)
                 db.commit()
+                
+                # Send confirmation email
+                background_tasks.add_task(send_order_confirmation_email, order, order.user, order.shipping_address)
                 
             return {
                 "success": True, 

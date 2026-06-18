@@ -61,12 +61,15 @@ def create_product(
     if existing:
         slug = f"{slug}-{str(uuid.uuid4())[:8]}"
 
-    # Find or create Category
+    # Find or create Category — tìm bằng NAME trước (vì form gửi tên), rồi mới tìm bằng slug
     category_id = None
     if product_in.category:
-        cat_slug = slugify(product_in.category)
-        cat = db.query(Category).filter(Category.slug == cat_slug).first()
+        cat = db.query(Category).filter(Category.name == product_in.category).first()
         if not cat:
+            cat_slug = slugify(product_in.category)
+            cat = db.query(Category).filter(Category.slug == cat_slug).first()
+        if not cat:
+            cat_slug = slugify(product_in.category)
             cat = Category(id=str(uuid.uuid4()), name=product_in.category, slug=cat_slug)
             db.add(cat)
             db.flush()
@@ -160,6 +163,26 @@ def update_product(
     product.description = product_in.description
     product.specifications = product_in.specifications or {}
     product.is_published = product_in.is_published
+
+    # Update Category
+    if product_in.category:
+        def slugify(text: str) -> str:
+            text = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8')
+            text = re.sub(r'[^\w\s-]', '', text).strip().lower()
+            return re.sub(r'[-\s]+', '-', text)
+
+        cat = db.query(Category).filter(Category.name == product_in.category).first()
+        if not cat:
+            cat_slug = slugify(product_in.category)
+            cat = db.query(Category).filter(Category.slug == cat_slug).first()
+        if cat:
+            product.category_id = cat.id
+
+    # Update Brand
+    if product_in.brand:
+        brand = db.query(Brand).filter(Brand.name == product_in.brand).first()
+        if brand:
+            product.brand_id = brand.id
     
     if product.skus:
         product.skus[0].price = product_in.price

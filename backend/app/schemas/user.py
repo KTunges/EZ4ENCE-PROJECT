@@ -5,7 +5,7 @@ from app.models.user import Role
 
 # Base Schema
 class UserBase(BaseModel):
-    email: EmailStr
+    email: Optional[EmailStr] = None
     fullName: Optional[str] = Field(
         None, 
         validation_alias=AliasChoices("fullName", "full_name"), 
@@ -14,13 +14,17 @@ class UserBase(BaseModel):
 
 # Schema cho đăng ký
 class UserCreate(UserBase):
+    username: str
     password: str
 
 # Schema trả về cho API (đảm bảo ẩn password)
 class UserResponse(UserBase):
     id: str
+    username: Optional[str] = None
     role: Role
     staff_role: Optional[str] = None
+    is_email_verified: bool
+    provider: str
     createdAt: datetime = Field(
         ..., 
         validation_alias=AliasChoices("createdAt", "created_at"), 
@@ -54,8 +58,15 @@ class StaffUpdate(BaseModel):
 
 # Schema để nhận payload login
 class UserLogin(BaseModel):
-    email: EmailStr
+    username: str
     password: str
+
+class EmailOTPSend(BaseModel):
+    email: EmailStr
+
+class EmailOTPVerify(BaseModel):
+    email: EmailStr
+    otp: str
 
 # Schema trả về token sau login
 class TokenResponse(BaseModel):
@@ -74,3 +85,4 @@ class TokenFacebook(BaseModel):
 # Schema cho Update Profile (sau khi Google Login)
 class ProfileUpdate(BaseModel):
     fullName: str = Field(..., validation_alias=AliasChoices("fullName", "full_name"))
+

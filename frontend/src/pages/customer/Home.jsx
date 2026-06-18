@@ -87,7 +87,7 @@ export default function Home() {
       .then(data => setNewsList(data))
       .catch(console.error);
 
-    fetch('http://localhost:8000/api/products?limit=100')
+    fetch('http://localhost:8000/api/products?limit=1000')
       .then(res => res.json())
       .then(data => {
         // Filter for beautiful products (have images, and preferably on sale)
@@ -206,7 +206,7 @@ export default function Home() {
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
         >
-          <span className="section-tag">// TẠI SAO CHỌN EZ4ENCE</span>
+          <span className="section-tag">// TẠI SAO CHỌN EZ4GEAR</span>
           <h2 className="section-title glitch-text" data-text="Cam Kết Của Chúng Tôi">Cam Kết Của Chúng Tôi</h2>
           <p className="section-desc">Chúng tôi không chỉ bán hàng — chúng tôi xây dựng trải nghiệm.</p>
         </motion.div>
@@ -255,7 +255,7 @@ export default function Home() {
         position="home_middle"
         fallbackImage="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1920&q=80"
         fallbackTitle="SETUP MƠ ƯỚC"
-        fallbackDesc="Trải nghiệm không gian giải trí đỉnh cao với các thiết bị Gaming Gear xịn xò nhất từ EZ4ENCE."
+        fallbackDesc="Trải nghiệm không gian giải trí đỉnh cao với các thiết bị Gaming Gear xịn xò nhất từ EZ4GEAR."
       />
 
       {/* ── FEATURED PRODUCTS placeholder ── */}
@@ -299,7 +299,7 @@ export default function Home() {
         position="home_bottom"
         fallbackImage="https://images.unsplash.com/photo-1600861194942-f883de0dfe96?auto=format&fit=crop&w=1920&q=80"
         fallbackTitle="BÙNG NỔ ƯU ĐÃI"
-        fallbackDesc="Săn ngay các voucher cực khủng dành riêng cho thành viên của EZ4ENCE. Số lượng có hạn!"
+        fallbackDesc="Săn ngay các voucher cực khủng dành riêng cho thành viên của EZ4GEAR. Số lượng có hạn!"
       />
 
       {/* ── TECHNOLOGY NEWS ── */}

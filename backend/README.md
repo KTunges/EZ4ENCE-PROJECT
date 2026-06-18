@@ -1,4 +1,4 @@
-# EZ4ENCE Backend (FastAPI + PostgreSQL)
+# EZ4GEAR Backend (FastAPI + PostgreSQL)
 
 Dự án này sử dụng **FastAPI** (Python) làm backend framework, **PostgreSQL** làm cơ sở dữ liệu và **Alembic** để quản lý database migrations.
 
@@ -13,8 +13,8 @@ Dự án này sử dụng **FastAPI** (Python) làm backend framework, **Postgre
 
 ### 2. Clone dự án về máy
 ```bash
-git clone https://github.com/<tên-org>/EZ4ENCE-PROJECT.git
-cd EZ4ENCE-PROJECT/backend
+git clone https://github.com/<tên-org>/EZ4GEAR-PROJECT.git
+cd EZ4GEAR-PROJECT/backend
 ```
 
 ### 3. Tạo Môi trường ảo (Virtual Environment)
@@ -54,7 +54,7 @@ PORT=8000
 
 # DATABASE
 # ⚠️ Đổi your_pg_password thành mật khẩu PostgreSQL thật của máy bạn
-DATABASE_URL="postgresql://postgres:your_pg_password@localhost:5432/EZ4ENCE"
+DATABASE_URL="postgresql://postgres:your_pg_password@localhost:5432/EZ4GEAR"
 
 # AUTHENTICATION
 JWT_SECRET="super-secret-jwt-key-change-me-later"
@@ -78,12 +78,12 @@ PAYPAL_MODE="sandbox"
 ```
 
 ### 7. Khởi tạo Database trong PostgreSQL
-Bạn cần tạo một database trống tên `EZ4ENCE` trong PostgreSQL. Chọn **một** trong hai cách:
+Bạn cần tạo một database trống tên `EZ4GEAR` trong PostgreSQL. Chọn **một** trong hai cách:
 
 **Cách A: Dùng pgAdmin 4 (Giao diện trực quan)**
 1. Mở pgAdmin 4 → Kết nối vào server PostgreSQL.
 2. Chuột phải vào **Databases** → **Create** → **Database...**
-3. Đặt tên là `EZ4ENCE` → nhấn **Save**.
+3. Đặt tên là `EZ4GEAR` → nhấn **Save**.
 
 **Cách B: Dùng script Python có sẵn (Nhanh hơn)**
 ```powershell
@@ -92,7 +92,7 @@ python create_db.py
 > ⚠️ Script này mặc định dùng mật khẩu `123456`. Nếu mật khẩu PostgreSQL của bạn khác, hãy mở file `create_db.py` và sửa lại trước khi chạy.
 
 ### 8. Chạy Migration để tạo các bảng trong Database
-Sau khi đã tạo database trống `EZ4ENCE`, chạy lệnh sau để Alembic tự động tạo toàn bộ 10 bảng (users, products, orders, carts...):
+Sau khi đã tạo database trống `EZ4GEAR`, chạy lệnh sau để Alembic tự động tạo toàn bộ 10 bảng (users, products, orders, carts...):
 ```bash
 alembic upgrade head
 ```
@@ -101,7 +101,7 @@ Nếu terminal hiển thị dòng `Running upgrade -> a7ca31beda2d... done` tứ
 ### 9. Khởi động Backend Server
 
 **Cách 1: Double-click file `run.bat` (Tiện nhất 🚀)**
-> Ở thư mục gốc `EZ4ENCE-PROJECT` có sẵn file `run.bat`. Nhấp đúp chuột vào → chọn `[1] Backend` là server tự chạy!
+> Ở thư mục gốc `EZ4GEAR-PROJECT` có sẵn file `run.bat`. Nhấp đúp chuột vào → chọn `[1] Backend` là server tự chạy!
 
 **Cách 2: Chạy bằng lệnh trong Terminal**
 ```powershell
@@ -148,7 +148,7 @@ Dự án có sẵn 3 file `.bat` ở thư mục gốc, contributor chỉ cần d
 ## 📁 Cấu trúc thư mục Dự án
 
 ```
-EZ4ENCE-PROJECT/
+EZ4GEAR-PROJECT/
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml             # CI: Tự động test khi push/PR

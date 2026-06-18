@@ -88,7 +88,7 @@ export default function About() {
               animate={{ clipPath: 'inset(0 0 0 0)' }}
               transition={{ duration: 1.2, delay: 0.5, ease: "easeInOut" }}
             >
-              KHỞI NGUỒN CỦA EZ4ENCE
+              KHỞI NGUỒN CỦA EZ4GEAR
             </motion.h2>
             <motion.p 
               className="about-desc" 
@@ -97,7 +97,7 @@ export default function About() {
               animate={{ clipPath: 'inset(0 0 0 0)' }}
               transition={{ duration: 1.5, delay: 1, ease: "easeInOut" }}
             >
-              Khởi nguồn từ đam mê công nghệ và eSports, <strong>EZ4ENCE</strong> được tạo ra không chỉ để bán linh kiện. Chúng tôi là những người kiến tạo, mang đến những hệ thống siêu máy tính cá nhân hóa cho từng game thủ và dân chuyên nghiệp. 
+              Khởi nguồn từ đam mê công nghệ và eSports, <strong>EZ4GEAR</strong> được tạo ra không chỉ để bán linh kiện. Chúng tôi là những người kiến tạo, mang đến những hệ thống siêu máy tính cá nhân hóa cho từng game thủ và dân chuyên nghiệp. 
             </motion.p>
           </motion.div>
         </div>

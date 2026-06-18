@@ -3,7 +3,7 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ToastProvider } from './context/ToastContext';
 import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import MainLayout from './components/layout/MainLayout';
 import Home from './pages/customer/Home';
@@ -61,51 +61,52 @@ function App() {
           <AuthProvider>
             <CartProvider>
               <BrowserRouter>
-              <ScrollToTop />
-              <Routes>
-                <Route path="/" element={<MainLayout />}>
-                  <Route index element={<Home />} />
-                  <Route path="about" element={<About />} />
-                  <Route path="products" element={<Products />} />
-                  <Route path="products/:slug" element={<ProductDetail />} />
-                  <Route path="build-pc" element={<BuildPC />} />
-                  <Route path="news/:slug" element={<NewsDetails />} />
-                  <Route path="cart" element={<Cart />} />
-                  <Route path="checkout" element={<Checkout />} />
-                  <Route path="checkout/success" element={<CheckoutSuccess />} />
-                  <Route path="checkout/vnpay-return" element={<CheckoutVnpayReturn />} />
-                  <Route path="profile" element={<Profile />} />
-                  <Route path="profile/orders/:id" element={<OrderDetails />} />
-                </Route>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/ez4-portal-auth" element={<AdminLogin />} />
-                <Route path="/admin" element={
-                  <AdminRoute>
-                    <AdminLayout />
-                  </AdminRoute>
-                }>
-                  <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="orders" element={<AdminOrders />} />
-                  <Route path="products" element={<AdminProducts />} />
-                  <Route path="products/new" element={<AdminProductForm />} />
-                  <Route path="products/edit/:id" element={<AdminProductForm />} />
-                  <Route path="orders/:id" element={<AdminOrderDetails />} />
-                  <Route path="categories" element={<AdminCategories />} />
-                  <Route path="brands" element={<AdminBrands />} />
-                  <Route path="customers" element={<AdminCustomers />} />
-                  <Route path="reviews" element={<AdminReviews />} />
-                  <Route path="staffs" element={<AdminStaffs />} />
-                  <Route path="banners" element={<AdminBanners />} />
-                  <Route path="coupons" element={<AdminCoupons />} />
-                  <Route path="email" element={<div style={{padding: '40px'}}>Tính năng Email Marketing đang phát triển</div>} />
-                  <Route path="news" element={<AdminNews />} />
-                  <Route path="suppliers" element={<AdminSuppliers />} />
-                  <Route path="inventory" element={<AdminInventory />} />
-                  <Route path="stock" element={<AdminStock />} />
-                  {/* Các route tương lai sẽ thêm vào đây */}
-                </Route>
-              </Routes>
+                <ScrollToTop />
+                <Routes>
+                  <Route path="/" element={<MainLayout />}>
+                    <Route index element={<Home />} />
+                    <Route path="about" element={<About />} />
+                    <Route path="products" element={<Products />} />
+                    <Route path="products/:slug" element={<ProductDetail />} />
+                    <Route path="build-pc" element={<BuildPC />} />
+                    <Route path="news/:slug" element={<NewsDetails />} />
+                    <Route path="cart" element={<Cart />} />
+                    <Route path="checkout" element={<Checkout />} />
+                    <Route path="checkout/success" element={<CheckoutSuccess />} />
+                    <Route path="checkout/vnpay-return" element={<CheckoutVnpayReturn />} />
+                    <Route path="profile" element={<Profile />} />
+                    <Route path="profile/orders/:id" element={<OrderDetails />} />
+                  </Route>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/ez4-portal-auth" element={<AdminLogin />} />
+                  <Route path="/admin" element={
+                    <AdminRoute>
+                      <AdminLayout />
+                    </AdminRoute>
+                  }>
+                    <Route index element={<Navigate to="dashboard" replace />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="orders" element={<AdminOrders />} />
+                    <Route path="products" element={<AdminProducts />} />
+                    <Route path="products/new" element={<AdminProductForm />} />
+                    <Route path="products/edit/:id" element={<AdminProductForm />} />
+                    <Route path="orders/:id" element={<AdminOrderDetails />} />
+                    <Route path="categories" element={<AdminCategories />} />
+                    <Route path="brands" element={<AdminBrands />} />
+                    <Route path="customers" element={<AdminCustomers />} />
+                    <Route path="reviews" element={<AdminReviews />} />
+                    <Route path="staffs" element={<AdminStaffs />} />
+                    <Route path="banners" element={<AdminBanners />} />
+                    <Route path="coupons" element={<AdminCoupons />} />
+                    <Route path="email" element={<div style={{ padding: '40px' }}>Tính năng Email Marketing đang phát triển</div>} />
+                    <Route path="news" element={<AdminNews />} />
+                    <Route path="suppliers" element={<AdminSuppliers />} />
+                    <Route path="inventory" element={<AdminInventory />} />
+                    <Route path="stock" element={<AdminStock />} />
+                    {/* Các route tương lai sẽ thêm vào đây */}
+                  </Route>
+                </Routes>
               </BrowserRouter>
             </CartProvider>
           </AuthProvider>
