@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, BackgroundTasks, Body
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 import jwt
@@ -8,8 +8,9 @@ from app.database import get_db
 from app.config import settings
 from app.core import security
 from app.models.user import User, Role
-from app.schemas.user import UserCreate, UserResponse, UserLogin, TokenResponse, TokenGoogle, ProfileUpdate, TokenFacebook
+from app.schemas.user import UserCreate, UserResponse, UserLogin, TokenResponse, TokenGoogle, ProfileUpdate, TokenFacebook, EmailOTPSend, EmailOTPVerify
 from app.schemas.admin_auth_schemas import AdminLoginStep1, AdminLoginStep2
+from app.services.mailchimp_service import sync_user_to_mailchimp
 import string
 import random
 import smtplib
@@ -152,9 +153,9 @@ def admin_login_step1(login_in: AdminLoginStep1, background_tasks: BackgroundTas
     
     otp = f"{random.randint(0, 999999):06d}"
     otp_store[user.email] = otp
-    print(f"\\n=========================================")
+    print(f"\n=========================================")
     print(f"MÃ OTP CỦA ADMIN {user.email} LÀ: {otp}")
-    print(f"=========================================\\n")
+    print(f"=========================================\n")
     
     background_tasks.add_task(send_otp_email_task, user.email, otp)
     
@@ -181,8 +182,6 @@ def admin_login_step2(login_in: AdminLoginStep2, db: Session = Depends(get_db)):
         "token_type": "bearer",
         "user": user
     }
-
-from app.schemas.user import EmailOTPSend, EmailOTPVerify
 
 email_verification_store = {}
 
@@ -240,16 +239,16 @@ def send_email_otp(data: EmailOTPSend, background_tasks: BackgroundTasks, curren
         
     otp = f"{random.randint(0, 999999):06d}"
     email_verification_store[data.email] = otp
-    print(f"\\n=========================================")
+    print(f"\n=========================================")
     print(f"MÃ OTP XÁC THỰC EMAIL CỦA {data.email} LÀ: {otp}")
-    print(f"=========================================\\n")
+    print(f"=========================================\n")
     
     background_tasks.add_task(send_verification_otp_email_task, data.email, otp)
     
     return {"message": "OTP đã được tạo và gửi"}
 
 @router.post("/verify-email-otp")
-def verify_email_otp(data: EmailOTPVerify, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def verify_email_otp(data: EmailOTPVerify, background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     stored_otp = email_verification_store.get(data.email)
     if not stored_otp or stored_otp != data.otp:
         raise HTTPException(status_code=400, detail="Mã OTP không hợp lệ hoặc đã hết hạn")
@@ -261,6 +260,8 @@ def verify_email_otp(data: EmailOTPVerify, current_user: User = Depends(get_curr
     
     del email_verification_store[data.email]
     
+    background_tasks.add_task(sync_user_to_mailchimp, str(current_user.email), str(current_user.full_name) if current_user.full_name else None)
+    
     return {"message": "Xác thực email thành công", "user": current_user}
 
 @router.get("/me", response_model=UserResponse)
@@ -268,7 +269,7 @@ def get_me(current_user: User = Depends(get_current_user)):
     return current_user
 
 @router.post("/google", response_model=TokenResponse)
-def google_auth(token_in: TokenGoogle, db: Session = Depends(get_db)):
+def google_auth(token_in: TokenGoogle, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     try:
         # Use Google access_token to get user info from Google's UserInfo API
         import requests as req  # type: ignore
@@ -313,6 +314,7 @@ def google_auth(token_in: TokenGoogle, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(user)
         is_new_user = True
+        background_tasks.add_task(sync_user_to_mailchimp, str(user.email), str(user.full_name) if user.full_name else None)
     else:
         # If user exists but full_name is None, treat as needing profile update
         if not user.full_name:
@@ -324,6 +326,7 @@ def google_auth(token_in: TokenGoogle, db: Session = Depends(get_db)):
             user.provider = "GOOGLE"
             db.commit()
             db.refresh(user)
+            background_tasks.add_task(sync_user_to_mailchimp, str(user.email), str(user.full_name) if user.full_name else None)
 
     access_token = security.create_access_token(subject=user.id)
     return {
@@ -334,7 +337,7 @@ def google_auth(token_in: TokenGoogle, db: Session = Depends(get_db)):
     }
 
 @router.post("/facebook", response_model=TokenResponse)
-def facebook_auth(token_in: TokenFacebook, db: Session = Depends(get_db)):
+def facebook_auth(token_in: TokenFacebook, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     try:
         import requests as req  # type: ignore
         # Lấy thông tin user từ Graph API của Facebook
@@ -387,6 +390,7 @@ def facebook_auth(token_in: TokenFacebook, db: Session = Depends(get_db)):
             user.provider = "FACEBOOK"
             db.commit()
             db.refresh(user)
+            background_tasks.add_task(sync_user_to_mailchimp, str(user.email), str(user.full_name) if user.full_name else None)
 
     access_token = security.create_access_token(subject=user.id)
     return {

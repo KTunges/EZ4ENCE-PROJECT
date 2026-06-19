@@ -19,4 +19,4 @@ class Brand(Base):
 
     @property
     def product_count(self) -> int:
-        return len(self.products) if self.products else 0
+        return len(self.products) if self.products else 0  # type: ignore

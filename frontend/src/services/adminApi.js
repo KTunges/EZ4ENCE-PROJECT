@@ -182,4 +182,8 @@ export const createStaff = (data) => adminApi.post('/admin/staffs', data);
 export const updateStaff = (id, data) => adminApi.put(`/admin/staffs/${id}`, data);
 export const deleteStaff = (id) => adminApi.delete(`/admin/staffs/${id}`);
 
+// Admin Mailchimp
+export const getEmailRecipients = async () => { const r = await adminApi.get('/admin/mailchimp/stats'); return r.data; };
+export const triggerManualSync = async () => { const r = await adminApi.post('/admin/mailchimp/sync'); return r.data; };
+
 export default adminApi;

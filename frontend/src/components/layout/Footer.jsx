@@ -49,23 +49,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div>
-            <h3 className="footer-title">Nhận Tin Khuyến Mãi</h3>
-            <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '16px', lineHeight: '1.6' }}>
-              Đăng ký ngay để nhận các mã giảm giá và tin tức phần cứng mới nhất.
-            </p>
-            <form className="cyber-input-group" onSubmit={(e) => e.preventDefault()}>
-              <input 
-                type="email" 
-                className="cyber-input" 
-                placeholder="Nhập email của bạn..." 
-                required
-              />
-              <button type="submit" className="cyber-btn-inside">
-                ĐĂNG KÝ
-              </button>
-            </form>
-          </div>
+          {/* Newsletter section removed */}
         </div>
 
         <div className="footer-bottom">

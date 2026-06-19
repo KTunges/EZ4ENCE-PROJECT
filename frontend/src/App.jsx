@@ -39,6 +39,7 @@ import AdminInventory from './pages/admin/AdminInventory';
 import AdminStock from './pages/admin/AdminStock';
 import AdminStaffs from './pages/admin/AdminStaffs';
 import AdminNews from './pages/admin/AdminNews';
+import AdminMailchimp from './pages/admin/AdminMailchimp';
 
 // Google Client ID (đọc từ file .env)
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -99,7 +100,7 @@ function App() {
                     <Route path="staffs" element={<AdminStaffs />} />
                     <Route path="banners" element={<AdminBanners />} />
                     <Route path="coupons" element={<AdminCoupons />} />
-                    <Route path="email" element={<div style={{ padding: '40px' }}>Tính năng Email Marketing đang phát triển</div>} />
+                    <Route path="email" element={<AdminMailchimp />} />
                     <Route path="news" element={<AdminNews />} />
                     <Route path="suppliers" element={<AdminSuppliers />} />
                     <Route path="inventory" element={<AdminInventory />} />

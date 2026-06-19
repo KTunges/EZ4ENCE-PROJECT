@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, DateTime, Boolean, func
+from sqlalchemy import Column, String, Float, DateTime, Boolean, Integer, func
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -33,3 +33,4 @@ class Promotion(Base):
 
     # Relationships
     orders = relationship("Order", back_populates="promotion")
+

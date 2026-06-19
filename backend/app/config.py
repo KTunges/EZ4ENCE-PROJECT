@@ -45,6 +45,11 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: Optional[str] = None
     SMTP_SERVER: str = "smtp.gmail.com"
     SMTP_PORT: int = 587
+    
+    # Mailchimp (Email Marketing)
+    MAILCHIMP_API_KEY: Optional[str] = None
+    MAILCHIMP_SERVER_PREFIX: Optional[str] = None
+    MAILCHIMP_LIST_ID: Optional[str] = None
 
     model_config = SettingsConfigDict(
         env_file=".env",

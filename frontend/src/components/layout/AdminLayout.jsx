@@ -47,7 +47,7 @@ export default function AdminLayout() {
       { id: 'coupons', label: 'Mã giảm giá', icon: <Ticket size={18} />, path: '/admin/coupons', active: hasAccess('/admin/coupons') },
       { id: 'banners', label: 'Quản lý Banner', icon: <ImageIcon size={18} />, path: '/admin/banners', active: hasAccess('/admin/banners') },
       { id: 'news', label: 'Tin tức', icon: <FileText size={18} />, path: '/admin/news', active: hasAccess('/admin/dashboard') },
-      { id: 'email', label: 'Email Marketing', icon: <Send size={18} />, path: '/admin/email', active: hasAccess('/admin/email', true) }
+      { id: 'email', label: 'Mailchimp Sync', icon: <Send size={18} />, path: '/admin/email', active: hasAccess('/admin/email') }
     ]},
     { section: 'KHO & ĐỐI TÁC', items: [
       { id: 'inventory', label: 'Theo dõi Tồn kho', icon: <Package size={18} />, path: '/admin/inventory', active: hasAccess('/admin/inventory') },

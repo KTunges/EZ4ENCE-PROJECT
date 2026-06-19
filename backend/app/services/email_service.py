@@ -30,7 +30,7 @@ def get_order_html_template(order_id: str, customer_name: str, customer_email: s
         """
 
     subtotal = sum(item['price'] * item['quantity'] for item in items)
-    subtotal_formatted = f"{int(subtotal):,} ₫".replace(",", ".")
+    subtotal_formatted = f"{subtotal:,} ₫".replace(",", ".")
     shipping_formatted = f"{int(shipping_fee):,} ₫".replace(",", ".")
     discount_formatted = f"-{int(discount_amount):,} ₫".replace(",", ".") if discount_amount > 0 else "0 ₫"
     total_formatted = f"{int(total_amount):,} ₫".replace(",", ".")
