@@ -25,7 +25,7 @@ export default function AdminLayout() {
     if (path === '/admin/dashboard') return true; // Everyone can see dashboard
     
     if (adminUser.staff_role === 'SALES') {
-      return ['/admin/orders', '/admin/customers'].includes(path);
+      return ['/admin/orders', '/admin/customers', '/admin/chat'].includes(path);
     }
     if (adminUser.staff_role === 'INVENTORY') {
       return ['/admin/products', '/admin/categories', '/admin/brands', '/admin/inventory', '/admin/suppliers', '/admin/stock'].includes(path);
@@ -47,7 +47,7 @@ export default function AdminLayout() {
       { id: 'coupons', label: 'Mã giảm giá', icon: <Ticket size={18} />, path: '/admin/coupons', active: hasAccess('/admin/coupons') },
       { id: 'banners', label: 'Quản lý Banner', icon: <ImageIcon size={18} />, path: '/admin/banners', active: hasAccess('/admin/banners') },
       { id: 'news', label: 'Tin tức', icon: <FileText size={18} />, path: '/admin/news', active: hasAccess('/admin/dashboard') },
-      { id: 'email', label: 'Mailchimp Sync', icon: <Send size={18} />, path: '/admin/email', active: hasAccess('/admin/email') }
+      { id: 'email', label: 'Email Marketing', icon: <Send size={18} />, path: '/admin/email', active: hasAccess('/admin/email') }
     ]},
     { section: 'KHO & ĐỐI TÁC', items: [
       { id: 'inventory', label: 'Theo dõi Tồn kho', icon: <Package size={18} />, path: '/admin/inventory', active: hasAccess('/admin/inventory') },
@@ -57,7 +57,7 @@ export default function AdminLayout() {
     { section: 'KHÁCH HÀNG', items: [
       { id: 'customers', label: 'Khách hàng', icon: <Users size={18} />, path: '/admin/customers', active: hasAccess('/admin/customers') },
       { id: 'reviews', label: 'Đánh giá/Bình luận', icon: <Star size={18} />, path: '/admin/reviews', active: hasAccess('/admin/reviews') },
-      { id: 'chat', label: 'Live Chat', icon: <MessageSquare size={18} />, path: '/admin/chat', active: hasAccess('/admin/chat', true) },
+      { id: 'chat', label: 'Live Chat', icon: <MessageSquare size={18} />, path: '/admin/chat', active: hasAccess('/admin/chat') },
       { id: 'returns', label: 'Đổi/Trả hàng', icon: <RefreshCcw size={18} />, path: '/admin/returns', active: hasAccess('/admin/returns', true) }
     ]},
     { section: 'HỆ THỐNG', items: [
@@ -123,7 +123,7 @@ export default function AdminLayout() {
                         {item.icon}
                         {item.label}
                         <span style={{ marginLeft: 'auto', fontSize: '10px', background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.8)', padding: '2px 6px', borderRadius: '4px', fontWeight: '500' }}>
-                          {['/admin/email', '/admin/chat', '/admin/returns'].includes(item.path) ? 'Dev' : <ShieldCheck size={12} />}
+                          {['/admin/email', '/admin/returns'].includes(item.path) ? 'Dev' : <ShieldCheck size={12} />}
                         </span>
                       </div>
                     )}

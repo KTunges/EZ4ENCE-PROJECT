@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import TopMarquee from '../ui/TopMarquee';
+import LiveChatWidget from '../chat/LiveChatWidget';
 
 export default function MainLayout() {
   const location = useLocation();
@@ -15,6 +16,7 @@ export default function MainLayout() {
         <Outlet />
       </main>
       <Footer />
+      <LiveChatWidget />
     </>
   );
 }

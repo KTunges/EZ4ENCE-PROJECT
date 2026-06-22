@@ -25,6 +25,7 @@ class UserResponse(UserBase):
     staff_role: Optional[str] = None
     is_email_verified: bool
     provider: str
+    avatar: Optional[str] = None
     createdAt: datetime = Field(
         ..., 
         validation_alias=AliasChoices("createdAt", "created_at"), 

@@ -42,7 +42,7 @@ export default function AdminMailchimp() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
         <div>
           <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Mail size={28} color="#FFE01B" /> Mailchimp Sync
+            <Mail size={28} color="#FFE01B" /> Email Marketing
           </h1>
           <p style={{ color: 'var(--text-muted)', margin: 0 }}>Quản lý đồng bộ khách hàng từ website sang hệ thống Mailchimp.</p>
         </div>

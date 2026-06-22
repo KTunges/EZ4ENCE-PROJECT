@@ -17,7 +17,7 @@ if CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET:
         secure=True
     )
 
-def upload_image(file: UploadFile) -> str:
+def upload_image(file: UploadFile, folder: str = "ez4gear/products") -> str:
     """
     Uploads an image to Cloudinary and returns the secure URL.
     """
@@ -34,7 +34,7 @@ def upload_image(file: UploadFile) -> str:
         # Upload to Cloudinary
         result = cloudinary.uploader.upload(
             content,
-            folder="ez4gear/products", # Thư mục trên Cloudinary
+            folder=folder, # Thư mục trên Cloudinary
             resource_type="image"
         )
         
