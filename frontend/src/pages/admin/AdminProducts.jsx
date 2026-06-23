@@ -7,6 +7,8 @@ export default function AdminProducts() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const loadProducts = async () => {
     try {
@@ -22,6 +24,13 @@ export default function AdminProducts() {
   useEffect(() => {
     loadProducts();
   }, []);
+
+  const filteredProducts = products.filter(p => 
+    searchQuery.trim() === '' || 
+    p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    p.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (p.skus && p.skus.some(s => s.sku && s.sku.toLowerCase().includes(searchQuery.toLowerCase())))
+  );
 
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
@@ -55,13 +64,77 @@ export default function AdminProducts() {
       <div className="glass" style={{ borderRadius: '12px', padding: '20px' }}>
         {/* Toolbar */}
         <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
-          <div style={{ position: 'relative', flex: 1 }}>
+          <div style={{ position: 'relative', flex: 1, zIndex: 10 }}>
             <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
             <input 
               type="text" 
               placeholder="Tìm theo tên sản phẩm, mã SKU..." 
-              style={{ width: '100%', padding: '10px 12px 10px 40px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', outline: 'none' }}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={(e) => { 
+                e.target.style.background = 'var(--bg-card-hover)'; 
+                e.target.style.borderColor = 'var(--cyan)'; 
+                e.target.style.boxShadow = '0 0 0 3px var(--cyan-dim)';
+                setShowSuggestions(true);
+              }}
+              onBlur={(e) => { 
+                e.target.style.background = 'var(--bg-card)'; 
+                e.target.style.borderColor = 'var(--border)'; 
+                e.target.style.boxShadow = 'none';
+                setTimeout(() => setShowSuggestions(false), 200);
+              }}
+              style={{ width: '100%', padding: '10px 12px 10px 40px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', outline: 'none', transition: 'all 0.2s' }}
             />
+            {/* Suggestions Dropdown */}
+            {showSuggestions && searchQuery.trim().length >= 2 && filteredProducts.length > 0 && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                marginTop: '8px',
+                padding: '8px 0',
+                zIndex: 9999,
+                boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+                backdropFilter: 'blur(10px)',
+                maxHeight: '400px',
+                overflowY: 'auto'
+              }}>
+                {filteredProducts.slice(0, 5).map(p => {
+                  const primaryImage = p.images?.find(img => img.is_primary)?.url || p.images?.[0]?.url || '/images/placeholder.jpg';
+                  const price = p.skus && p.skus.length > 0 ? p.skus[0].price : 0;
+                  return (
+                  <div 
+                    key={p.id} 
+                    onClick={() => {
+                      navigate(`/admin/products/edit/${p.id}`);
+                      setShowSuggestions(false);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '8px 16px',
+                      color: 'var(--text)',
+                      textDecoration: 'none',
+                      transition: 'background 0.2s',
+                      cursor: 'pointer'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-hover)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <img src={primaryImage} alt={p.name} style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '6px', background: '#fff', flexShrink: 0 }} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
+                      <span style={{ fontSize: '13px', fontWeight: '500', lineHeight: '1.4', wordBreak: 'break-word', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.name}</span>
+                      <span style={{ fontSize: '12px', color: 'var(--cyan)', fontWeight: '600' }}>{price.toLocaleString('vi-VN')} ₫</span>
+                    </div>
+                  </div>
+                )})}
+              </div>
+            )}
           </div>
           <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0 16px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', cursor: 'pointer' }}>
             <Filter size={18} /> Danh mục
@@ -88,9 +161,9 @@ export default function AdminProducts() {
             <tbody>
               {loading ? (
                 <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>Đang tải dữ liệu...</td></tr>
-              ) : products.length === 0 ? (
+              ) : filteredProducts.length === 0 ? (
                 <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>Chưa có sản phẩm nào</td></tr>
-              ) : products.map((product) => {
+              ) : filteredProducts.map((product) => {
                 const primaryImage = product.images?.find(img => img.is_primary)?.url || product.images?.[0]?.url || 'https://via.placeholder.com/40/1a1a2e/00d2ff?text=No+Img';
                 // Lấy giá từ SKU đầu tiên
                 const price = product.skus && product.skus.length > 0 ? product.skus[0].price : 0;

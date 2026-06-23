@@ -84,7 +84,9 @@ export default function LiveChatWidget() {
         }
       };
       
-      socket.onclose = () => setWs(null);
+      socket.onclose = () => {
+        setWs(prev => prev === socket ? null : prev);
+      };
       setWs(socket);
     }
 

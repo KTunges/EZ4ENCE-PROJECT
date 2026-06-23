@@ -57,6 +57,7 @@ export default function AdminOrderDetails() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <button 
             onClick={() => navigate('/admin/orders')}
+            className="no-print"
             style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
           >
             <ArrowLeft size={20} />
@@ -68,7 +69,7 @@ export default function AdminOrderDetails() {
             <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>Đặt lúc: {new Date(order.created_at).toLocaleString('vi-VN')}</p>
           </div>
         </div>
-        <button style={{ padding: '8px 16px', background: 'var(--border)', color: 'var(--text)', borderRadius: '8px', border: 'none', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+        <button onClick={() => window.print()} className="no-print" style={{ padding: '8px 16px', background: 'var(--border)', color: 'var(--text)', borderRadius: '8px', border: 'none', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
           <Printer size={16} /> In hóa đơn
         </button>
       </div>
@@ -126,7 +127,7 @@ export default function AdminOrderDetails() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
           {/* Actions */}
-          <div className="glass" style={{ padding: '24px', borderRadius: '12px' }}>
+          <div className="glass no-print" style={{ padding: '24px', borderRadius: '12px' }}>
             <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px', color: 'var(--text)' }}>Cập nhật trạng thái</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <button onClick={() => handleStatusChange('PENDING')} style={{ padding: '10px', background: order.status === 'PENDING' ? 'rgba(245, 158, 11, 0.2)' : 'var(--bg-surface)', color: order.status === 'PENDING' ? '#f59e0b' : 'var(--text)', border: order.status === 'PENDING' ? '1px solid #f59e0b' : 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>

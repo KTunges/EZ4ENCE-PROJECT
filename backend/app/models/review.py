@@ -11,6 +11,8 @@ class Review(Base):
     sku_id = Column(String, ForeignKey("product_skus.id"), nullable=False)
     rating = Column(Integer, nullable=False)  # 1-5 sao
     comment = Column(String, nullable=True)
+    admin_reply = Column(String, nullable=True)
+    is_hidden = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 

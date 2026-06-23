@@ -20,6 +20,12 @@ export default function AdminCategories() {
   const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
   const [formData, setFormData] = useState({ id: '', name: '', slug: '', description: '', image: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredCategories = categories.filter(c => 
+    c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    c.slug.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const fetchCategories = async () => {
     try {
@@ -122,6 +128,8 @@ export default function AdminCategories() {
             <input 
               type="text" 
               placeholder="Tìm kiếm danh mục..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               style={{ width: '100%', padding: '10px 10px 10px 40px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)' }}
             />
           </div>
@@ -143,9 +151,9 @@ export default function AdminCategories() {
             <tbody>
               {loading ? (
                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Đang tải...</td></tr>
-              ) : categories.length === 0 ? (
+              ) : filteredCategories.length === 0 ? (
                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Chưa có danh mục</td></tr>
-              ) : categories.map(cat => (
+              ) : filteredCategories.map(cat => (
                 <tr key={cat.id} style={{ borderBottom: '1px solid var(--border)' }}>
                   <td style={{ padding: '16px 12px', color: 'var(--text-muted)' }}>{cat.id.substring(0,8).toUpperCase()}</td>
                   <td style={{ padding: '16px 12px', fontWeight: 'bold' }}>{cat.name}</td>

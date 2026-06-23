@@ -5572,3 +5572,24 @@ textarea.checkout-input {
   content: ".";
   animation: typingDots 1s infinite steps(1);
 }
+
+/* =============================
+   PRINT STYLES
+   ============================= */
+@media print {
+  .no-print { display: none !important; }
+  body, .main-content, .glass, .card { 
+    background: white !important; 
+    color: black !important; 
+    box-shadow: none !important; 
+    border: none !important; 
+  }
+  * { 
+    text-shadow: none !important; 
+    box-shadow: none !important; 
+  }
+  div, p, span, h1, h2, h3, h4, h5, h6 {
+    color: black !important;
+  }
+}
+

@@ -7,6 +7,16 @@ export default function AdminCustomers() {
   const [loading, setLoading] = useState(true);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredCustomers = customers.filter(c => {
+    const q = searchQuery.toLowerCase();
+    return (
+      (c.fullName && c.fullName.toLowerCase().includes(q)) ||
+      (c.email && c.email.toLowerCase().includes(q)) ||
+      (c.phone && c.phone.toLowerCase().includes(q))
+    );
+  });
 
   const fetchCustomers = async () => {
     try {
@@ -77,6 +87,8 @@ export default function AdminCustomers() {
             <input 
               type="text" 
               placeholder="Tìm kiếm khách hàng..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               style={{ width: '100%', padding: '10px 10px 10px 40px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)' }}
             />
           </div>
@@ -98,9 +110,9 @@ export default function AdminCustomers() {
             <tbody>
               {loading ? (
                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Đang tải...</td></tr>
-              ) : customers.length === 0 ? (
+              ) : filteredCustomers.length === 0 ? (
                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Chưa có khách hàng nào</td></tr>
-              ) : customers.map(user => (
+              ) : filteredCustomers.map(user => (
                 <tr key={user.id} style={{ borderBottom: '1px solid var(--border)' }}>
                   <td style={{ padding: '16px 12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

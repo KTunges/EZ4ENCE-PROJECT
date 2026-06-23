@@ -20,6 +20,12 @@ export default function AdminBrands() {
   const [modalMode, setModalMode] = useState('add');
   const [formData, setFormData] = useState({ id: '', name: '', slug: '', description: '', logo_url: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredBrands = brands.filter(b => 
+    b.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    b.slug.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const fetchBrands = async () => {
     try {
@@ -120,6 +126,8 @@ export default function AdminBrands() {
             <input 
               type="text" 
               placeholder="Tìm kiếm thương hiệu..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               style={{ width: '100%', padding: '10px 10px 10px 40px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)' }}
             />
           </div>
@@ -141,9 +149,9 @@ export default function AdminBrands() {
             <tbody>
               {loading ? (
                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Đang tải...</td></tr>
-              ) : brands.length === 0 ? (
+              ) : filteredBrands.length === 0 ? (
                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Chưa có thương hiệu</td></tr>
-              ) : brands.map(brand => (
+              ) : filteredBrands.map(brand => (
                 <tr key={brand.id} style={{ borderBottom: '1px solid var(--border)' }}>
                   <td style={{ padding: '16px 12px', color: 'var(--text-muted)' }}>{brand.id.substring(0,8).toUpperCase()}</td>
                   <td style={{ padding: '16px 12px', fontWeight: 'bold' }}>{brand.name}</td>

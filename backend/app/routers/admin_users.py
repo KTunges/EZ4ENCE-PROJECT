@@ -29,6 +29,10 @@ def get_users(db: Session = Depends(get_db), admin: User = Depends(get_current_a
             "is_active": user.is_active,
             "createdAt": user.created_at,
             "updatedAt": user.updated_at,
+            "is_email_verified": user.is_email_verified,
+            "provider": user.provider,
+            "avatar": user.avatar,
+            "username": user.username,
             "total_orders": len(user.orders) if user.orders else 0,
             "total_spent": sum([order.total_amount for order in user.orders]) if user.orders else 0
         }

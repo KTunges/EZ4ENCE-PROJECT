@@ -148,6 +148,16 @@ export const deleteReview = async (id) => {
   return response.data;
 };
 
+export const replyReview = async (id, replyText) => {
+  const response = await adminApi.post(`/admin/reviews/${id}/reply`, { reply: replyText });
+  return response.data;
+};
+
+export const toggleHideReview = async (id, isHidden) => {
+  const response = await adminApi.put(`/admin/reviews/${id}/hide`, { is_hidden: isHidden });
+  return response.data;
+};
+
 // MARKETING - PROMOTIONS & BANNERS & NEWS
 // MARKETING - PROMOTIONS & BANNERS & NEWS
 export const getPromotions = async () => { const r = await adminApi.get('/admin/marketing/promotions'); return r.data; };

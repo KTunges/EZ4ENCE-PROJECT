@@ -16,16 +16,25 @@ class ConnectionManager:
         self.active_customers: Dict[str, WebSocket] = {}
         # admin_id -> WebSocket (hoặc dùng list cho nhiều admin)
         self.active_admins: List[WebSocket] = []
+        self.admin_global_status: str = "offline"
 
     async def connect_customer(self, websocket: WebSocket, client_id: str):
         await websocket.accept()
         self.active_customers[client_id] = websocket
         logger.info(f"Customer connected: {client_id}")
+        
+        # Gửi trạng thái admin hiện tại cho customer mới kết nối
+        await websocket.send_json({
+            "type": "status",
+            "sender": "admin",
+            "status": self.admin_global_status
+        })
 
-    def disconnect_customer(self, client_id: str):
+    def disconnect_customer(self, client_id: str, websocket: WebSocket):
         if client_id in self.active_customers:
-            del self.active_customers[client_id]
-            logger.info(f"Customer disconnected: {client_id}")
+            if self.active_customers[client_id] == websocket:
+                del self.active_customers[client_id]
+                logger.info(f"Customer disconnected: {client_id}")
 
     async def connect_admin(self, websocket: WebSocket):
         await websocket.accept()
@@ -39,7 +48,11 @@ class ConnectionManager:
 
     async def send_to_customer(self, client_id: str, message: dict):
         if client_id in self.active_customers:
-            await self.active_customers[client_id].send_json(message)
+            try:
+                await self.active_customers[client_id].send_json(message)
+            except Exception as e:
+                logger.error(f"Error sending to customer {client_id}: {e}")
+                # Optional: could remove the disconnected socket here if needed
 
     async def broadcast_to_admins(self, message: dict):
         for connection in self.active_admins:
@@ -124,7 +137,9 @@ async def websocket_customer_endpoint(websocket: WebSocket, client_id: str, db: 
                 })
                 
     except Exception as e:
-        manager.disconnect_customer(client_id)
+        logger.warning(f"Customer {client_id} disconnected with error: {e}")
+    finally:
+        manager.disconnect_customer(client_id, websocket)
 
 # WebSocket for Admins
 @router.websocket("/ws/admin/connect")
@@ -183,8 +198,10 @@ async def websocket_admin_endpoint(websocket: WebSocket, db: Session = Depends(g
                     
             elif event_type == "status":
                 status = data.get("status") # 'online' | 'offline'
+                logger.info(f"Admin changed status to: {status}")
+                manager.admin_global_status = status
                 # Phát trạng thái Admin cho tất cả khách hàng
-                for cid in manager.active_customers:
+                for cid in list(manager.active_customers.keys()):
                     await manager.send_to_customer(cid, {
                         "type": "status",
                         "sender": "admin",
@@ -238,7 +255,7 @@ def resolve_session(session_id: int, db: Session = Depends(get_db)):
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
     
-    session.is_active = False
+    db.delete(session)
     db.commit()
     return {"message": "Session resolved successfully"}
 

@@ -11,6 +11,8 @@ class ReviewImageResponse(BaseModel):
 class ReviewBase(BaseModel):
     rating: int
     comment: Optional[str] = None
+    admin_reply: Optional[str] = None
+    is_hidden: bool = False
 
 class AdminReviewResponse(ReviewBase):
     id: str
@@ -24,3 +26,9 @@ class AdminReviewResponse(ReviewBase):
     images: List[ReviewImageResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
+
+class ReviewReplyRequest(BaseModel):
+    reply: str
+    
+class ReviewToggleHiddenRequest(BaseModel):
+    is_hidden: bool

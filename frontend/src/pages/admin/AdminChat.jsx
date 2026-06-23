@@ -15,7 +15,9 @@ export default function AdminChat() {
   // Real-time states
   const [typingStatus, setTypingStatus] = useState({});
   const [readStatus, setReadStatus] = useState({});
-  const [adminStatus, setAdminStatus] = useState('online');
+  const [adminStatus, setAdminStatus] = useState(() => {
+    return localStorage.getItem('ez4_admin_status') || 'online';
+  });
 
   const messagesEndRef = useRef(null);
   const typingTimeouts = useRef({});
@@ -37,7 +39,7 @@ export default function AdminChat() {
     const socket = new WebSocket(`${WS_URL}/api/chat/ws/admin/connect`);
     
     socket.onopen = () => {
-      socket.send(JSON.stringify({ type: "status", status: 'online' }));
+      socket.send(JSON.stringify({ type: "status", status: adminStatus }));
     };
 
     socket.onmessage = (event) => {
@@ -95,8 +97,10 @@ export default function AdminChat() {
     };
     
     socket.onclose = () => {
-      setWs(null);
-      wsRef.current = null;
+      if (wsRef.current === socket) {
+        setWs(null);
+        wsRef.current = null;
+      }
     };
     setWs(socket);
     wsRef.current = socket;
@@ -106,11 +110,7 @@ export default function AdminChat() {
     };
   }, []); // Run ONCE on mount
 
-  useEffect(() => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type: "status", status: adminStatus }));
-    }
-  }, [adminStatus]);
+
 
   const fetchSessions = async () => {
     try {
@@ -232,7 +232,14 @@ export default function AdminChat() {
             <MessageSquare size={20} color="var(--cyan)" /> Live Chat
           </h2>
           <button 
-            onClick={toggleAdminStatus}
+            onClick={() => {
+              const newStatus = adminStatus === 'online' ? 'offline' : 'online';
+              setAdminStatus(newStatus);
+              localStorage.setItem('ez4_admin_status', newStatus);
+              if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+                wsRef.current.send(JSON.stringify({ type: "status", status: newStatus }));
+              }
+            }}
             style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: adminStatus === 'online' ? '#4ade80' : 'var(--text-muted)' }}
             title={adminStatus === 'online' ? 'Đang Online' : 'Đang Offline'}
           >

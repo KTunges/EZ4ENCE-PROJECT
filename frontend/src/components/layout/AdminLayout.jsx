@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, ShoppingCart, Package, Tags, Award, Ticket, 
@@ -10,7 +10,46 @@ import { useAuth } from '../../context/AuthContext';
 
 export default function AdminLayout() {
   const { adminUser, adminLogout } = useAuth();
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([
+    { id: 1, title: 'Đơn hàng mới', message: 'Bạn có 1 đơn hàng mới #ORD1234', time: '5 phút trước', read: false, type: 'order' },
+    { id: 2, title: 'Cảnh báo tồn kho', message: 'Sản phẩm "Bàn phím cơ" sắp hết hàng', time: '1 giờ trước', read: false, type: 'inventory' },
+    { id: 3, title: 'Khách hàng mới', message: 'Nguyễn Văn A vừa đăng ký tài khoản', time: '2 giờ trước', read: true, type: 'user' }
+  ]);
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const markAllAsRead = () => {
+    setNotifications(notifications.map(n => ({ ...n, read: true })));
+  };
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (searchQuery.trim().length < 2) {
+        setSuggestions([]);
+        return;
+      }
+      try {
+        const res = await fetch(`http://localhost:8000/api/products?search=${encodeURIComponent(searchQuery.trim())}&limit=5`);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            setSuggestions(data);
+          } else {
+            setSuggestions([]);
+          }
+        }
+      } catch (err) {
+        console.error("Lỗi fetch suggestions:", err);
+      }
+    };
+    
+    const timeoutId = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
   const [isSidebarOpen, setSidebarOpen] = useState(true);
 
   const handleLogout = () => {
@@ -68,7 +107,7 @@ export default function AdminLayout() {
   return (
     <div data-theme="light" style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--bg-page)', color: 'var(--text)', fontFamily: 'var(--font-sans)' }}>
       {/* Sidebar */}
-      <aside style={{ 
+      <aside className="no-print" style={{ 
         width: isSidebarOpen ? '260px' : '0px', 
         background: 'linear-gradient(180deg, #1e40af 0%, #0f172a 100%)', 
         borderRight: 'none', 
@@ -138,38 +177,66 @@ export default function AdminLayout() {
       {/* Main Content Area */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Top Navbar */}
-        <header style={{ 
+        <header className="no-print" style={{ 
           height: '64px', background: 'var(--glass-bg)', backdropFilter: 'blur(10px)',
           borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', zIndex: 50
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <button onClick={() => setSidebarOpen(!isSidebarOpen)} style={{ background: 'transparent', border: 'none', color: 'var(--cyan)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Menu size={24} />
             </button>
             
-            {/* Smart Search */}
-            <div style={{ position: 'relative', width: '320px' }}>
-              <Search size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input 
-                type="text" 
-                placeholder="Smart Search (Nhấn / để tìm kiếm)..." 
-                style={{ 
-                  width: '100%', padding: '10px 16px 10px 42px', background: 'var(--bg-card)', 
-                  border: '1px solid var(--border-hover)', borderRadius: '8px', color: 'var(--text)', fontSize: '14px', outline: 'none',
-                  transition: 'all 0.2s', letterSpacing: '0.3px'
-                }}
-                onFocus={(e) => { e.target.style.background = 'var(--bg-card-hover)'; e.target.style.borderColor = 'var(--cyan)'; e.target.style.boxShadow = '0 0 0 3px var(--cyan-dim)'; }}
-                onBlur={(e) => { e.target.style.background = 'var(--bg-card)'; e.target.style.borderColor = 'var(--border-hover)'; e.target.style.boxShadow = 'none'; }}
-              />
-            </div>
+            {/* Removed Smart Search */}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-            <button style={{ background: 'transparent', border: 'none', color: 'var(--cyan)', cursor: 'pointer', position: 'relative', display: 'flex' }}>
-              <Bell size={22} />
-              <span style={{ position: 'absolute', top: '-2px', right: '-2px', background: '#ef4444', border: '2px solid var(--glass-bg)', width: '10px', height: '10px', borderRadius: '50%' }}></span>
-            </button>
+            <div style={{ position: 'relative' }}>
+              <button 
+                onClick={() => setShowNotifications(!showNotifications)}
+                style={{ background: 'transparent', border: 'none', color: 'var(--cyan)', cursor: 'pointer', display: 'flex', padding: '4px' }}
+              >
+                <Bell size={22} />
+                {unreadCount > 0 && (
+                  <span style={{ position: 'absolute', top: '0', right: '0', background: '#ef4444', color: '#fff', fontSize: '10px', fontWeight: 'bold', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}>
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Dropdown */}
+              {showNotifications && (
+                <div style={{ position: 'absolute', top: '100%', right: '0', marginTop: '12px', width: '320px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.3)', zIndex: 1000, overflow: 'hidden' }}>
+                  <div style={{ padding: '16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-surface)' }}>
+                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>Thông báo</h3>
+                    {unreadCount > 0 && (
+                      <button onClick={markAllAsRead} style={{ fontSize: '12px', color: 'var(--cyan)', background: 'transparent', border: 'none', cursor: 'pointer' }}>Đánh dấu đã đọc</button>
+                    )}
+                  </div>
+                  <div style={{ maxHeight: '350px', overflowY: 'auto' }}>
+                    {notifications.length === 0 ? (
+                      <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>Không có thông báo nào</div>
+                    ) : (
+                      notifications.map(notif => (
+                        <div key={notif.id} style={{ padding: '16px', borderBottom: '1px solid var(--border)', background: notif.read ? 'transparent' : 'rgba(0, 220, 255, 0.05)', cursor: 'pointer', transition: 'background 0.2s' }} className="hover:bg-white/5">
+                          <div style={{ display: 'flex', gap: '12px' }}>
+                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: notif.read ? 'transparent' : '#00dcff', marginTop: '6px', flexShrink: 0 }}></div>
+                            <div>
+                              <div style={{ fontSize: '14px', fontWeight: 'bold', color: notif.read ? 'var(--text)' : 'var(--cyan)', marginBottom: '4px' }}>{notif.title}</div>
+                              <div style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.4', marginBottom: '8px' }}>{notif.message}</div>
+                              <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>{notif.time}</div>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div style={{ padding: '12px', textAlign: 'center', borderTop: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
+                    <button style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '13px', cursor: 'pointer', fontWeight: '500' }}>Xem tất cả</button>
+                  </div>
+                </div>
+              )}
+            </div>
             
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', borderLeft: '1px solid var(--border-hover)', paddingLeft: '24px' }}>
               <div style={{ textAlign: 'right' }}>

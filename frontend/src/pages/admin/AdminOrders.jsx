@@ -7,6 +7,16 @@ export default function AdminOrders() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredOrders = orders.filter(o => {
+    const q = searchQuery.toLowerCase();
+    return (
+      (o.id && o.id.toLowerCase().includes(q)) ||
+      (o.customer_name && o.customer_name.toLowerCase().includes(q)) ||
+      (o.customer_phone && o.customer_phone.toLowerCase().includes(q))
+    );
+  });
 
   const fetchOrders = async () => {
     try {
@@ -64,6 +74,8 @@ export default function AdminOrders() {
             <input 
               type="text" 
               placeholder="Tìm theo mã đơn, tên khách hàng, số điện thoại..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               style={{ width: '100%', padding: '10px 12px 10px 40px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', outline: 'none' }}
             />
           </div>
@@ -88,9 +100,9 @@ export default function AdminOrders() {
             <tbody>
               {loading ? (
                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Đang tải dữ liệu...</td></tr>
-              ) : orders.length === 0 ? (
+              ) : filteredOrders.length === 0 ? (
                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Chưa có đơn hàng nào</td></tr>
-              ) : orders.map((order) => (
+              ) : filteredOrders.map((order) => (
                 <tr key={order.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.2s' }} className="hover:bg-white/5">
                   <td style={{ padding: '16px 12px', fontWeight: 'bold', color: 'var(--cyan)' }}>{order.id.substring(0, 8).toUpperCase()}</td>
                   <td style={{ padding: '16px 12px' }}>{order.customer_name}</td>

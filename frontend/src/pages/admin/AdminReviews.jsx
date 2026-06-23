@@ -1,10 +1,24 @@
 import { useState, useEffect } from 'react';
-import { Search, Trash2, Star } from 'lucide-react';
-import { getReviews, deleteReview } from '../../services/adminApi';
+import { Search, Trash2, Star, MessageCircle, Eye, EyeOff, X, CornerDownRight } from 'lucide-react';
+import { getReviews, deleteReview, replyReview, toggleHideReview } from '../../services/adminApi';
 
 export default function AdminReviews() {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState('');
+
+  const filteredReviews = reviews.filter(rv => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      (rv.user_name && rv.user_name.toLowerCase().includes(q)) ||
+      (rv.product_name && rv.product_name.toLowerCase().includes(q)) ||
+      (rv.comment && rv.comment.toLowerCase().includes(q))
+    );
+  });
 
   const fetchReviews = async () => {
     try {
@@ -34,6 +48,29 @@ export default function AdminReviews() {
     }
   };
 
+  const handleToggleHide = async (id, currentStatus) => {
+    try {
+      await toggleHideReview(id, !currentStatus);
+      fetchReviews();
+    } catch (error) {
+      alert("Lỗi khi thay đổi trạng thái!");
+      console.error(error);
+    }
+  };
+
+  const submitReply = async () => {
+    if (!replyText.trim()) return;
+    try {
+      await replyReview(replyingTo.id, replyText);
+      setReplyingTo(null);
+      setReplyText('');
+      fetchReviews();
+    } catch (error) {
+      alert("Lỗi khi gửi trả lời!");
+      console.error(error);
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('vi-VN', {
       year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
@@ -54,6 +91,8 @@ export default function AdminReviews() {
             <input 
               type="text" 
               placeholder="Tìm kiếm nội dung..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               style={{ width: '100%', padding: '10px 10px 10px 40px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)' }}
             />
           </div>
@@ -75,10 +114,10 @@ export default function AdminReviews() {
             <tbody>
               {loading ? (
                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Đang tải...</td></tr>
-              ) : reviews.length === 0 ? (
+              ) : filteredReviews.length === 0 ? (
                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Chưa có đánh giá nào</td></tr>
-              ) : reviews.map(rv => (
-                <tr key={rv.id} style={{ borderBottom: '1px solid var(--border)', verticalAlign: 'top' }}>
+              ) : filteredReviews.map(rv => (
+                <tr key={rv.id} style={{ borderBottom: '1px solid var(--border)', verticalAlign: 'top', opacity: rv.is_hidden ? 0.5 : 1 }}>
                   <td style={{ padding: '16px 12px', color: 'var(--text-muted)', fontSize: '13px' }}>{formatDate(rv.created_at)}</td>
                   <td style={{ padding: '16px 12px', fontWeight: 'bold', fontSize: '14px' }}>{rv.user_name}</td>
                   <td style={{ padding: '16px 12px', color: 'var(--cyan)', fontSize: '13px' }}>{rv.product_name}</td>
@@ -98,9 +137,23 @@ export default function AdminReviews() {
                         ))}
                       </div>
                     )}
+                    {rv.admin_reply && (
+                      <div style={{ marginTop: '12px', padding: '10px 12px', background: 'rgba(0, 220, 255, 0.05)', borderRadius: '8px', borderLeft: '3px solid var(--cyan)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', fontSize: '12px', color: 'var(--cyan)', fontWeight: 'bold' }}>
+                          <CornerDownRight size={14} /> Admin trả lời:
+                        </div>
+                        <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{rv.admin_reply}</div>
+                      </div>
+                    )}
                   </td>
                   <td>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '100%', paddingTop: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '100%', paddingTop: '10px', gap: '8px' }}>
+                      <button onClick={() => { setReplyingTo(rv); setReplyText(rv.admin_reply || ''); }} style={{ padding: '6px', background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--cyan)', borderRadius: '6px', cursor: 'pointer' }} title="Trả lời">
+                        <MessageCircle size={16} />
+                      </button>
+                      <button onClick={() => handleToggleHide(rv.id, rv.is_hidden)} style={{ padding: '6px', background: 'var(--bg-card)', border: '1px solid var(--border)', color: rv.is_hidden ? 'var(--text-muted)' : 'var(--text)', borderRadius: '6px', cursor: 'pointer' }} title={rv.is_hidden ? "Hiện đánh giá" : "Ẩn đánh giá"}>
+                        {rv.is_hidden ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
                       <button onClick={() => handleDelete(rv.id)} style={{ padding: '6px', background: 'rgba(255, 23, 68, 0.1)', border: 'none', color: '#ff1744', borderRadius: '6px', cursor: 'pointer' }} title="Xóa đánh giá">
                         <Trash2 size={16} />
                       </button>
@@ -112,6 +165,32 @@ export default function AdminReviews() {
           </table>
         </div>
       </div>
+
+      {replyingTo && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="glass" style={{ width: '500px', maxWidth: '95%', background: 'var(--bg-card)', borderRadius: '16px', display: 'flex', flexDirection: 'column', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
+            <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>Trả lời đánh giá</h2>
+              <button onClick={() => setReplyingTo(null)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><X size={24} /></button>
+            </div>
+            <div style={{ padding: '24px', flex: 1 }}>
+              <div style={{ marginBottom: '16px', padding: '12px', background: 'var(--glass-bg)', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '13px', color: 'var(--text-muted)' }}>
+                <strong>{replyingTo.user_name}:</strong> {replyingTo.comment || 'Không có nội dung'}
+              </div>
+              <textarea 
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder="Nhập nội dung trả lời của bạn..."
+                style={{ width: '100%', height: '120px', padding: '12px', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', resize: 'none', fontFamily: 'inherit' }}
+              />
+            </div>
+            <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: '12px', background: 'var(--bg-surface)', borderRadius: '0 0 16px 16px' }}>
+              <button onClick={() => setReplyingTo(null)} style={{ padding: '8px 16px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '8px', cursor: 'pointer' }}>Hủy</button>
+              <button onClick={submitReply} style={{ padding: '8px 16px', background: 'var(--cyan)', border: 'none', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Gửi trả lời</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
