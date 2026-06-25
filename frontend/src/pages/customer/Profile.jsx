@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { User, Package, Clock, LogOut, Edit3, CheckCircle, Clock3, Truck, ShoppingCart, MapPin, Settings } from 'lucide-react';
+import { User, Package, Clock, LogOut, Edit3, CheckCircle, Clock3, Truck, ShoppingCart, MapPin, Settings, Heart } from 'lucide-react';
 import AddressBook from '../../components/profile/AddressBook';
+import ProductCard from '../../components/ui/ProductCard';
+import { useWishlist } from '../../context/WishlistContext';
 
 const mockOrders = [
   {
@@ -23,6 +25,7 @@ const mockOrders = [
 
 export default function Profile() {
   const { user, isAuthenticated, logout, updateProfile, updateAvatar } = useAuth();
+  const { wishlistItems, loading: wishlistLoading } = useWishlist();
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'account');
@@ -285,6 +288,12 @@ export default function Profile() {
               >
                 <Clock size={18} /> Sản phẩm đã xem
               </button>
+              <button 
+                className={`profile-nav-btn ${activeTab === 'wishlist' ? 'active' : ''}`}
+                onClick={() => setActiveTab('wishlist')}
+              >
+                <Heart size={18} /> Sản phẩm yêu thích
+              </button>
               {user?.role === 'ADMIN' && (
                 <button 
                   className="profile-nav-btn text-cyan"
@@ -534,6 +543,42 @@ export default function Profile() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Tab: WISHLIST */}
+            {activeTab === 'wishlist' && (
+              <div className="tab-pane fade-in">
+                <h2 className="text-xl font-bold mb-6">Sản Phẩm Yêu Thích</h2>
+                
+                {wishlistLoading ? (
+                  <div className="text-center p-8">Đang tải danh sách...</div>
+                ) : wishlistItems.length === 0 ? (
+                  <div className="text-center p-8 border border-white/10 rounded-xl bg-white/5">
+                    <p className="text-gray-400">Bạn chưa có sản phẩm yêu thích nào.</p>
+                  </div>
+                ) : (
+                  <div className="products-grid-container grid-view" style={{ gap: '16px' }}>
+                    {wishlistItems.map((item, index) => {
+                      const product = item.sku?.product;
+                      if (!product) return null;
+                      
+                      const formattedProduct = {
+                        id: product.id,
+                        slug: product.slug,
+                        name: product.name,
+                        price: item.sku?.promotional_price || item.sku?.price || 0,
+                        originalPrice: item.sku?.promotional_price ? item.sku?.price : null,
+                        image: product.images?.[0]?.url || '',
+                        badge: item.sku?.promotional_price ? 'HOT' : null,
+                        sku_id: item.sku_id
+                      };
+                      return (
+                        <ProductCard key={item.id} product={formattedProduct} index={index} />
+                      );
+                    })}
                   </div>
                 )}
               </div>

@@ -3,10 +3,14 @@ import { Link } from 'react-router-dom';
 import { ShoppingCart, Heart, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCart } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
 
 export default function ProductCard({ product, index = 0 }) {
   const { addToCart } = useCart();
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { isWishlisted, toggleWishlist } = useWishlist();
+  
+  const skuId = product.skus?.[0]?.id || product.skus?.[0]?.sku_id || product.sku_id;
+  const wishlisted = skuId ? isWishlisted(skuId) : false;
 
   const formatPrice = (price) =>
     new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -44,11 +48,16 @@ export default function ProductCard({ product, index = 0 }) {
         {/* Quick Actions */}
         <div className="product-card-actions">
           <button
-            className={`card-action-btn wishlist-btn ${isWishlisted ? 'active' : ''}`}
-            onClick={(e) => { e.preventDefault(); setIsWishlisted(!isWishlisted); }}
+            className={`card-action-btn wishlist-btn ${wishlisted ? 'active' : ''}`}
+            onClick={async (e) => { 
+              e.preventDefault(); 
+              if (skuId) {
+                await toggleWishlist(skuId);
+              }
+            }}
             aria-label="Yêu thích"
           >
-            <Heart size={16} fill={isWishlisted ? 'var(--pink)' : 'none'} />
+            <Heart size={16} fill={wishlisted ? 'var(--pink)' : 'none'} />
           </button>
           <button
             className="card-action-btn cart-btn"

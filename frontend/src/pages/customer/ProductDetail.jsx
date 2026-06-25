@@ -5,10 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import CyberBackground from '../../components/ui/CyberBackground';
 import ProductCard from '../../components/ui/ProductCard';
 import { useCart } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
 
 export default function ProductDetail() {
   const { slug } = useParams();
   const { addToCart } = useCart();
+  const { toggleWishlist, isWishlisted } = useWishlist();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -85,7 +87,35 @@ export default function ProductDetail() {
                 specs: Object.values(item.specifications || {}).slice(0, 4),
                 stock: item.skus?.[0]?.stock_quantity || 0
               })).slice(0, 4);
-            setRelatedProducts(mappedList);
+            
+            if (mappedList.length > 0) {
+              setRelatedProducts(mappedList);
+            } else {
+              // Nếu không có sản phẩm cùng danh mục, lấy random sản phẩm khác
+              fetch(`http://localhost:8000/api/products?limit=5`)
+                .then(r => r.json())
+                .then(fallbackList => {
+                  const mappedFallback = fallbackList
+                    .filter(item => item.id !== data.id)
+                    .map(item => ({
+                      id: item.id,
+                      slug: item.slug,
+                      name: item.name,
+                      brand: item.brand?.name || 'Unknown',
+                      category: item.category?.name || 'Unknown',
+                      price: item.skus?.[0]?.price || 0,
+                      originalPrice: item.skus?.[0]?.promotional_price || null,
+                      image: item.images?.[0]?.url || '',
+                      rating: item.rating || 5,
+                      reviewCount: item.review_count || 0,
+                      badge: item.skus?.[0]?.promotional_price > item.skus?.[0]?.price ? 'HOT' : null,
+                      specs: Object.values(item.specifications || {}).slice(0, 4),
+                      stock: item.skus?.[0]?.stock_quantity || 0
+                    })).slice(0, 4);
+                  setRelatedProducts(mappedFallback);
+                })
+                .catch(e => console.error(e));
+            }
           });
       })
       .catch(err => {
@@ -98,7 +128,8 @@ export default function ProductDetail() {
   const [selectedSku, setSelectedSku] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const currentSkuId = product?.skus?.[selectedSku]?.id;
+  const wishlisted = currentSkuId ? isWishlisted(currentSkuId) : false;
   const [showStickyCart, setShowStickyCart] = useState(false);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
@@ -328,11 +359,15 @@ export default function ProductDetail() {
               </button>
 
               <button
-                className={`btn-wishlist-detail ${isWishlisted ? 'active' : ''}`}
-                onClick={() => setIsWishlisted(!isWishlisted)}
+                className={`btn-wishlist-detail ${wishlisted ? 'active' : ''}`}
+                onClick={async () => {
+                  if (currentSkuId) {
+                    await toggleWishlist(currentSkuId);
+                  }
+                }}
                 aria-label="Yêu thích"
               >
-                <Heart size={20} fill={isWishlisted ? 'var(--pink)' : 'none'} />
+                <Heart size={20} fill={wishlisted ? 'var(--pink)' : 'none'} />
               </button>
             </div>
 

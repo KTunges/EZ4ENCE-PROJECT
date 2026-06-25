@@ -59,31 +59,20 @@ def get_products(
     if category_slug or brand_slug:
         query = query.outerjoin(Category).outerjoin(Brand)
 
-    # Filter by category (cross-match category and brand, case-insensitive)
+    # Filter by category exactly by slug (supports comma-separated multiple slugs)
     if category_slug:
-        cat_search = category_slug.replace('-', '%')
-        query = query.filter(
-            or_(
-                func.lower(Category.slug) == category_slug.lower(),
-                func.lower(Brand.slug) == category_slug.lower(),
-                Category.name.ilike(f"%{cat_search}%"),
-                Brand.name.ilike(f"%{cat_search}%"),
-                func.lower(Category.slug) == category_slug.replace('-', ' ').lower(),
-                func.lower(Brand.slug) == category_slug.replace('-', ' ').lower()
-            )
-        )
+        slugs = [s.strip().lower() for s in category_slug.split(',')]
+        if len(slugs) == 1:
+            query = query.filter(func.lower(Category.slug) == slugs[0])
+        else:
+            query = query.filter(func.lower(Category.slug).in_(slugs))
         
-    # Filter by brand (cross-match category and brand, case-insensitive)
+    # Filter by brand exactly by slug or name
     if brand_slug:
-        brand_search = brand_slug.replace('-', '%')
         query = query.filter(
             or_(
-                func.lower(Category.slug) == brand_slug.lower(),
                 func.lower(Brand.slug) == brand_slug.lower(),
-                Category.name.ilike(f"%{brand_search}%"),
-                Brand.name.ilike(f"%{brand_search}%"),
-                func.lower(Category.slug) == brand_slug.replace('-', ' ').lower(),
-                func.lower(Brand.slug) == brand_slug.replace('-', ' ').lower()
+                func.lower(Brand.name) == brand_slug.replace('-', ' ').lower()
             )
         )
         

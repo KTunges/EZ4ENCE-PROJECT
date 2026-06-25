@@ -30,11 +30,11 @@ export default function Footer() {
           <div>
             <h3 className="footer-title">Sản Phẩm</h3>
             <div className="footer-links">
-              <Link to="/products?category=laptop">Laptop Gaming</Link>
+              <Link to="/products?category=laptop-gaming">Laptop Gaming</Link>
               <Link to="/products?category=pc">PC Lắp Ráp</Link>
-              <Link to="/products?category=keyboard">Bàn phím cơ</Link>
-              <Link to="/products?category=mouse">Chuột Gaming</Link>
-              <Link to="/products?category=monitor">Màn hình</Link>
+              <Link to="/products?category=bàn-phím">Bàn phím cơ</Link>
+              <Link to="/products?category=chuot">Chuột Gaming</Link>
+              <Link to="/products?category=màn-hình">Màn hình</Link>
             </div>
           </div>
 

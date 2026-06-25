@@ -134,7 +134,7 @@ export default function BentoBanners() {
       <div className="bento-wrapper">
         <div className="bento-grid">
           {/* ── MAIN BANNER (Col 1-2, Row 1-2) ── */}
-          <Link to="/products?category=man-hinh" className="bento-item bento-main">
+          <Link to={`/products?category=${encodeURIComponent('Màn hình')}`} className="bento-item bento-main">
             <AnimatePresence initial={false}>
               <motion.img 
                 key={currentIndex}
@@ -164,7 +164,7 @@ export default function BentoBanners() {
           </Link>
 
           {/* ── SIDE BANNER 1 (Top Right) ── */}
-          <Link to={sideBanners[0]?.link_url || "/products?category=pc"} className="bento-item bento-side">
+          <Link to={sideBanners[0]?.link_url || `/products?category=${encodeURIComponent('PC EZ4ENCE')}`} className="bento-item bento-side">
             <img 
               src={sideBanners[0]?.image_url || "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=600&q=80"} 
               alt="Side Banner 1" 
@@ -172,7 +172,7 @@ export default function BentoBanners() {
           </Link>
 
           {/* ── SIDE BANNER 2 (Middle Right) ── */}
-          <Link to={sideBanners[1]?.link_url || "/products?category=ban-phim"} className="bento-item bento-side">
+          <Link to={sideBanners[1]?.link_url || `/products?category=${encodeURIComponent('Bàn phím')}`} className="bento-item bento-side">
             <img 
               src={sideBanners[1]?.image_url || "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"} 
               alt="Side Banner 2" 
@@ -180,7 +180,7 @@ export default function BentoBanners() {
           </Link>
 
           {/* ── BOTTOM BANNER 1 ── */}
-          <Link to={bottomBanners[0]?.link_url || "/products?category=laptop"} className="bento-item bento-bottom">
+          <Link to={bottomBanners[0]?.link_url || `/products?category=${encodeURIComponent('Laptop')}`} className="bento-item bento-bottom">
             <img 
               src={bottomBanners[0]?.image_url || "https://images.unsplash.com/photo-1593640408182-31c70c8268f5?auto=format&fit=crop&w=600&q=80"} 
               alt="Bottom Banner 1" 
@@ -188,7 +188,7 @@ export default function BentoBanners() {
           </Link>
 
           {/* ── BOTTOM BANNER 2 ── */}
-          <Link to={bottomBanners[1]?.link_url || "/products?category=laptop-office"} className="bento-item bento-bottom">
+          <Link to={bottomBanners[1]?.link_url || `/products?category=${encodeURIComponent('Laptop Gaming')}`} className="bento-item bento-bottom">
             <img 
               src={bottomBanners[1]?.image_url || "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=600&q=80"} 
               alt="Bottom Banner 2" 
@@ -196,7 +196,7 @@ export default function BentoBanners() {
           </Link>
 
           {/* ── BOTTOM BANNER 3 ── */}
-          <Link to={bottomBanners[2]?.link_url || "/products?category=pc-gaming"} className="bento-item bento-bottom">
+          <Link to={bottomBanners[2]?.link_url || `/products?category=${encodeURIComponent('PC EZ4ENCE')}`} className="bento-item bento-bottom">
             <img 
               src={bottomBanners[2]?.image_url || "https://images.unsplash.com/photo-1587831990711-23ca6441447b?auto=format&fit=crop&w=600&q=80"} 
               alt="Bottom Banner 3" 

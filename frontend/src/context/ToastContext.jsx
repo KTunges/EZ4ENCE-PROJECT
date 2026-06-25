@@ -39,17 +39,15 @@ export const ToastProvider = ({ children }) => {
                 padding: '16px 20px',
                 borderRadius: '8px',
                 minWidth: '300px',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
                 borderLeft: `4px solid ${
                   toast.type === 'success' ? 'var(--cyan)' : 
                   toast.type === 'error' ? 'var(--pink)' : 
-                  'var(--text-color)'
+                  'var(--text-muted)'
                 }`,
-                background: 'rgba(10, 10, 15, 0.95)',
+                background: 'var(--bg-card)',
                 backdropFilter: 'blur(10px)',
-                borderTop: '1px solid rgba(255,255,255,0.05)',
-                borderRight: '1px solid rgba(255,255,255,0.05)',
-                borderBottom: '1px solid rgba(255,255,255,0.05)'
+                border: '1px solid var(--border)'
               }}
             >
               <div className="toast-icon">
@@ -58,7 +56,7 @@ export const ToastProvider = ({ children }) => {
                 {toast.type === 'info' && <Info size={22} color="var(--text-color)" />}
               </div>
               <div className="toast-content" style={{ flex: 1 }}>
-                <p style={{ margin: 0, fontSize: '15px', color: 'var(--text-color)', fontWeight: '500' }}>{toast.message}</p>
+                <p style={{ margin: 0, fontSize: '15px', color: 'var(--text)', fontWeight: '500' }}>{toast.message}</p>
               </div>
               <button 
                 onClick={() => removeToast(toast.id)}

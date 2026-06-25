@@ -127,10 +127,21 @@ export default function AdminProducts() {
                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   >
                     <img src={primaryImage} alt={p.name} style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '6px', background: '#fff', flexShrink: 0 }} />
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
-                      <span style={{ fontSize: '13px', fontWeight: '500', lineHeight: '1.4', wordBreak: 'break-word', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.name}</span>
-                      <span style={{ fontSize: '12px', color: 'var(--cyan)', fontWeight: '600' }}>{price.toLocaleString('vi-VN')} ₫</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0, flex: 1 }}>
+                      <div style={{ fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--cyan)' }}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)}</div>
                     </div>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(`/products/${p.slug}`, '_blank');
+                        setShowSuggestions(false);
+                      }}
+                      style={{ padding: '6px', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      title="Xem trên Web"
+                    >
+                      <Eye size={16} />
+                    </button>
                   </div>
                 )})}
               </div>

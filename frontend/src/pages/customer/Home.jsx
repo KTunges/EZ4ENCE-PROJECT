@@ -6,6 +6,7 @@ import MarqueeBanner from '../../components/ui/MarqueeBanner';
 import ProductCard from '../../components/ui/ProductCard';
 import CyberBackground from '../../components/ui/CyberBackground';
 import FullWidthBanner from '../../components/ui/FullWidthBanner';
+import HeroSlider from '../../components/ui/HeroSlider';
 import { useHackerText } from '../../hooks/useHackerText';
 
 // A wrapper component to handle hover state for hacker text
@@ -40,12 +41,12 @@ const stats = [
 ];
 
 const FEATURED_CATEGORIES = [
-  { id: 1, name: 'Laptop Gaming', slug: 'laptop-gaming', icon: <Laptop size={36} />, color: 'var(--cyan)' },
-  { id: 2, name: 'PC Lắp Ráp', slug: 'pc-lap-rap', icon: <Monitor size={36} />, color: 'var(--purple)' },
-  { id: 3, name: 'Linh Kiện PC', slug: 'linh-kien-pc', icon: <Cpu size={36} />, color: 'var(--pink)' },
-  { id: 4, name: 'Màn Hình', slug: 'man-hinh', icon: <MonitorPlay size={36} />, color: 'var(--cyan)' },
-  { id: 5, name: 'Bàn Phím Cơ', slug: 'ban-phim-co', icon: <Keyboard size={36} />, color: 'var(--purple)' },
-  { id: 6, name: 'Chuột Gaming', slug: 'chuot-gaming', icon: <Mouse size={36} />, color: 'var(--pink)' },
+  { id: 1, name: 'Laptop Gaming', slug: 'Laptop Gaming', icon: <Laptop size={36} />, color: 'var(--cyan)' },
+  { id: 2, name: 'PC EZ4ENCE', slug: 'PC EZ4ENCE', icon: <Monitor size={36} />, color: 'var(--purple)' },
+  { id: 3, name: 'Linh Kiện PC', slug: 'Main, CPU, VGA', icon: <Cpu size={36} />, color: 'var(--pink)' },
+  { id: 4, name: 'Màn Hình', slug: 'Màn hình', icon: <MonitorPlay size={36} />, color: 'var(--cyan)' },
+  { id: 5, name: 'Bàn Phím Cơ', slug: 'Bàn phím', icon: <Keyboard size={36} />, color: 'var(--purple)' },
+  { id: 6, name: 'Chuột Gaming', slug: 'Chuột + Lót chuột', icon: <Mouse size={36} />, color: 'var(--pink)' },
 ];
 
 const PARTNER_BRANDS = [
@@ -131,6 +132,7 @@ export default function Home() {
   return (
     <div className="home-page relative">
       <CyberBackground />
+      <HeroSlider />
 
       {/* ── HERO (split layout) ── */}
       <section className="hero hero-split">
@@ -201,6 +203,7 @@ export default function Home() {
       <section className="container relative z-10" style={{ padding: '40px 28px 80px' }}>
         <motion.div 
           className="section-header"
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px', gap: '8px' }}
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
@@ -221,6 +224,7 @@ export default function Home() {
       <section className="container relative z-10" style={{ padding: '0 28px 100px' }}>
         <motion.div 
           className="section-header"
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px', gap: '8px' }}
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
@@ -239,7 +243,7 @@ export default function Home() {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
             >
-              <Link to={`/products?category=${cat.slug}`} className="glass-premium neon-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px 20px', borderRadius: '16px', textDecoration: 'none', height: '100%' }}>
+              <Link to={`/products?category=${encodeURIComponent(cat.slug)}`} className="glass-premium neon-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px 20px', borderRadius: '16px', textDecoration: 'none', height: '100%' }}>
                 <div className="neon-icon" style={{ color: cat.color, marginBottom: '16px', transition: 'all 0.3s ease' }}>
                   {cat.icon}
                 </div>
@@ -262,6 +266,7 @@ export default function Home() {
       <section className="container relative z-10" style={{ padding: '0 28px 100px' }}>
         <motion.div 
           className="section-header"
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px', gap: '8px' }}
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
@@ -306,6 +311,7 @@ export default function Home() {
       <section className="container relative z-10" style={{ padding: '0 28px 100px' }}>
         <motion.div 
           className="section-header"
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px', gap: '8px' }}
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}

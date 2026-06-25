@@ -51,8 +51,7 @@ export default function AdminBanners() {
     try {
       setIsSubmitting(true);
       // 1. Upload image
-      const uploadRes = await uploadAdminImage(imageFile);
-      const imageUrl = uploadRes.data.url;
+      const imageUrl = await uploadAdminImage(imageFile);
 
       // 2. Create banner record
       await createBanner({
@@ -171,8 +170,8 @@ export default function AdminBanners() {
 
       {/* Modal */}
       {showModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'var(--bg-dark)', width: '100%', maxWidth: '600px', borderRadius: '16px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'var(--bg-card)', width: '100%', maxWidth: '600px', borderRadius: '16px', border: '1px solid var(--border)', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
             <div style={{ padding: '20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>Thêm Banner mới</h2>
               <button onClick={() => setShowModal(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text)', cursor: 'pointer' }}><X size={24} /></button>
@@ -204,13 +203,12 @@ export default function AdminBanners() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>Tiêu đề nội bộ *</label>
-                  <div style={{ position: 'relative' }}>
-                    <Type size={16} style={{ position: 'absolute', left: '12px', top: '12px', color: 'var(--text-muted)' }} />
+                  <div>
                     <input 
                       type="text" required
                       placeholder="VD: Banner Khuyến mãi 10/10"
                       value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})}
-                      style={{ width: '100%', padding: '10px 12px 10px 36px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)' }}
+                      style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', outline: 'none' }}
                     />
                   </div>
                 </div>
@@ -221,6 +219,7 @@ export default function AdminBanners() {
                     style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', outline: 'none' }}
                   >
                     <option value="hero_slider">Hero Slider (Trang chủ chính)</option>
+                    <option value="sidebar_bottom">Sidebar Bottom (Dưới Menu Danh mục)</option>
                     <option value="footer_banner">Footer Banner (Chân trang)</option>
                     <option value="bento_main">Bento Main (Trang sản phẩm)</option>
                     <option value="bento_side">Bento Side (Trang sản phẩm)</option>
@@ -233,13 +232,12 @@ export default function AdminBanners() {
 
               <div style={{ marginBottom: '24px' }}>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>Link đích (Tùy chọn)</label>
-                <div style={{ position: 'relative' }}>
-                  <LinkIcon size={16} style={{ position: 'absolute', left: '12px', top: '12px', color: 'var(--text-muted)' }} />
+                <div>
                   <input 
                     type="text" 
                     placeholder="https://... hoặc /products/xyz"
                     value={formData.link_url} onChange={e => setFormData({...formData, link_url: e.target.value})}
-                    style={{ width: '100%', padding: '10px 12px 10px 36px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)' }}
+                    style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', outline: 'none' }}
                   />
                 </div>
               </div>

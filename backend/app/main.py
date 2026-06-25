@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 
 from app.config import settings
-from app.routers import auth, products, categories, brands, marketing, payment, carts, orders, addresses, shipping, admin_products, admin_orders, admin_categories, admin_brands, admin_users, admin_reviews, admin_marketing, admin_inventory, admin_dashboard, admin_staffs, admin_news, news, admin_mailchimp, chat
+from app.routers import auth, products, categories, brands, marketing, payment, carts, orders, addresses, shipping, admin_products, admin_orders, admin_categories, admin_brands, admin_users, admin_reviews, admin_marketing, admin_inventory, admin_dashboard, admin_staffs, admin_news, news, admin_mailchimp, chat, wishlist
 
 logger.add("../database/app.log", rotation="10 MB", level="INFO")
 
@@ -47,6 +47,7 @@ app.include_router(admin_news.router, prefix="/api")
 app.include_router(admin_mailchimp.router, prefix="/api")
 app.include_router(news.router, prefix="/api")
 app.include_router(chat.router, prefix="/api")
+app.include_router(wishlist.router, prefix="/api")
 
 @app.get("/")
 def read_root():

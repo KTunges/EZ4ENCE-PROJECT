@@ -2,6 +2,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ToastProvider } from './context/ToastContext';
+import { WishlistProvider } from './context/WishlistContext';
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -20,6 +21,7 @@ import Products from './pages/customer/Products';
 import ProductDetail from './pages/customer/ProductDetail';
 import BuildPC from './pages/customer/BuildPC';
 import NewsDetails from './pages/customer/NewsDetails';
+import PolicyPage from './pages/customer/PolicyPage';
 import AdminRoute from './components/auth/AdminRoute';
 import AdminLayout from './components/layout/AdminLayout';
 import AdminLogin from './pages/admin/AdminLogin';
@@ -62,14 +64,16 @@ function App() {
         <ToastProvider>
           <AuthProvider>
             <CartProvider>
-              <BrowserRouter>
-                <ScrollToTop />
-                <Routes>
-                  <Route path="/" element={<MainLayout />}>
+              <WishlistProvider>
+                <BrowserRouter>
+                  <ScrollToTop />
+                  <Routes>
+                    <Route path="/" element={<MainLayout />}>
                     <Route index element={<Home />} />
                     <Route path="about" element={<About />} />
                     <Route path="products" element={<Products />} />
                     <Route path="products/:slug" element={<ProductDetail />} />
+                    <Route path="policy/:slug" element={<PolicyPage />} />
                     <Route path="build-pc" element={<BuildPC />} />
                     <Route path="news/:slug" element={<NewsDetails />} />
                     <Route path="cart" element={<Cart />} />
@@ -110,7 +114,8 @@ function App() {
                     {/* Các route tương lai sẽ thêm vào đây */}
                   </Route>
                 </Routes>
-              </BrowserRouter>
+                </BrowserRouter>
+              </WishlistProvider>
             </CartProvider>
           </AuthProvider>
         </ToastProvider>

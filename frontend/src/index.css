@@ -441,18 +441,18 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .category-item {
-  margin: 2px 8px;
+  margin: 0px 8px;
 }
 
 .category-link {
   display: flex;
   align-items: center;
-  padding: 10px 12px;
+  padding: 6px 12px;
   color: var(--text);
   text-decoration: none;
   border-radius: var(--radius-sm);
   transition: var(--transition);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
 }
 
@@ -4411,7 +4411,7 @@ textarea.checkout-input {
 }
 
 .category-item {
-  position: static; /* Ensure mega menu anchors to the sidebar, not the item */
+  position: relative; /* Anchor mega menu to the hovered item */
 }
 
 .mega-menu {
@@ -5591,5 +5591,34 @@ textarea.checkout-input {
   div, p, span, h1, h2, h3, h4, h5, h6 {
     color: black !important;
   }
+}
+
+
+/* ── POLICY PAGE STYLES ── */
+.policy-sidebar-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  margin: 4px 12px;
+  border-radius: 8px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.policy-sidebar-link:hover {
+  background-color: var(--bg-card-hover);
+  color: var(--text);
+}
+
+.policy-sidebar-link.active {
+  background-color: var(--cyan-dim);
+  color: var(--cyan);
+  border-color: var(--border-hover);
+  box-shadow: inset 4px 0 0 var(--cyan);
+  font-weight: 600;
 }
 
