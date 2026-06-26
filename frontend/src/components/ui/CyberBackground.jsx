@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 
 export default function CyberBackground() {
-  const [particles] = useState(() => Array.from({ length: 20 }).map((_, i) => ({
+  const [particles] = useState(() => Array.from({ length: 12 }).map((_, i) => ({
     id: i,
     size: Math.random() * 4 + 1,
     x: Math.random() * 100,

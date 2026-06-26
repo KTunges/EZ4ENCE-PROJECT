@@ -3,47 +3,47 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ToastProvider } from './context/ToastContext';
 import { WishlistProvider } from './context/WishlistContext';
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import MainLayout from './components/layout/MainLayout';
-import Home from './pages/customer/Home';
-import About from './pages/customer/About';
-import Cart from './pages/customer/Cart';
-import Checkout from './pages/customer/Checkout';
-import CheckoutSuccess from './pages/customer/CheckoutSuccess';
-import CheckoutVnpayReturn from './pages/customer/CheckoutVnpayReturn';
-import Profile from './pages/customer/Profile';
-import OrderDetails from './pages/customer/OrderDetails';
-import Login from './pages/customer/Login';
-import Register from './pages/customer/Register';
-import Products from './pages/customer/Products';
-import ProductDetail from './pages/customer/ProductDetail';
-import BuildPC from './pages/customer/BuildPC';
-import NewsDetails from './pages/customer/NewsDetails';
-import PolicyPage from './pages/customer/PolicyPage';
-import NotFound from './pages/customer/NotFound';
+const Home = lazy(() => import('./pages/customer/Home'));
+const About = lazy(() => import('./pages/customer/About'));
+const Cart = lazy(() => import('./pages/customer/Cart'));
+const Checkout = lazy(() => import('./pages/customer/Checkout'));
+const CheckoutSuccess = lazy(() => import('./pages/customer/CheckoutSuccess'));
+const CheckoutVnpayReturn = lazy(() => import('./pages/customer/CheckoutVnpayReturn'));
+const Profile = lazy(() => import('./pages/customer/Profile'));
+const OrderDetails = lazy(() => import('./pages/customer/OrderDetails'));
+const Login = lazy(() => import('./pages/customer/Login'));
+const Register = lazy(() => import('./pages/customer/Register'));
+const Products = lazy(() => import('./pages/customer/Products'));
+const ProductDetail = lazy(() => import('./pages/customer/ProductDetail'));
+const BuildPC = lazy(() => import('./pages/customer/BuildPC'));
+const NewsDetails = lazy(() => import('./pages/customer/NewsDetails'));
+const PolicyPage = lazy(() => import('./pages/customer/PolicyPage'));
+const NotFound = lazy(() => import('./pages/customer/NotFound'));
 import AdminRoute from './components/auth/AdminRoute';
 import AdminLayout from './components/layout/AdminLayout';
-import AdminLogin from './pages/admin/AdminLogin';
-import Dashboard from './pages/admin/Dashboard';
-import AdminOrders from './pages/admin/AdminOrders';
-import AdminProducts from './pages/admin/AdminProducts';
-import AdminProductForm from './pages/admin/AdminProductForm';
-import AdminOrderDetails from './pages/admin/AdminOrderDetails';
-import AdminCategories from './pages/admin/AdminCategories';
-import AdminBrands from './pages/admin/AdminBrands';
-import AdminCustomers from './pages/admin/AdminCustomers';
-import AdminReviews from './pages/admin/AdminReviews';
-import AdminBanners from './pages/admin/AdminBanners';
-import AdminCoupons from './pages/admin/AdminCoupons';
-import AdminSuppliers from './pages/admin/AdminSuppliers';
-import AdminInventory from './pages/admin/AdminInventory';
-import AdminReceipts from './pages/admin/AdminReceipts';
-import AdminStaffs from './pages/admin/AdminStaffs';
-import AdminNews from './pages/admin/AdminNews';
-import AdminMailchimp from './pages/admin/AdminMailchimp';
-import AdminChat from './pages/admin/AdminChat';
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
+const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
+const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
+const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
+const AdminProductForm = lazy(() => import('./pages/admin/AdminProductForm'));
+const AdminOrderDetails = lazy(() => import('./pages/admin/AdminOrderDetails'));
+const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'));
+const AdminBrands = lazy(() => import('./pages/admin/AdminBrands'));
+const AdminCustomers = lazy(() => import('./pages/admin/AdminCustomers'));
+const AdminReviews = lazy(() => import('./pages/admin/AdminReviews'));
+const AdminBanners = lazy(() => import('./pages/admin/AdminBanners'));
+const AdminCoupons = lazy(() => import('./pages/admin/AdminCoupons'));
+const AdminSuppliers = lazy(() => import('./pages/admin/AdminSuppliers'));
+const AdminInventory = lazy(() => import('./pages/admin/AdminInventory'));
+const AdminReceipts = lazy(() => import('./pages/admin/AdminReceipts'));
+const AdminStaffs = lazy(() => import('./pages/admin/AdminStaffs'));
+const AdminNews = lazy(() => import('./pages/admin/AdminNews'));
+const AdminMailchimp = lazy(() => import('./pages/admin/AdminMailchimp'));
+const AdminChat = lazy(() => import('./pages/admin/AdminChat'));
 
 // Google Client ID (đọc từ file .env)
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -68,6 +68,7 @@ function App() {
               <WishlistProvider>
                 <BrowserRouter>
                   <ScrollToTop />
+                  <Suspense fallback={<div style={{paddingTop: '100px', textAlign: 'center', color: 'var(--primary-color)'}}>Đang tải...</div>}>
                   <Routes>
                     <Route path="/" element={<MainLayout />}>
                     <Route index element={<Home />} />
@@ -116,6 +117,7 @@ function App() {
                     {/* Các route tương lai sẽ thêm vào đây */}
                   </Route>
                 </Routes>
+                  </Suspense>
                 </BrowserRouter>
               </WishlistProvider>
             </CartProvider>

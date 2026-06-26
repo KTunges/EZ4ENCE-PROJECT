@@ -61,8 +61,8 @@ if "!DB_USER!"=="" set DB_USER=postgres
 echo   PostgreSQL Password (bo trong neu khong co):
 set /p DB_PASS="  > "
 
-set /p DB_NAME="  Ten Database [mac dinh: ez4ence]: "
-if "!DB_NAME!"=="" set DB_NAME=ez4ence
+set /p DB_NAME="  Ten Database [mac dinh: EZ4ENCE]: "
+if "!DB_NAME!"=="" set DB_NAME=EZ4ENCE
 
 echo.
 echo --- Xac nhan thong tin ---

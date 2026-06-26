@@ -1321,8 +1321,8 @@ h1, h2, h3, h4, h5, h6 {
    ============================= */
 .glass {
   background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
   transition: background 0.4s ease;
 }
@@ -3226,7 +3226,7 @@ textarea.checkout-input {
   width: 100%;
   min-width: max-content;
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(8px);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   z-index: 100;
@@ -4100,7 +4100,7 @@ textarea.checkout-input {
   width: 100%;
   padding: 12px 0;
   background: var(--glass-bg);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(8px);
   border-top: 1px solid var(--cyan);
   box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
   z-index: 999;
@@ -4858,7 +4858,7 @@ textarea.checkout-input {
   height: 90vh !important;
   max-height: 900px !important;
   background: var(--glass-bg) !important;
-  backdrop-filter: blur(20px) !important;
+  backdrop-filter: blur(8px) !important;
   color: var(--text-color) !important;
   border-radius: 0 !important;
   border: 1px solid var(--border) !important;
@@ -5145,8 +5145,8 @@ textarea.checkout-input {
 /* Premium Glassmorphism */
 .glass-premium {
   background: rgba(15, 23, 42, 0.4);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(0, 220, 255, 0.15);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
   position: relative;

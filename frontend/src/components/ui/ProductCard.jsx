@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Heart, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 
-export default function ProductCard({ product, index = 0 }) {
+const ProductCard = React.memo(({ product, index = 0 }) => {
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   
@@ -126,4 +126,6 @@ export default function ProductCard({ product, index = 0 }) {
       </div>
     </motion.div>
   );
-}
+});
+
+export default ProductCard;

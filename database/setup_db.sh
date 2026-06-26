@@ -55,8 +55,8 @@ while true; do
             echo ""
 
             echo -e "${YELLOW}[NHẬP THÔNG TIN KẾT NỐI]${NC}"
-            read -p "  Tên Database [mặc định: ez4ence]: " DB_NAME
-            DB_NAME=${DB_NAME:-ez4ence}
+            read -p "  Tên Database [mặc định: EZ4ENCE]: " DB_NAME
+            DB_NAME=${DB_NAME:-EZ4ENCE}
 
             if [ "$IS_POSTGRESAPP" = false ]; then
                 read -p "  PostgreSQL Host [mặc định: localhost]: " DB_HOST
