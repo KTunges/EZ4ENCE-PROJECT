@@ -83,12 +83,12 @@ export default function Home() {
   const [newsList, setNewsList] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/news?limit=4')
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/news?limit=4`)
       .then(res => res.json())
       .then(data => setNewsList(data))
       .catch(console.error);
 
-    fetch('http://localhost:8000/api/products?limit=1000')
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?limit=1000`)
       .then(res => res.json())
       .then(data => {
         // Filter for beautiful products (have images, and preferably on sale)
@@ -122,7 +122,7 @@ export default function Home() {
           badge: item.skus?.[0]?.promotional_price < item.skus?.[0]?.price ? 'HOT' : null,
           specs: Object.values(item.specifications || {}).slice(0, 4),
           fullSpecs: item.specifications || {},
-          stock: item.skus?.[0]?.stock_quantity || 0,
+          stock: item.skus ? item.skus.reduce((sum, sku) => sum + (sku.stock_quantity || 0), 0) : 0,
           skus: item.skus || []
         }));
         setBestSellers(mapped);

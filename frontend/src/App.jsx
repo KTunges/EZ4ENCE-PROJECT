@@ -22,6 +22,7 @@ import ProductDetail from './pages/customer/ProductDetail';
 import BuildPC from './pages/customer/BuildPC';
 import NewsDetails from './pages/customer/NewsDetails';
 import PolicyPage from './pages/customer/PolicyPage';
+import NotFound from './pages/customer/NotFound';
 import AdminRoute from './components/auth/AdminRoute';
 import AdminLayout from './components/layout/AdminLayout';
 import AdminLogin from './pages/admin/AdminLogin';
@@ -82,6 +83,7 @@ function App() {
                     <Route path="checkout/vnpay-return" element={<CheckoutVnpayReturn />} />
                     <Route path="profile" element={<Profile />} />
                     <Route path="profile/orders/:id" element={<OrderDetails />} />
+                    <Route path="*" element={<NotFound />} />
                   </Route>
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />

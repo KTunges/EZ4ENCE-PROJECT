@@ -6,7 +6,7 @@ export default function FullWidthBanner({ position, fallbackImage, fallbackTitle
 
   useEffect(() => {
     // Lấy banner động theo position
-    fetch('http://localhost:8000/api/marketing/banners')
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/marketing/banners`)
       .then(res => res.json())
       .then(data => {
         const matchingBanner = data.find(b => b.position === position && b.is_active);

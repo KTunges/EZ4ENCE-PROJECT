@@ -9,7 +9,7 @@ import useVietnamProvinces from '../../hooks/useVietnamProvinces';
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const { cart, fetchCart, loading: cartLoading } = useCart();
+  const { cart, fetchCart, loading: cartLoading, clearCartState } = useCart();
   const { user, token } = useAuth();
   
   const [shippingOptions, setShippingOptions] = useState([]);
@@ -249,7 +249,7 @@ export default function Checkout() {
         throw new Error(orderData.detail || 'Lỗi tạo đơn hàng');
       }
 
-      await fetchCart(); // Clear cart state
+      clearCartState(); // Synchronously clear cart state
 
       if (method === 'vnpay') {
         const payRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/payment/vnpay/create-url`, {
@@ -627,8 +627,7 @@ export default function Checkout() {
                           if (!orderRes.ok) throw new Error(orderData.detail || 'Lỗi tạo đơn');
 
                           // Xoá giỏ
-                          await fetchCart();
-
+                          clearCartState();
                           // Gọi PayPal backend proxy
                           const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/payment/paypal/create-order`, {
                             method: "POST",

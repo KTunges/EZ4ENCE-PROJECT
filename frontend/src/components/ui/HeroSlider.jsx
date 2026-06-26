@@ -8,7 +8,7 @@ export default function HeroSlider() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/marketing/banners')
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/marketing/banners`)
       .then(res => res.json())
       .then(data => {
         setBanners(data.filter(b => b.position === 'hero_slider' && b.is_active));

@@ -20,7 +20,7 @@ export const WishlistProvider = ({ children }) => {
     
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:8000/api/wishlist', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/wishlist`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -56,7 +56,7 @@ export const WishlistProvider = ({ children }) => {
     try {
       if (currentlyWishlisted) {
         // Remove from wishlist
-        const res = await fetch(`http://localhost:8000/api/wishlist/${skuId}`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/wishlist/${skuId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -70,7 +70,7 @@ export const WishlistProvider = ({ children }) => {
         }
       } else {
         // Add to wishlist
-        const res = await fetch('http://localhost:8000/api/wishlist', {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/wishlist`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,

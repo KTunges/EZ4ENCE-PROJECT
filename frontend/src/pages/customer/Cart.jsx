@@ -17,7 +17,7 @@ export default function Cart() {
   useEffect(() => {
     // Fetch recommended products for empty cart state
     if (!cart || cart.items.length === 0) {
-      fetch('http://localhost:8000/api/products?limit=8')
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?limit=8`)
         .then(res => res.json())
         .then(data => {
           const mapped = data.filter(item => item.images && item.images.length > 0 && !item.images[0].url.includes('dummy')).slice(0, 4).map(item => ({

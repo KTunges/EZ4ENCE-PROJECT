@@ -9,7 +9,7 @@ export default function NewsDetails() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/news/${slug}`)
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/news/${slug}`)
       .then(res => {
         if (!res.ok) throw new Error('Not found');
         return res.json();

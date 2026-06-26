@@ -19,7 +19,7 @@ export default function ProductDetail() {
   useEffect(() => {
     // Fetch product detail
     setLoading(true);
-    fetch(`http://localhost:8000/api/products/${slug}`)
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products/${slug}`)
       .then(res => {
         if (!res.ok) throw new Error('Không tìm thấy sản phẩm');
         return res.json();
@@ -67,7 +67,7 @@ export default function ProductDetail() {
         } catch(e) { console.error('Lỗi lưu SP đã xem', e); }
 
         // Fetch related products (same category)
-        fetch(`http://localhost:8000/api/products?category_slug=${data.category?.slug}`)
+        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?category_slug=${data.category?.slug}`)
           .then(r => r.json())
           .then(list => {
             const mappedList = list
@@ -92,7 +92,7 @@ export default function ProductDetail() {
               setRelatedProducts(mappedList);
             } else {
               // Nếu không có sản phẩm cùng danh mục, lấy random sản phẩm khác
-              fetch(`http://localhost:8000/api/products?limit=5`)
+              fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?limit=5`)
                 .then(r => r.json())
                 .then(fallbackList => {
                   const mappedFallback = fallbackList

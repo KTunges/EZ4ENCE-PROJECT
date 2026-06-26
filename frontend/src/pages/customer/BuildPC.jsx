@@ -32,7 +32,7 @@ export default function BuildPC() {
   const [productsList, setProductsList] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/products?limit=1000')
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?limit=1000`)
       .then(res => res.json())
       .then(data => {
         const mapped = data.map(item => ({
@@ -44,7 +44,7 @@ export default function BuildPC() {
           image: item.images?.[0]?.url || '',
           code: item.skus?.[0]?.sku_code || 'N/A',
           warranty: item.specifications?.['Bảo hành'] || '36 Tháng',
-          stock: item.skus?.[0]?.stock_quantity > 0 ? 'Còn hàng' : 'Hết hàng',
+          stock: (item.skus ? item.skus.reduce((sum, sku) => sum + (sku.stock_quantity || 0), 0) : 0) > 0 ? 'Còn hàng' : 'Hết hàng',
           skus: item.skus || []
         }));
         setProductsList(mapped);

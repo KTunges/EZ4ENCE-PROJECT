@@ -143,7 +143,7 @@ export default function CategorySidebar() {
   const [sidebarBanner, setSidebarBanner] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/marketing/banners')
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/marketing/banners`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

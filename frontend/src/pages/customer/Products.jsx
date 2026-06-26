@@ -194,7 +194,7 @@ export default function Products() {
       if (val) params.append(key, val);
     });
 
-    fetch(`http://localhost:8000/api/products?${params.toString()}`)
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?${params.toString()}`)
       .then(res => res.json())
       .then(data => {
         if (!Array.isArray(data)) {
@@ -217,7 +217,7 @@ export default function Products() {
           badge: item.skus?.[0]?.promotional_price ? 'HOT' : null,
           specs: Object.values(item.specifications || {}).slice(0, 4),
           fullSpecs: item.specifications || {},
-          stock: item.skus?.[0]?.stock_quantity || 0,
+          stock: item.skus ? item.skus.reduce((sum, sku) => sum + (sku.stock_quantity || 0), 0) : 0,
           skus: item.skus || []
         }));
         setProductsList(mapped);

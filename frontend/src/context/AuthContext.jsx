@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
   // Fetch current user details
   const fetchCurrentUser = useCallback(async (authToken) => {
     try {
-      const res = await fetch('http://localhost:8000/api/auth/me', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/me`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchCurrentAdmin = useCallback(async (authToken) => {
     try {
-      const res = await fetch('http://localhost:8000/api/auth/me', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/me`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
@@ -95,7 +95,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/auth/login', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ export const AuthProvider = ({ children }) => {
   const adminLoginStep1 = async (email, password) => {
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/auth/admin-login-step1', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/admin-login-step1`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -139,7 +139,7 @@ export const AuthProvider = ({ children }) => {
   const adminLoginStep2 = async (email, otp) => {
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/auth/admin-login-step2', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/admin-login-step2`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp }),
@@ -160,7 +160,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (fullName, username, password) => {
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/auth/register', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -184,7 +184,7 @@ export const AuthProvider = ({ children }) => {
   const loginWithGoogle = async (tokenStr) => {
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/auth/google', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/google`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -211,7 +211,7 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = async (fullName) => {
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/auth/profile', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -240,7 +240,7 @@ export const AuthProvider = ({ children }) => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch('http://localhost:8000/api/auth/profile/avatar', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/profile/avatar`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -265,7 +265,7 @@ export const AuthProvider = ({ children }) => {
   const loginWithFacebook = async (token) => {
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/auth/facebook', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/facebook`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -306,6 +306,7 @@ export const AuthProvider = ({ children }) => {
         updateAvatar,
         logout,
         adminLogout,
+        fetchCurrentUser,
         isAuthenticated: !!user,
         isAdminAuthenticated: !!adminUser,
         adminUser,

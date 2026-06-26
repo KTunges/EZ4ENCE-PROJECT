@@ -6,25 +6,8 @@ import AddressBook from '../../components/profile/AddressBook';
 import ProductCard from '../../components/ui/ProductCard';
 import { useWishlist } from '../../context/WishlistContext';
 
-const mockOrders = [
-  {
-    id: '#EZ4-9988',
-    date: '10/06/2026',
-    total: 58200000,
-    status: 'processing', // processing, shipped, delivered
-    items: 3
-  },
-  {
-    id: '#EZ4-8821',
-    date: '02/06/2026',
-    total: 3200000,
-    status: 'delivered',
-    items: 1
-  }
-];
-
 export default function Profile() {
-  const { user, isAuthenticated, logout, updateProfile, updateAvatar } = useAuth();
+  const { user, token, isAuthenticated, logout, updateProfile, updateAvatar, fetchCurrentUser } = useAuth();
   const { wishlistItems, loading: wishlistLoading } = useWishlist();
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,7 +46,7 @@ export default function Profile() {
       const fetchOrders = async () => {
         setLoadingOrders(true);
         try {
-          const res = await fetch('http://localhost:8000/api/orders', {
+          const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/orders`, {
             headers: {
               'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
@@ -174,7 +157,7 @@ export default function Profile() {
     setEmailError('');
     setIsSendingOtp(true);
     try {
-      const res = await fetch('http://localhost:8000/api/auth/send-email-otp', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/send-email-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -197,7 +180,7 @@ export default function Profile() {
     if (otp.length < 6) return;
     setIsSendingOtp(true);
     try {
-      const res = await fetch('http://localhost:8000/api/auth/verify-email-otp', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/verify-email-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -209,8 +192,7 @@ export default function Profile() {
       if (!res.ok) throw new Error(data.detail || 'Xác thực OTP thất bại');
       
       // Update local user state
-      user.email = emailToVerify;
-      user.is_email_verified = true;
+      await fetchCurrentUser(token);
       setIsEditingEmail(false);
       setShowOtpInput(false);
       setEmailSuccess('Xác thực email thành công!');
@@ -316,7 +298,6 @@ export default function Profile() {
               <div className="tab-pane fade-in">
                 <div className="tab-header flex justify-between items-center mb-6">
                   <h2 className="text-xl font-bold">Thông Tin Cá Nhân</h2>
-                  {console.log('Force update CSS')}
                   {!isEditing && (
                     <button className="btn btn-outline btn-sm flex items-center gap-2" onClick={() => setIsEditing(true)}>
                       <Edit3 size={16} /> Chỉnh sửa
