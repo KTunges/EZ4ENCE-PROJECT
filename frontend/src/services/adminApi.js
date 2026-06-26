@@ -20,7 +20,7 @@ adminApi.interceptors.request.use((config) => {
 export const getAdminProducts = async (params) => {
   // Tái sử dụng API GET /products có sẵn nhưng có thể dùng thêm param nếu cần
   const response = await adminApi.get('/products', { params });
-  return response.data;
+  return response.data.data || response.data;
 };
 
 export const uploadAdminImage = async (file) => {
@@ -176,15 +176,15 @@ export const updateNews = async (id, data) => { const r = await adminApi.put(`/a
 export const deleteNews = async (id) => { const r = await adminApi.delete(`/admin/news/${id}`); return r.data; };
 
 // INVENTORY & SUPPLIERS
-export const getSuppliers = () => adminApi.get('/admin/inventory/suppliers');
-export const createSupplier = (data) => adminApi.post('/admin/inventory/suppliers', data);
-export const updateSupplier = (id, data) => adminApi.put(`/admin/inventory/suppliers/${id}`, data);
-export const deleteSupplier = (id) => adminApi.delete(`/admin/inventory/suppliers/${id}`);
+export const getSuppliers = async () => { const r = await adminApi.get('/admin/inventory/suppliers'); return r.data; };
+export const createSupplier = async (data) => { const r = await adminApi.post('/admin/inventory/suppliers', data); return r.data; };
+export const updateSupplier = async (id, data) => { const r = await adminApi.put(`/admin/inventory/suppliers/${id}`, data); return r.data; };
+export const deleteSupplier = async (id) => { const r = await adminApi.delete(`/admin/inventory/suppliers/${id}`); return r.data; };
 
-export const getInventory = () => adminApi.get('/admin/inventory/skus');
+export const getInventorySkus = async () => { const r = await adminApi.get('/admin/inventory/skus'); return r.data; };
 
-export const getStockReceipts = () => adminApi.get('/admin/inventory/receipts');
-export const createStockReceipt = (data) => adminApi.post('/admin/inventory/receipts', data);
+export const getStockReceipts = async () => { const r = await adminApi.get('/admin/inventory/receipts'); return r.data; };
+export const createStockReceipt = async (data) => { const r = await adminApi.post('/admin/inventory/receipts', data); return r.data; };
 
 // STAFFS
 export const getStaffs = () => adminApi.get('/admin/staffs');
@@ -197,3 +197,4 @@ export const getEmailRecipients = async () => { const r = await adminApi.get('/a
 export const triggerManualSync = async () => { const r = await adminApi.post('/admin/mailchimp/sync'); return r.data; };
 
 export default adminApi;
+

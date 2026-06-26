@@ -26,7 +26,7 @@ export default function NewsDetails() {
 
   if (loading) {
     return (
-      <div className="news-details-page" style={{ minHeight: '100vh', paddingTop: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div className="news-details-page" style={{ minHeight: '100vh', paddingTop: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <CyberBackground />
         <div style={{ color: 'var(--cyan)', fontSize: '20px' }}>Đang tải tin tức...</div>
       </div>
@@ -35,7 +35,7 @@ export default function NewsDetails() {
 
   if (!news) {
     return (
-      <div className="news-details-page" style={{ minHeight: '100vh', paddingTop: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="news-details-page" style={{ minHeight: '100vh', paddingTop: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <CyberBackground />
         <h2 className="glitch-text" data-text="404 - Bài viết không tồn tại" style={{ fontSize: '32px', marginBottom: '20px' }}>404 - Bài viết không tồn tại</h2>
         <Link to="/" className="btn btn-primary">Về trang chủ</Link>
@@ -44,7 +44,7 @@ export default function NewsDetails() {
   }
 
   return (
-    <div className="news-details-page relative" style={{ minHeight: '100vh', paddingTop: '100px', paddingBottom: '100px' }}>
+    <div className="news-details-page relative" style={{ minHeight: '100vh', paddingTop: '20px', paddingBottom: '100px' }}>
       <CyberBackground />
       
       <div className="container relative z-10" style={{ maxWidth: '800px', margin: '0 auto' }}>

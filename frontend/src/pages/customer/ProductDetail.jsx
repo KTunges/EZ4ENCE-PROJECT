@@ -4,6 +4,7 @@ import { ShoppingCart, Heart, Star, Minus, Plus, ChevronRight, Shield, Truck, Ro
 import { motion, AnimatePresence } from 'framer-motion';
 import CyberBackground from '../../components/ui/CyberBackground';
 import ProductCard from '../../components/ui/ProductCard';
+import ProductDetailSkeleton from '../../components/ui/ProductDetailSkeleton';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useAuth } from '../../context/AuthContext';
@@ -35,6 +36,7 @@ export default function ProductDetail() {
           category: data.category?.name || 'Unknown',
           rating: data.rating || 5,
           reviewCount: data.review_count || 0,
+          soldCount: data.sold_count || 0,
           description: data.description || '',
           specifications: data.specifications || {},
           images: data.images?.length > 0 ? data.images.map(img => img.url) : [],
@@ -221,11 +223,11 @@ export default function ProductDetail() {
     : 0;
 
   if (loading) {
-    return <div className="product-detail-page"><div className="container" style={{paddingTop: 100}}>Đang tải thông tin sản phẩm...</div></div>;
+    return <ProductDetailSkeleton />;
   }
 
   if (error || !product) {
-    return <div className="product-detail-page"><div className="container" style={{paddingTop: 100}}>Lỗi: {error || 'Không tìm thấy sản phẩm'}</div></div>;
+    return <div className="product-detail-page"><div className="container" style={{paddingTop: '20px'}}>Lỗi: {error || 'Không tìm thấy sản phẩm'}</div></div>;
   }
 
   return (
@@ -335,6 +337,9 @@ export default function ProductDetail() {
               ))}
               <span className="rating-text">{product.rating}/5</span>
               <span className="rating-count">({product.reviewCount} đánh giá)</span>
+              {product.soldCount > 0 && (
+                <span className="rating-count" style={{ marginLeft: '12px', paddingLeft: '12px', borderLeft: '1px solid var(--border)' }}>Đã bán {product.soldCount}</span>
+              )}
             </div>
 
             {/* Price */}

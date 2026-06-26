@@ -70,7 +70,7 @@ class StockReceiptResponse(StockReceiptBase):
 class InventorySKUResponse(BaseModel):
     sku_id: str
     product_name: str
-    sku_name: str
-    stock: int
+    sku_code: str
+    stock_quantity: int
     price: float
     image_url: Optional[str] = None

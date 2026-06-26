@@ -67,7 +67,7 @@ export default function AdminLayout() {
       return ['/admin/orders', '/admin/customers', '/admin/chat'].includes(path);
     }
     if (adminUser.staff_role === 'INVENTORY') {
-      return ['/admin/products', '/admin/categories', '/admin/brands', '/admin/inventory', '/admin/suppliers', '/admin/stock'].includes(path);
+      return ['/admin/products', '/admin/categories', '/admin/brands', '/admin/inventory', '/admin/suppliers', '/admin/receipts'].includes(path);
     }
     return false;
   };
@@ -91,7 +91,7 @@ export default function AdminLayout() {
     { section: 'KHO & ĐỐI TÁC', items: [
       { id: 'inventory', label: 'Theo dõi Tồn kho', icon: <Package size={18} />, path: '/admin/inventory', active: hasAccess('/admin/inventory') },
       { id: 'suppliers', label: 'Nhà cung cấp', icon: <Truck size={18} />, path: '/admin/suppliers', active: hasAccess('/admin/suppliers') },
-      { id: 'stock-in', label: 'Phiếu nhập/xuất kho', icon: <FileText size={18} />, path: '/admin/stock', active: hasAccess('/admin/stock') }
+      { id: 'receipts', label: 'Phiếu nhập/xuất kho', icon: <FileText size={18} />, path: '/admin/receipts', active: hasAccess('/admin/receipts') }
     ]},
     { section: 'KHÁCH HÀNG', items: [
       { id: 'customers', label: 'Khách hàng', icon: <Users size={18} />, path: '/admin/customers', active: hasAccess('/admin/customers') },

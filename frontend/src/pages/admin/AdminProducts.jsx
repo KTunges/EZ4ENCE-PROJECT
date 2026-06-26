@@ -8,6 +8,8 @@ export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState('ALL');
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const loadProducts = async () => {
@@ -25,12 +27,18 @@ export default function AdminProducts() {
     loadProducts();
   }, []);
 
-  const filteredProducts = products.filter(p => 
-    searchQuery.trim() === '' || 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    p.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (p.skus && p.skus.some(s => s.sku && s.sku.toLowerCase().includes(searchQuery.toLowerCase())))
-  );
+  const uniqueCategories = Array.from(new Map(products.filter(p => p.category).map(p => [p.category.id, p.category.name])).entries());
+  const filteredProducts = products.filter(p => {
+    const matchSearch = searchQuery.trim() === '' || 
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      p.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (p.skus && p.skus.some(s => s.sku && s.sku.toLowerCase().includes(searchQuery.toLowerCase())));
+    const matchCategory = categoryFilter === 'ALL' || (p.category && p.category.id === categoryFilter);
+    const matchStatus = statusFilter === 'ALL' || 
+                        (statusFilter === 'VISIBLE' ? p.is_published === true : 
+                        (statusFilter === 'HIDDEN' ? p.is_published === false : true));
+    return matchSearch && matchCategory && matchStatus;
+  });
 
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
@@ -147,12 +155,30 @@ export default function AdminProducts() {
               </div>
             )}
           </div>
-          <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0 16px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', cursor: 'pointer' }}>
-            <Filter size={18} /> Danh mục
-          </button>
-          <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0 16px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', cursor: 'pointer' }}>
-            Trạng thái
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '6px', overflow: 'hidden' }}>
+            <div style={{ padding: '0 12px', color: 'var(--text-muted)' }}><Filter size={18} /></div>
+            <select 
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text)', padding: '10px 16px 10px 4px', outline: 'none', cursor: 'pointer', appearance: 'none', maxWidth: '200px' }}
+            >
+              <option value="ALL">Tất cả danh mục</option>
+              {uniqueCategories.map(([id, name]) => (
+                <option key={id} value={id}>{name}</option>
+              ))}
+            </select>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '6px', overflow: 'hidden' }}>
+            <select 
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text)', padding: '10px 16px', outline: 'none', cursor: 'pointer', appearance: 'none' }}
+            >
+              <option value="ALL">Tất cả trạng thái</option>
+              <option value="VISIBLE">Đang hiển thị</option>
+              <option value="HIDDEN">Đã ẩn</option>
+            </select>
+          </div>
         </div>
 
         {/* Table */}

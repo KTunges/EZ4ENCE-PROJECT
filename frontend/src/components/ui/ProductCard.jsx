@@ -106,6 +106,9 @@ export default function ProductCard({ product, index = 0 }) {
           {product.reviewCount > 0 && (
             <span className="rating-count">({product.reviewCount})</span>
           )}
+          {product.soldCount > 0 && (
+            <span className="rating-count" style={{ marginLeft: '6px', paddingLeft: '6px', borderLeft: '1px solid var(--border)' }}>Đã bán {product.soldCount}</span>
+          )}
         </div>
 
         {/* Price & Stock */}

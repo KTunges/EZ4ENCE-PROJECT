@@ -8,15 +8,28 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const filteredOrders = orders.filter(o => {
     const q = searchQuery.toLowerCase();
-    return (
+    const matchSearch = (
       (o.id && o.id.toLowerCase().includes(q)) ||
       (o.customer_name && o.customer_name.toLowerCase().includes(q)) ||
       (o.customer_phone && o.customer_phone.toLowerCase().includes(q))
     );
+    const matchStatus = statusFilter === 'ALL' || o.status === statusFilter;
+    return matchSearch && matchStatus;
   });
+
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const currentOrders = filteredOrders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // Reset page when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter]);
 
   const fetchOrders = async () => {
     try {
@@ -79,9 +92,22 @@ export default function AdminOrders() {
               style={{ width: '100%', padding: '10px 12px 10px 40px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', outline: 'none' }}
             />
           </div>
-          <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0 16px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', cursor: 'pointer' }}>
-            <Filter size={18} /> Bộ lọc
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '6px', overflow: 'hidden' }}>
+            <div style={{ padding: '0 12px', color: 'var(--text-muted)' }}><Filter size={18} /></div>
+            <select 
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text)', padding: '10px 16px 10px 4px', outline: 'none', cursor: 'pointer', appearance: 'none' }}
+            >
+              <option value="ALL">Tất cả trạng thái</option>
+              <option value="PENDING">Chờ xác nhận</option>
+              <option value="CONFIRMED">Đã xác nhận</option>
+              <option value="SHIPPING">Đang giao</option>
+              <option value="DELIVERED">Đã giao</option>
+              <option value="CANCELLED">Đã hủy</option>
+            </select>
+            <ChevronDown size={14} style={{ position: 'absolute', right: '12px', pointerEvents: 'none', color: 'var(--text-muted)', display: 'none' }} />
+          </div>
         </div>
 
         {/* Table */}
@@ -102,7 +128,7 @@ export default function AdminOrders() {
                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Đang tải dữ liệu...</td></tr>
               ) : filteredOrders.length === 0 ? (
                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Chưa có đơn hàng nào</td></tr>
-              ) : filteredOrders.map((order) => (
+              ) : currentOrders.map((order) => (
                 <tr key={order.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.2s' }} className="hover:bg-white/5">
                   <td style={{ padding: '16px 12px', fontWeight: 'bold', color: 'var(--cyan)' }}>{order.id.substring(0, 8).toUpperCase()}</td>
                   <td style={{ padding: '16px 12px' }}>{order.customer_name}</td>
@@ -128,15 +154,43 @@ export default function AdminOrders() {
         </div>
         
         {/* Pagination */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', color: 'var(--text-muted)', fontSize: '14px' }}>
-          <div>Hiển thị 1 - {Math.min(50, orders.length)} của {orders.length} đơn hàng</div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button style={{ padding: '6px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '4px', color: 'var(--text)', cursor: 'pointer' }}>Trước</button>
-            <button style={{ padding: '6px 12px', background: 'var(--cyan)', border: 'none', borderRadius: '4px', color: 'black', fontWeight: 'bold', cursor: 'pointer' }}>1</button>
-            <button style={{ padding: '6px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '4px', color: 'var(--text)', cursor: 'pointer' }}>2</button>
-            <button style={{ padding: '6px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '4px', color: 'var(--text)', cursor: 'pointer' }}>Sau</button>
+        {totalPages > 1 && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', color: 'var(--text-muted)', fontSize: '14px' }}>
+            <div>Hiển thị {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filteredOrders.length)} của {filteredOrders.length} đơn hàng</div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                style={{ padding: '6px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '4px', color: currentPage === 1 ? 'var(--text-muted)' : 'var(--text)', cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}>
+                Trước
+              </button>
+              
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button 
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  style={{ 
+                    padding: '6px 12px', 
+                    background: currentPage === page ? 'var(--cyan)' : 'var(--bg-card)', 
+                    border: currentPage === page ? 'none' : '1px solid var(--border)', 
+                    borderRadius: '4px', 
+                    color: currentPage === page ? 'black' : 'var(--text)', 
+                    fontWeight: currentPage === page ? 'bold' : 'normal',
+                    cursor: 'pointer' 
+                  }}>
+                  {page}
+                </button>
+              ))}
+
+              <button 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                style={{ padding: '6px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '4px', color: currentPage === totalPages ? 'var(--text-muted)' : 'var(--text)', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}>
+                Sau
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

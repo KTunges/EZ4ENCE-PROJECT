@@ -63,7 +63,7 @@ def update_order_status(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_admin)
 ):
-    order = db.query(Order).filter(Order.id == order_id).first()
+    order = db.query(Order).options(joinedload(Order.items).joinedload(OrderItem.sku)).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
         
@@ -72,7 +72,22 @@ def update_order_status(
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid status")
         
+    old_status = order.status
     order.status = new_status
+    
+    # Update product sold_count based on DELIVERED status transitions
+    if new_status == OrderStatus.DELIVERED and old_status != OrderStatus.DELIVERED:
+        for item in order.items:
+            if item.sku and item.sku.product_id:
+                product = db.query(Product).filter(Product.id == item.sku.product_id).first()
+                if product:
+                    product.sold_count += item.quantity
+    elif old_status == OrderStatus.DELIVERED and new_status != OrderStatus.DELIVERED:
+        for item in order.items:
+            if item.sku and item.sku.product_id:
+                product = db.query(Product).filter(Product.id == item.sku.product_id).first()
+                if product:
+                    product.sold_count = max(0, product.sold_count - item.quantity)
     
     history = OrderStatusHistory(
         id=str(uuid.uuid4()),

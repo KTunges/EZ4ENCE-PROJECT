@@ -70,7 +70,7 @@ export default function About() {
       <CyberBackground />
       
       {/* ── HERO ── */}
-      <section className="about-hero container relative z-10" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh', paddingTop: '100px' }}>
+      <section className="about-hero container relative z-10" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh', paddingTop: '20px' }}>
         <div className="about-hero-grid" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', width: '100%' }}>
           <motion.div
             initial={{ opacity: 0, y: -30 }}

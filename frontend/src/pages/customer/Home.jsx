@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import MarqueeBanner from '../../components/ui/MarqueeBanner';
 import ProductCard from '../../components/ui/ProductCard';
+import { mapProduct } from '../../utils/productMapper';
 import CyberBackground from '../../components/ui/CyberBackground';
 import FullWidthBanner from '../../components/ui/FullWidthBanner';
 import HeroSlider from '../../components/ui/HeroSlider';
@@ -88,44 +89,10 @@ export default function Home() {
       .then(data => setNewsList(data))
       .catch(console.error);
 
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?limit=1000`)
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?sort=popular&limit=8`)
       .then(res => res.json().then(d => d.data || d))
       .then(data => {
-        // Filter for beautiful products (have images, and preferably on sale)
-        let featured = data.filter(item => 
-          item.images && item.images.length > 0 && 
-          !item.images[0].url.includes('dummy') &&
-          item.skus?.[0]?.promotional_price < item.skus?.[0]?.price
-        );
-        
-        // Fallback to any products with real images if not enough sale items
-        if (featured.length < 4) {
-          const withImages = data.filter(item => 
-            item.images && item.images.length > 0 && 
-            !item.images[0].url.includes('dummy')
-          );
-          featured = [...featured, ...withImages].filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i);
-        }
-
-        const mapped = featured.slice(0, 4).map(item => ({
-          id: item.id,
-          slug: item.slug,
-          name: item.name,
-          brand: item.brand?.name || 'Unknown',
-          category: item.category?.name || 'Unknown',
-          categorySlug: item.category?.slug || '',
-          price: item.skus?.[0]?.price || 0,
-          originalPrice: item.skus?.[0]?.promotional_price || null,
-          image: item.images?.[0]?.url || '',
-          rating: item.rating || 5,
-          reviewCount: item.review_count || 0,
-          badge: item.skus?.[0]?.promotional_price < item.skus?.[0]?.price ? 'HOT' : null,
-          specs: Object.values(item.specifications || {}).slice(0, 4),
-          fullSpecs: item.specifications || {},
-          stock: item.skus ? item.skus.reduce((sum, sku) => sum + (sku.stock_quantity || 0), 0) : 0,
-          skus: item.skus || []
-        }));
-        setBestSellers(mapped);
+        setBestSellers(data.map(mapProduct));
       })
       .catch(console.error);
   }, []);

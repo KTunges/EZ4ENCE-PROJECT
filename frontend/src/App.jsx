@@ -39,7 +39,7 @@ import AdminBanners from './pages/admin/AdminBanners';
 import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminSuppliers from './pages/admin/AdminSuppliers';
 import AdminInventory from './pages/admin/AdminInventory';
-import AdminStock from './pages/admin/AdminStock';
+import AdminReceipts from './pages/admin/AdminReceipts';
 import AdminStaffs from './pages/admin/AdminStaffs';
 import AdminNews from './pages/admin/AdminNews';
 import AdminMailchimp from './pages/admin/AdminMailchimp';
@@ -112,7 +112,7 @@ function App() {
                     <Route path="news" element={<AdminNews />} />
                     <Route path="suppliers" element={<AdminSuppliers />} />
                     <Route path="inventory" element={<AdminInventory />} />
-                    <Route path="stock" element={<AdminStock />} />
+                    <Route path="receipts" element={<AdminReceipts />} />
                     {/* Các route tương lai sẽ thêm vào đây */}
                   </Route>
                 </Routes>

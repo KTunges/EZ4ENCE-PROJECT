@@ -50,10 +50,12 @@ class ProductListResponse(ProductBase):
     # Computed fields
     rating: float
     review_count: int
+    sold_count: int
     # Trả về kèm một ảnh đại diện (ảnh chính) và giá min/max của các SKU nếu cần ở list
     images: List[ProductImageResponse] = []
     category: Optional[CategoryResponse] = None
     brand: Optional[BrandResponse] = None
+    skus: List[ProductSKUResponse] = []
     
     model_config = ConfigDict(from_attributes=True)
 

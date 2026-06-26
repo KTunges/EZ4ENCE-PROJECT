@@ -52,6 +52,7 @@ def get_products(
     min_price: Optional[float] = None,
     max_price: Optional[float] = None,
     sort: Optional[str] = None,
+    is_on_sale: Optional[bool] = None,
     db: Session = Depends(get_db)
 ):
     """
@@ -87,16 +88,22 @@ def get_products(
         for kw in keywords:
             query = query.filter(Product.name.ilike(f"%{kw}%"))
         
-    # Price filtering
+    # Price and Sale filtering
+    if is_on_sale:
+        query = query.join(Product.skus).filter(ProductSKU.promotional_price.isnot(None), ProductSKU.promotional_price < ProductSKU.price)
+    
     if min_price is not None:
-        query = query.join(Product.skus).filter(ProductSKU.price >= min_price)
+        if not is_on_sale:
+            query = query.join(Product.skus)
+        query = query.filter(ProductSKU.price >= min_price)
+        
     if max_price is not None:
-        if min_price is None:
+        if min_price is None and not is_on_sale:
             query = query.join(Product.skus)
         query = query.filter(ProductSKU.price <= max_price)
 
     # Lọc động dựa trên specifications
-    standard_params = {"skip", "limit", "page", "category_slug", "brand_slug", "search", "min_price", "max_price", "sort"}
+    standard_params = {"skip", "limit", "page", "category_slug", "brand_slug", "search", "min_price", "max_price", "sort", "is_on_sale"}
     for key, value in request.query_params.items():
         if key not in standard_params and value:
             spec_keywords = value.strip().split()
@@ -116,13 +123,15 @@ def get_products(
         if sort == "newest":
             query = query.order_by(desc(Product.created_at))
         elif sort == "price-asc":
-            if min_price is None and max_price is None:
+            if min_price is None and max_price is None and not is_on_sale:
                 query = query.join(Product.skus)
             query = query.order_by(ProductSKU.price.asc())
         elif sort == "price-desc":
-            if min_price is None and max_price is None:
+            if min_price is None and max_price is None and not is_on_sale:
                 query = query.join(Product.skus)
             query = query.order_by(ProductSKU.price.desc())
+        elif sort == "popular":
+            query = query.order_by(desc(Product.sold_count))
 
     total = query.count()
     

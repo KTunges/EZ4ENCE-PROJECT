@@ -70,7 +70,7 @@ export default function Cart() {
   if (!user) {
     return (
       <div className="cart-page-container fade-in">
-        <div className="container" style={{ textAlign: 'center', paddingTop: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
+        <div className="container" style={{ textAlign: 'center', paddingTop: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
           <h2 className="glitch-text text-3xl font-bold" data-text="VUI LÒNG ĐĂNG NHẬP">VUI LÒNG ĐĂNG NHẬP</h2>
           <p className="text-muted" style={{ fontSize: '1.1rem' }}>Bạn cần đăng nhập để quản lý giỏ hàng của mình.</p>
           <button onClick={() => setShowAuth(true)} className="btn btn-primary" style={{ padding: '12px 30px', fontSize: '1.1rem' }}>ĐĂNG NHẬP NGAY</button>

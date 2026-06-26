@@ -89,7 +89,7 @@ export default function Profile() {
   }
 
   if (!user) {
-    return <div className="container" style={{paddingTop: '100px', textAlign: 'center'}}>Đang tải dữ liệu...</div>;
+    return <div className="container" style={{paddingTop: '20px', textAlign: 'center'}}>Đang tải dữ liệu...</div>;
   }
 
   const handleLogout = () => {

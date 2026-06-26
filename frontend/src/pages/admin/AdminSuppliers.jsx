@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Truck, Edit2, Trash2, Mail, Phone, MapPin, X } from 'lucide-react';
-import adminApi from '../../services/adminApi';
+import { useState, useEffect } from 'react';
+import { Plus, Edit, Trash2, Search, X } from 'lucide-react';
+import { getSuppliers, createSupplier, updateSupplier, deleteSupplier } from '../../services/adminApi';
 
 export default function AdminSuppliers() {
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [editingId, setEditingId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   
+  const [showModal, setShowModal] = useState(false);
+  const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({
     name: '', contact_name: '', phone: '', email: '', address: '', is_active: true
   });
@@ -16,147 +16,173 @@ export default function AdminSuppliers() {
   const fetchSuppliers = async () => {
     try {
       setLoading(true);
-      const res = await adminApi.getSuppliers();
-      setSuppliers(res);
+      const data = await getSuppliers();
+      setSuppliers(data);
     } catch (error) {
-      console.error('Lỗi lấy danh sách nhà cung cấp:', error);
+      console.error("Lỗi tải nhà cung cấp:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchSuppliers(); }, []);
+  useEffect(() => {
+    fetchSuppliers();
+  }, []);
 
-  const openAddModal = () => {
-    setEditingId(null);
+  const handleCreateNew = () => {
+    setEditId(null);
     setFormData({ name: '', contact_name: '', phone: '', email: '', address: '', is_active: true });
     setShowModal(true);
   };
 
-  const openEditModal = (sup) => {
-    setEditingId(sup.id);
+  const handleEdit = (sup) => {
+    setEditId(sup.id);
     setFormData({
-      name: sup.name, contact_name: sup.contact_name || '', phone: sup.phone || '',
-      email: sup.email || '', address: sup.address || '', is_active: sup.is_active
+      name: sup.name || '',
+      contact_name: sup.contact_name || '',
+      phone: sup.phone || '',
+      email: sup.email || '',
+      address: sup.address || '',
+      is_active: sup.is_active
     });
     setShowModal(true);
   };
 
-  const handleSave = async (e) => {
+  const handleDelete = async (id) => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa nhà cung cấp này?")) {
+      try {
+        await deleteSupplier(id);
+        fetchSuppliers();
+      } catch (error) {
+        alert("Lỗi khi xóa nhà cung cấp");
+      }
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setIsSubmitting(true);
-      if (editingId) {
-        await adminApi.updateSupplier(editingId, formData);
+      if (editId) {
+        await updateSupplier(editId, formData);
       } else {
-        await adminApi.createSupplier(formData);
+        await createSupplier(formData);
       }
       setShowModal(false);
       fetchSuppliers();
     } catch (error) {
-      alert('Đã có lỗi xảy ra.');
-    } finally {
-      setIsSubmitting(false);
+      alert("Lỗi khi lưu nhà cung cấp");
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Chắc chắn xóa nhà cung cấp này?')) return;
-    try {
-      await adminApi.deleteSupplier(id);
-      fetchSuppliers();
-    } catch (error) {
-      alert('Không thể xóa. Có thể nhà cung cấp này đã có giao dịch.');
-    }
-  };
+  const filtered = suppliers.filter(s => 
+    s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (s.contact_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (s.phone || '').includes(searchQuery)
+  );
 
   return (
-    <div style={{ padding: '0 0 40px 0' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
-        <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Truck size={28} color="var(--cyan)" /> Nhà Cung Cấp
-          </h1>
-          <p style={{ color: 'var(--text-muted)', margin: 0 }}>Quản lý đối tác và nhà phân phối hàng hóa.</p>
-        </div>
-        <button onClick={openAddModal} style={{ background: 'var(--cyan)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-          <Plus size={18} /> Thêm Mới
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <h1 className="text-2xl font-bold">Nhà cung cấp</h1>
+        <button onClick={handleCreateNew} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--cyan)', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
+          <Plus size={18} /> Thêm NCC
         </button>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: 'var(--glass-bg)', borderBottom: '1px solid var(--border)' }}>
-              <th style={{ padding: '16px', textAlign: 'left', color: 'var(--text-muted)' }}>Tên NCC</th>
-              <th style={{ padding: '16px', textAlign: 'left', color: 'var(--text-muted)' }}>Liên hệ</th>
-              <th style={{ padding: '16px', textAlign: 'left', color: 'var(--text-muted)' }}>Trạng thái</th>
-              <th style={{ padding: '16px', textAlign: 'right', color: 'var(--text-muted)' }}>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan="4" style={{ textAlign: 'center', padding: '40px' }}>Đang tải...</td></tr>
-            ) : suppliers.length === 0 ? (
-              <tr><td colSpan="4" style={{ textAlign: 'center', padding: '40px' }}>Chưa có dữ liệu</td></tr>
-            ) : (
-              suppliers.map(sup => (
-                <tr key={sup.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td style={{ padding: '16px', fontWeight: 'bold' }}>{sup.name}</td>
-                  <td style={{ padding: '16px', fontSize: '14px', color: 'var(--text-muted)' }}>
-                    {sup.contact_name && <div>Người đại diện: <span style={{color: 'var(--text)'}}>{sup.contact_name}</span></div>}
-                    {sup.phone && <div><Phone size={12}/> {sup.phone}</div>}
-                    {sup.email && <div><Mail size={12}/> {sup.email}</div>}
+      <div className="glass" style={{ borderRadius: '12px', padding: '20px' }}>
+        <div style={{ position: 'relative', marginBottom: '20px', maxWidth: '400px' }}>
+          <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+          <input 
+            type="text" 
+            placeholder="Tìm theo tên, liên hệ, SĐT..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ width: '100%', padding: '10px 12px 10px 40px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', outline: 'none' }}
+          />
+        </div>
+
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>Tên NCC</th>
+                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>Người liên hệ</th>
+                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>SĐT</th>
+                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>Email</th>
+                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>Trạng thái</th>
+                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px', textAlign: 'right' }}>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Đang tải...</td></tr>
+              ) : filtered.length === 0 ? (
+                <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Chưa có nhà cung cấp</td></tr>
+              ) : filtered.map((s) => (
+                <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <td style={{ padding: '16px 12px', fontWeight: 'bold' }}>{s.name}</td>
+                  <td style={{ padding: '16px 12px' }}>{s.contact_name || '-'}</td>
+                  <td style={{ padding: '16px 12px' }}>{s.phone || '-'}</td>
+                  <td style={{ padding: '16px 12px', color: 'var(--cyan)' }}>{s.email || '-'}</td>
+                  <td style={{ padding: '16px 12px' }}>
+                    {s.is_active ? 
+                      <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(76, 175, 80, 0.2)', color: '#4caf50', fontSize: '12px' }}>Hoạt động</span> :
+                      <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(244, 67, 54, 0.2)', color: '#f44336', fontSize: '12px' }}>Ngừng</span>
+                    }
                   </td>
-                  <td style={{ padding: '16px' }}>
-                    <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', background: sup.is_active ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: sup.is_active ? '#22c55e' : '#ef4444' }}>
-                      {sup.is_active ? 'Đang hợp tác' : 'Ngừng hợp tác'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '16px', textAlign: 'right' }}>
-                    <button onClick={() => openEditModal(sup)} style={{ background: 'transparent', border: 'none', color: 'var(--cyan)', cursor: 'pointer', padding: '8px' }}><Edit2 size={18} /></button>
-                    <button onClick={() => handleDelete(sup.id)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '8px' }}><Trash2 size={18} /></button>
+                  <td style={{ padding: '16px 12px', textAlign: 'right' }}>
+                    <button onClick={() => handleEdit(s)} style={{ background: 'transparent', border: 'none', color: 'var(--cyan)', cursor: 'pointer', padding: '4px' }}>
+                      <Edit size={18} />
+                    </button>
+                    <button onClick={() => handleDelete(s.id)} style={{ background: 'transparent', border: 'none', color: '#f44336', cursor: 'pointer', padding: '4px', marginLeft: '8px' }}>
+                      <Trash2 size={18} />
+                    </button>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {showModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'var(--bg-card)', width: '100%', maxWidth: '500px', borderRadius: '16px', border: '1px solid var(--border)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0, color: 'var(--text)' }}>{editingId ? 'Sửa' : 'Thêm'} Nhà Cung Cấp</h2>
-              <button onClick={() => setShowModal(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', padding: '4px' }}><X size={20} /></button>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'var(--bg-card)', width: '100%', maxWidth: '500px', borderRadius: '12px', overflow: 'hidden' }}>
+            <div style={{ padding: '20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>{editId ? 'Sửa Nhà cung cấp' : 'Thêm Nhà cung cấp mới'}</h2>
+              <button onClick={() => setShowModal(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text)', cursor: 'pointer' }}><X size={24} /></button>
             </div>
-            <form onSubmit={handleSave} style={{ padding: '24px' }}>
+            <form onSubmit={handleSubmit} style={{ padding: '20px' }}>
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: 'var(--text)' }}>Tên Nhà Cung Cấp *</label>
-                <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} style={{ width: '100%', padding: '10px 14px', background: 'var(--bg)', border: '1px solid var(--border-hover)', borderRadius: '8px', color: 'var(--text)', outline: 'none' }} placeholder="Nhập tên nhà cung cấp..." />
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px' }}>Tên NCC *</label>
+                <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-page)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: 'var(--text)' }}>Người liên hệ</label>
-                  <input type="text" value={formData.contact_name} onChange={e => setFormData({...formData, contact_name: e.target.value})} style={{ width: '100%', padding: '10px 14px', background: 'var(--bg)', border: '1px solid var(--border-hover)', borderRadius: '8px', color: 'var(--text)', outline: 'none' }} placeholder="Tên người đại diện..." />
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px' }}>Người liên hệ</label>
+                  <input type="text" value={formData.contact_name} onChange={e => setFormData({...formData, contact_name: e.target.value})} style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-page)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: 'var(--text)' }}>Số điện thoại</label>
-                  <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} style={{ width: '100%', padding: '10px 14px', background: 'var(--bg)', border: '1px solid var(--border-hover)', borderRadius: '8px', color: 'var(--text)', outline: 'none' }} placeholder="09xxxxxxx..." />
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px' }}>Số điện thoại</label>
+                  <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-page)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
                 </div>
               </div>
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: 'var(--text)' }}>Email</label>
-                <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} style={{ width: '100%', padding: '10px 14px', background: 'var(--bg)', border: '1px solid var(--border-hover)', borderRadius: '8px', color: 'var(--text)', outline: 'none' }} placeholder="contact@supplier.com..." />
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px' }}>Email</label>
+                <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-page)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
               </div>
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: 'var(--text)' }}>Địa chỉ</label>
-                <input type="text" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} style={{ width: '100%', padding: '10px 14px', background: 'var(--bg)', border: '1px solid var(--border-hover)', borderRadius: '8px', color: 'var(--text)', outline: 'none' }} placeholder="Địa chỉ kho/nhà cung cấp..." />
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px' }}>Địa chỉ</label>
+                <textarea rows="2" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-page)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
               </div>
+              <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input type="checkbox" id="is_active" checked={formData.is_active} onChange={e => setFormData({...formData, is_active: e.target.checked})} style={{ width: '16px', height: '16px' }} />
+                <label htmlFor="is_active" style={{ fontSize: '14px', cursor: 'pointer' }}>Đang hoạt động</label>
+              </div>
+              
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                <button type="button" onClick={() => setShowModal(false)} style={{ padding: '10px 20px', background: 'var(--bg)', border: '1px solid var(--border-hover)', color: 'var(--text)', borderRadius: '8px', cursor: 'pointer', fontWeight: '500' }}>Hủy bỏ</button>
-                <button type="submit" disabled={isSubmitting} style={{ padding: '10px 20px', background: '#38bdf8', border: 'none', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', boxShadow: '0 4px 6px -1px rgba(56, 189, 248, 0.3)' }}>{isSubmitting ? 'Đang lưu...' : 'Lưu lại'}</button>
+                <button type="button" onClick={() => setShowModal(false)} style={{ padding: '10px 20px', background: 'var(--bg-page)', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '8px', cursor: 'pointer' }}>Hủy</button>
+                <button type="submit" style={{ padding: '10px 20px', background: 'var(--cyan)', border: 'none', color: '#fff', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>{editId ? 'Cập nhật' : 'Thêm mới'}</button>
               </div>
             </form>
           </div>

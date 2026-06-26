@@ -14,7 +14,7 @@ const generateSlug = (text) => {
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add'); // 'add' or 'edit'
@@ -22,8 +22,8 @@ export default function AdminCategories() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredCategories = categories.filter(c => 
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredCategories = categories.filter(c =>
+    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.slug.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -125,9 +125,9 @@ export default function AdminCategories() {
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div style={{ position: 'relative', width: '300px' }}>
             <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-            <input 
-              type="text" 
-              placeholder="Tìm kiếm danh mục..." 
+            <input
+              type="text"
+              placeholder="Tìm kiếm danh mục..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{ width: '100%', padding: '10px 10px 10px 40px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)' }}
@@ -155,7 +155,7 @@ export default function AdminCategories() {
                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Chưa có danh mục</td></tr>
               ) : filteredCategories.map(cat => (
                 <tr key={cat.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td style={{ padding: '16px 12px', color: 'var(--text-muted)' }}>{cat.id.substring(0,8).toUpperCase()}</td>
+                  <td style={{ padding: '16px 12px', color: 'var(--text-muted)' }}>{cat.id.substring(0, 8).toUpperCase()}</td>
                   <td style={{ padding: '16px 12px', fontWeight: 'bold' }}>{cat.name}</td>
                   <td style={{ padding: '16px 12px', color: 'var(--text-muted)' }}>/{cat.slug}</td>
                   <td style={{ padding: '16px 12px', fontFamily: 'var(--font-mono)' }}>{cat.product_count || 0}</td>
@@ -196,7 +196,7 @@ export default function AdminCategories() {
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '14px', marginBottom: '8px' }}>Slug *</label>
-                <input required type="text" value={formData.slug} onChange={(e) => setFormData(p => ({...p, slug: e.target.value}))} style={{ width: '100%', padding: '10px', borderRadius: '8px', background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text)' }} />
+                <input required type="text" value={formData.slug} onChange={(e) => setFormData(p => ({ ...p, slug: e.target.value }))} style={{ width: '100%', padding: '10px', borderRadius: '8px', background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text)' }} />
               </div>
               <button disabled={isSubmitting} type="submit" style={{ padding: '12px', background: 'var(--cyan)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: isSubmitting ? 'not-allowed' : 'pointer', marginTop: '8px' }}>
                 {isSubmitting ? 'Đang lưu...' : 'Lưu lại'}

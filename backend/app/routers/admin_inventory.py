@@ -84,13 +84,13 @@ def get_inventory_skus(db: Session = Depends(get_db)):
         # Get first image of product if any
         img_url = None
         if sku.product.images:
-            img_url = sku.product.images[0].image_url
+            img_url = sku.product.images[0].url
             
         res.append(InventorySKUResponse(
             sku_id=sku.id,
             product_name=sku.product.name,
-            sku_name=f"{sku.color} - {sku.ram} - {sku.storage}",
-            stock=sku.stock,
+            sku_code=sku.sku_code,
+            stock_quantity=sku.stock_quantity,
             price=sku.price,
             image_url=img_url
         ))
@@ -134,12 +134,12 @@ def create_receipt(receipt_in: StockReceiptCreate, current_admin: User = Depends
             raise HTTPException(status_code=400, detail=f"SKU {item_in.sku_id} không tồn tại")
         
         if receipt_in.type == 'IN':
-            sku.stock += item_in.quantity
+            sku.stock_quantity += item_in.quantity
         elif receipt_in.type == 'OUT':
-            if sku.stock < item_in.quantity:
+            if sku.stock_quantity < item_in.quantity:
                 db.rollback()
                 raise HTTPException(status_code=400, detail=f"Số lượng tồn kho không đủ để xuất cho SKU {item_in.sku_id}")
-            sku.stock -= item_in.quantity
+            sku.stock_quantity -= item_in.quantity
 
         receipt_item = StockReceiptItem(
             id=str(uuid.uuid4()),

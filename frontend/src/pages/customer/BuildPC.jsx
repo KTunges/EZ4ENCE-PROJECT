@@ -168,7 +168,7 @@ export default function BuildPC() {
     <div className="build-pc-page">
       <CyberBackground />
 
-      <div className="container relative z-10" style={{ paddingTop: '100px', paddingBottom: '60px' }}>
+      <div className="container relative z-10" style={{ paddingTop: '20px', paddingBottom: '60px' }}>
 
         {/* Page Header */}
         <div className="build-pc-header">

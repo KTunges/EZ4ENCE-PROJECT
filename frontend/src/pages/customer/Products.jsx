@@ -4,6 +4,8 @@ import { SlidersHorizontal, Grid3X3, List, ChevronLeft, ChevronRight, X, Filter 
 import { motion, AnimatePresence } from 'framer-motion';
 import CyberBackground from '../../components/ui/CyberBackground';
 import ProductCard from '../../components/ui/ProductCard';
+import ProductSkeleton from '../../components/ui/ProductSkeleton';
+import { mapProduct } from '../../utils/productMapper';
 import CustomSelect from '../../components/ui/CustomSelect';
 import CategorySidebar from '../../components/layout/CategorySidebar';
 import BentoBanners from '../../components/ui/BentoBanners';
@@ -157,6 +159,9 @@ export default function Products() {
   const urlSearch = searchParams.get('search');
 
   const [productsList, setProductsList] = useState([]);
+  const [promoProducts, setPromoProducts] = useState([]);
+  const [hotProducts, setHotProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(urlSearch || '');
   const [selectedCategory, setSelectedCategory] = useState(urlCategory || 'Tất cả');
   const [selectedBrand, setSelectedBrand] = useState('Tất cả');
@@ -169,6 +174,18 @@ export default function Products() {
   const [activeSpecsFilters, setActiveSpecsFilters] = useState({});
   const [totalPages, setTotalPages] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?is_on_sale=true&limit=8`)
+      .then(res => res.json().then(d => d.data || d))
+      .then(data => setPromoProducts(data.map(mapProduct)))
+      .catch(console.error);
+      
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?sort=popular&limit=8`)
+      .then(res => res.json().then(d => d.data || d))
+      .then(data => setHotProducts(data.map(mapProduct)))
+      .catch(console.error);
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -202,32 +219,17 @@ export default function Products() {
       if (val) params.append(key, val);
     });
 
+    setLoading(true);
     fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?${params.toString()}`)
       .then(res => res.json())
       .then(resData => {
         const data = resData.data || [];
         setTotalPages(Math.ceil((resData.total || 0) / ITEMS_PER_PAGE));
         setTotalProducts(resData.total || 0);
-        const mapped = data.map(item => ({
-          id: item.id,
-          slug: item.slug,
-          name: item.name,
-          brand: item.brand?.name || 'Unknown',
-          category: item.category?.name || 'Unknown',
-          categorySlug: item.category?.slug || '',
-          price: item.skus?.[0]?.promotional_price || item.skus?.[0]?.price || 0,
-          originalPrice: item.skus?.[0]?.promotional_price ? item.skus?.[0]?.price : null,
-          image: item.images?.[0]?.url || '',
-          rating: item.rating || 5,
-          reviewCount: item.review_count || 0,
-          badge: item.skus?.[0]?.promotional_price ? 'HOT' : null,
-          specs: Object.values(item.specifications || {}).slice(0, 4),
-          fullSpecs: item.specifications || {},
-          stock: item.skus ? item.skus.reduce((sum, sku) => sum + (sku.stock_quantity || 0), 0) : 0,
-          skus: item.skus || []
-        }));
+        const mapped = data.map(mapProduct);
         setProductsList(mapped);
       })
+      .finally(() => setLoading(false))
       .catch(err => {
         console.error('Failed to fetch products', err);
       });
@@ -298,14 +300,12 @@ const paginatedProducts = productsList;
 
   const isFiltering = activeFilterCount > 0;
   const showDashboard = !isFiltering;
-  const promoProducts = productsList.filter(p => p.originalPrice > p.price).slice(0, 5);
-  const hotProducts = [...productsList].sort((a, b) => b.reviewCount - a.reviewCount).filter(p => !p.originalPrice).slice(0, 5);
 
   return (
     <div className="products-page">
       <CyberBackground />
 
-      <div className="container home-dashboard-wrapper" style={{ paddingTop: '80px', paddingBottom: '40px' }}>
+      <div className="container home-dashboard-wrapper" style={{ paddingTop: '20px', paddingBottom: '40px' }}>
         {/* ── LEFT SIDEBAR ── */}
         <aside className="home-sidebar">
           <CategorySidebar />
@@ -314,7 +314,7 @@ const paginatedProducts = productsList;
         {/* ── RIGHT MAIN CONTENT ── */}
         <main className="home-main">
           {/* ── PAGE HEADER ── */}
-          <section className="products-page-header" style={{ paddingTop: 0, paddingBottom: '20px' }}>
+          <section className="products-page-header" style={{ paddingTop: 0, paddingBottom: '0px' }}>
             <div className="breadcrumb">
               {selectedCategory !== 'Tất cả' ? (
                 <>
@@ -369,7 +369,7 @@ const paginatedProducts = productsList;
           )}
 
           {/* ── FILTER BAR ── */}
-          <section id="products-filter-bar" className="products-filter-section" style={{ padding: 0 }}>
+          <section id="products-filter-bar" className="filter-bar" style={{ marginBottom: '24px', paddingTop: '20px' }}>
         <div className="products-filter-bar glass">
           {/* Desktop Filters */}
           <div className="filter-controls-desktop" style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
@@ -531,7 +531,13 @@ const paginatedProducts = productsList;
 
       {/* ── PRODUCT GRID ── */}
       <section className="products-grid-section">
-        {paginatedProducts.length === 0 ? (
+        {loading ? (
+          <div className={`products-grid-container ${viewMode === 'list' ? 'list-view' : 'grid-view'}`}>
+            {Array.from({ length: 12 }).map((_, idx) => (
+              <ProductSkeleton key={`skeleton-${idx}`} index={idx} />
+            ))}
+          </div>
+        ) : paginatedProducts.length === 0 ? (
           <div className="products-empty glass">
             <div className="products-empty-icon">🔍</div>
             <h3>Không tìm thấy sản phẩm</h3>
