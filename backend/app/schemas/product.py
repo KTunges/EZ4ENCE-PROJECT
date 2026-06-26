@@ -3,6 +3,7 @@ from typing import Optional, List, Any, Dict
 from datetime import datetime
 from .category import CategoryResponse
 from .brand import BrandResponse
+from .review import CustomerReviewResponse
 
 # --- Images ---
 class ImageBase(BaseModel):
@@ -29,6 +30,7 @@ class ProductSKUBase(BaseModel):
 class ProductSKUResponse(ProductSKUBase):
     id: str
     images: List[SkuImageResponse] = []
+    reviews: List[CustomerReviewResponse] = []
     
     model_config = ConfigDict(from_attributes=True)
 

@@ -21,6 +21,14 @@ class Review(Base):
     sku = relationship("ProductSKU", back_populates="reviews")
     images = relationship("ReviewImage", back_populates="review", cascade="all, delete-orphan")
 
+    @property
+    def user_name(self) -> str:
+        return self.user.full_name if self.user else "Khách hàng"
+
+    @property
+    def user_avatar(self) -> str:
+        return self.user.avatar if self.user and self.user.avatar else None
+
 
 class ReviewImage(Base):
     __tablename__ = "review_images"

@@ -6,6 +6,7 @@ import CyberBackground from '../../components/ui/CyberBackground';
 import ProductCard from '../../components/ui/ProductCard';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { useAuth } from '../../context/AuthContext';
 
 export default function ProductDetail() {
   const { slug } = useParams();
@@ -44,7 +45,9 @@ export default function ProductDetail() {
             originalPrice: sku.promotional_price,
             stock: sku.stock_quantity || 0
           })) : [{ id: 'default', label: 'Tiêu chuẩn', price: 0, originalPrice: null, stock: 0 }],
-          reviews: [] // mock reviews for now as backend doesn't have it
+          reviews: data.skus?.length > 0 
+            ? data.skus.flatMap(sku => sku.reviews || []).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) 
+            : []
         };
         setProduct(mappedProduct);
         setLoading(false);
@@ -132,6 +135,58 @@ export default function ProductDetail() {
   const wishlisted = currentSkuId ? isWishlisted(currentSkuId) : false;
   const [showStickyCart, setShowStickyCart] = useState(false);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  
+  const { user, token } = useAuth();
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState('');
+  const [showReviewForm, setShowReviewForm] = useState(false);
+
+  const handleSubmitReview = async () => {
+    if (!token) return;
+    if (!reviewComment.trim()) {
+        setReviewError('Vui lòng nhập nội dung đánh giá');
+        return;
+    }
+    setIsSubmittingReview(true);
+    setReviewError('');
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          sku_id: currentSkuId,
+          rating: reviewRating,
+          comment: reviewComment
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Lỗi gửi đánh giá');
+      
+      setProduct(prev => {
+         const newCount = prev.reviewCount + 1;
+         const newRating = ((prev.rating * prev.reviewCount) + reviewRating) / newCount;
+         return {
+            ...prev,
+            reviews: [data, ...prev.reviews],
+            reviewCount: newCount,
+            rating: Number(newRating.toFixed(1))
+         };
+      });
+      setReviewComment('');
+      setReviewRating(5);
+      setShowReviewForm(false);
+    } catch (err) {
+      setReviewError(err.message);
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
+
 
   useEffect(() => {
     if (!product || product.images?.length <= 1 || !isAutoPlaying) return;
@@ -495,63 +550,101 @@ export default function ProductDetail() {
             {/* Reviews */}
             {activeTab === 'reviews' && (
               <motion.div className="tab-pane" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-                {product.reviews.length === 0 ? (
-                  <div className="reviews-empty">
-                    <p className="text-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
-                    <button className="btn btn-outline" style={{ marginTop: 16 }}>Viết đánh giá đầu tiên</button>
-                  </div>
-                ) : (
-                  <div className="reviews-container">
-                    <div className="reviews-summary glass-panel">
-                      <div className="summary-score">
-                        <h2>{product.rating}</h2>
-                        <div className="summary-stars">
-                          {[1, 2, 3, 4, 5].map(s => (
-                            <Star key={s} size={18} fill={s <= product.rating ? 'var(--cyan)' : 'none'} stroke={s <= product.rating ? 'var(--cyan)' : 'var(--text-dim)'} />
-                          ))}
-                        </div>
-                        <p>{product.reviewCount} đánh giá</p>
+                <div className="reviews-container">
+                  <div className="reviews-summary glass-panel">
+                    <div className="summary-score">
+                      <h2>{product.rating}</h2>
+                      <div className="summary-stars">
+                        {[1, 2, 3, 4, 5].map(s => (
+                          <Star key={s} size={18} fill={s <= product.rating ? 'var(--cyan)' : 'none'} stroke={s <= product.rating ? 'var(--cyan)' : 'var(--text-dim)'} />
+                        ))}
                       </div>
-                      <div className="summary-bars">
-                        {[5, 4, 3, 2, 1].map(star => {
-                          const percent = star === 5 ? 80 : star === 4 ? 15 : star === 3 ? 5 : 0;
-                          return (
-                            <div key={star} className="bar-row">
-                              <span>{star} Sao</span>
-                              <div className="progress-bg">
-                                <div className="progress-fill" style={{ width: `${percent}%` }}></div>
-                              </div>
-                              <span className="percent-text">{percent}%</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      <div className="summary-action">
-                        <button className="btn btn-primary">Viết Đánh Giá</button>
-                      </div>
+                      <p>{product.reviewCount} đánh giá</p>
                     </div>
+                    
+                    <div className="summary-action">
+                      {user ? (
+                         <button className="btn btn-primary" onClick={() => setShowReviewForm(!showReviewForm)}>
+                           {showReviewForm ? 'Hủy' : 'Viết Đánh Giá'}
+                         </button>
+                      ) : (
+                         <Link to="/login" className="btn btn-outline">Đăng nhập để đánh giá</Link>
+                      )}
+                    </div>
+                  </div>
 
-                    <div className="reviews-list">
-                      {product.reviews.map(review => (
-                        <div key={review.id} className="review-card">
-                          <div className="review-header">
-                            <div className="review-avatar">{review.user.charAt(0)}</div>
-                            <div className="review-meta">
-                              <strong className="review-user">{review.user}</strong>
-                              <span className="review-date">{review.date}</span>
-                            </div>
-                            <div className="review-stars">
+                  {showReviewForm && (
+                     <div className="review-form-container glass-panel" style={{ marginTop: '20px', padding: '20px' }}>
+                        <h3 style={{ marginBottom: '15px' }}>Viết đánh giá của bạn</h3>
+                        {reviewError && <div className="text-red-400 mb-2">{reviewError}</div>}
+                        
+                        <div className="mb-4">
+                           <label className="block mb-2 text-sm text-muted">Chọn số sao</label>
+                           <div className="flex gap-2">
                               {[1, 2, 3, 4, 5].map(s => (
-                                <Star key={s} size={13} fill={s <= review.rating ? 'var(--cyan)' : 'none'} stroke={s <= review.rating ? 'var(--cyan)' : 'var(--text-dim)'} />
+                                 <Star 
+                                    key={s} 
+                                    size={24} 
+                                    className="cursor-pointer"
+                                    fill={s <= reviewRating ? 'var(--cyan)' : 'none'} 
+                                    stroke={s <= reviewRating ? 'var(--cyan)' : 'var(--text-dim)'}
+                                    onClick={() => setReviewRating(s)}
+                                 />
                               ))}
-                            </div>
-                          </div>
-                          <p className="review-content">{review.content}</p>
+                           </div>
                         </div>
-                      ))}
-                    </div>
+
+                        <div className="mb-4">
+                           <label className="block mb-2 text-sm text-muted">Nhận xét</label>
+                           <textarea 
+                              className="w-full bg-black/40 border border-white/10 rounded-md p-3 text-white focus:border-cyan outline-none" 
+                              rows="4" 
+                              placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..."
+                              value={reviewComment}
+                              onChange={e => setReviewComment(e.target.value)}
+                           ></textarea>
+                        </div>
+                        
+                        <button 
+                           className="btn btn-primary" 
+                           onClick={handleSubmitReview}
+                           disabled={isSubmittingReview}
+                        >
+                           {isSubmittingReview ? 'Đang gửi...' : 'Gửi Đánh Giá'}
+                        </button>
+                     </div>
+                  )}
+
+                  <div className="reviews-list" style={{ marginTop: '30px' }}>
+                    {product.reviews.length === 0 ? (
+                       <p className="text-muted text-center py-8">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
+                    ) : (
+                       product.reviews.map(review => {
+                           const initial = review.user_name ? review.user_name.charAt(0).toUpperCase() : 'K';
+                           const date = new Date(review.created_at).toLocaleDateString('vi-VN');
+                           return (
+                             <div key={review.id} className="review-card" style={{ padding: '20px', borderBottom: '1px solid var(--border)', marginBottom: '15px' }}>
+                               <div className="review-header flex items-center gap-4 mb-3">
+                                 <div className="review-avatar w-10 h-10 rounded-full bg-cyan-900/50 border border-cyan flex items-center justify-center font-bold text-cyan">
+                                    {review.user_avatar ? <img src={review.user_avatar} alt="avatar" className="w-full h-full rounded-full object-cover"/> : initial}
+                                 </div>
+                                 <div className="review-meta flex-1">
+                                   <strong className="review-user block text-lg">{review.user_name || 'Khách hàng'}</strong>
+                                   <span className="review-date text-xs text-muted">{date}</span>
+                                 </div>
+                                 <div className="review-stars flex gap-1">
+                                   {[1, 2, 3, 4, 5].map(s => (
+                                     <Star key={s} size={14} fill={s <= review.rating ? 'var(--cyan)' : 'none'} stroke={s <= review.rating ? 'var(--cyan)' : 'var(--text-dim)'} />
+                                   ))}
+                                 </div>
+                               </div>
+                               <p className="review-content text-gray-300">{review.comment}</p>
+                             </div>
+                           );
+                       })
+                    )}
                   </div>
-                )}
+                </div>
               </motion.div>
             )}
           </div>

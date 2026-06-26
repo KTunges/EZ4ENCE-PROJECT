@@ -1,9 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Cpu, Box, HardDrive, Zap, 
-  Monitor, Search, X, Plus, 
-  Check, Trash2, RefreshCw, ShoppingCart, 
+import {
+  Cpu, Box, HardDrive, Zap,
+  Monitor, Search, X, Plus,
+  Check, Trash2, RefreshCw, ShoppingCart,
   Settings2, LucideFan, ChevronRight
 } from 'lucide-react';
 import CyberBackground from '../../components/ui/CyberBackground';
@@ -86,10 +86,10 @@ export default function BuildPC() {
         missingCount++;
       }
     });
-    
+
     if (addedCount > 0) {
       addToast(`Đã thêm ${addedCount} linh kiện vào giỏ hàng thành công!`, 'success');
-    } 
+    }
     if (missingCount > 0) {
       addToast(`Lỗi: ${missingCount} linh kiện không có mã SKU để thanh toán.`, 'error');
     }
@@ -98,7 +98,7 @@ export default function BuildPC() {
   // Filter products for modal
   const modalProducts = useMemo(() => {
     if (!activeModalSlot) return [];
-    
+
     // Map activeModalSlot to keywords for filtering the productsList
     let slotKeywords = [];
     if (activeModalSlot === 'CPU') slotKeywords = ['cpu', 'core', 'ryzen'];
@@ -122,25 +122,25 @@ export default function BuildPC() {
     };
 
     let products = productsList.filter(p => {
-       const cat = p.rawCategory.toLowerCase();
-       
-       // Filter by valid DB category for the active slot
-       const validCategories = categoryMap[activeModalSlot] || [];
-       const isComponent = validCategories.some(c => cat.includes(c));
-       if (!isComponent) return false;
+      const cat = p.rawCategory.toLowerCase();
 
-       // Use exact keywords to match within that specific DB category
-       const textSearch = p.name.toLowerCase();
-       
-       // Use word boundaries for very short keywords like 'rx' to avoid matching 'irx'
-       return slotKeywords.some(kw => {
-         if (kw === 'rx' || kw === 'hdd' || kw === 'psu') {
-           return new RegExp(`\\b${kw}\\b`).test(textSearch);
-         }
-         return textSearch.includes(kw);
-       });
+      // Filter by valid DB category for the active slot
+      const validCategories = categoryMap[activeModalSlot] || [];
+      const isComponent = validCategories.some(c => cat.includes(c));
+      if (!isComponent) return false;
+
+      // Use exact keywords to match within that specific DB category
+      const textSearch = p.name.toLowerCase();
+
+      // Use word boundaries for very short keywords like 'rx' to avoid matching 'irx'
+      return slotKeywords.some(kw => {
+        if (kw === 'rx' || kw === 'hdd' || kw === 'psu') {
+          return new RegExp(`\\b${kw}\\b`).test(textSearch);
+        }
+        return textSearch.includes(kw);
+      });
     });
-    
+
     if (searchQuery) {
       const keywords = searchQuery.toLowerCase().trim().split(/\s+/);
       products = products.filter(p => {
@@ -148,7 +148,7 @@ export default function BuildPC() {
         return keywords.every(kw => textToSearch.includes(kw));
       });
     }
-    
+
     if (inStockOnly) {
       products = products.filter(p => p.stock === 'Còn hàng');
     }
@@ -160,16 +160,16 @@ export default function BuildPC() {
     } else if (sortBy === 'Giá giảm dần') {
       result.sort((a, b) => b.price - a.price);
     }
-    
+
     return result;
   }, [activeModalSlot, searchQuery, inStockOnly, productsList, sortBy]);
 
   return (
     <div className="build-pc-page">
       <CyberBackground />
-      
+
       <div className="container relative z-10" style={{ paddingTop: '100px', paddingBottom: '60px' }}>
-        
+
         {/* Page Header */}
         <div className="build-pc-header">
           <h1 className="glitch-text text-4xl font-bold" data-text="BUILD PC TỰ CHỌN">BUILD PC TỰ CHỌN</h1>
@@ -184,7 +184,7 @@ export default function BuildPC() {
               const isSelected = !!selectedItem;
 
               return (
-                <motion.div 
+                <motion.div
                   key={slot.id}
                   className={`build-slot glass-panel ${isSelected ? 'has-item' : 'empty'}`}
                   initial={{ opacity: 0, x: -20 }}
@@ -194,7 +194,7 @@ export default function BuildPC() {
                   <div className="build-slot-icon">
                     {slot.icon}
                   </div>
-                  
+
                   <div className="build-slot-content">
                     <h3 className="build-slot-label">{slot.label}</h3>
                     {isSelected ? (
@@ -218,7 +218,7 @@ export default function BuildPC() {
                         </button>
                       </>
                     ) : (
-                      <button 
+                      <button
                         className="btn btn-primary btn-sm"
                         onClick={() => setActiveModalSlot(slot.id)}
                       >
@@ -235,22 +235,22 @@ export default function BuildPC() {
           <div className="build-pc-summary-container">
             <div className="build-pc-summary glass-panel sticky-panel">
               <h3 className="summary-title">TỔNG QUÁT CẤU HÌNH</h3>
-              
+
               <div className="summary-stats">
                 <div className="stat-row">
                   <span>Tiến độ lắp ráp:</span>
                   <span className={isComplete ? 'highlight' : ''}>{componentsCount} / {BUILD_SLOTS.length}</span>
                 </div>
-                
+
                 <div className="progress-bar-container">
-                  <div 
-                    className="progress-bar-fill" 
+                  <div
+                    className="progress-bar-fill"
                     style={{ width: `${(componentsCount / BUILD_SLOTS.length) * 100}%` }}
                   ></div>
                 </div>
 
                 {isComplete && (
-                  <motion.div 
+                  <motion.div
                     className="compatibility-badge"
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -268,14 +268,14 @@ export default function BuildPC() {
               </div>
 
               <div className="summary-actions" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
-                <button 
+                <button
                   className="btn btn-primary w-full"
                   disabled={componentsCount === 0}
                   onClick={handleAddToCart}
                 >
                   <ShoppingCart size={18} /> Thêm Vào Giỏ Hàng
                 </button>
-                <button 
+                <button
                   className="btn btn-outline w-full"
                   onClick={() => setSelectedComponents({})}
                   disabled={componentsCount === 0}
@@ -295,14 +295,14 @@ export default function BuildPC() {
       {/* COMPONENT SELECTION MODAL (REDESIGNED) */}
       <AnimatePresence>
         {activeModalSlot && (
-          <motion.div 
+          <motion.div
             className="build-modal-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => { setActiveModalSlot(null); setSearchQuery(''); }}
           >
-            <motion.div 
+            <motion.div
               className="build-modal new-modal-design"
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -312,17 +312,17 @@ export default function BuildPC() {
               {/* HEADER */}
               <div className="new-modal-header">
                 <h2 style={{ textTransform: 'uppercase' }}>CHỌN {activeModalSlot}</h2>
-                
+
                 <div className="new-modal-search">
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     placeholder="Bạn cần tìm linh kiện gì?"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                   />
                   <Search size={18} className="search-icon" style={{ color: 'var(--cyan)' }} />
                 </div>
-                
+
                 <button className="btn-icon close-btn" style={{ background: 'rgba(255, 68, 68, 0.1)', border: '1px solid #ff4444', borderRadius: '8px', padding: '6px', marginLeft: '20px' }} onClick={() => { setActiveModalSlot(null); setSearchQuery(''); }}>
                   <X size={24} color="#ff4444" />
                 </button>
@@ -335,7 +335,7 @@ export default function BuildPC() {
                   <div className="filter-block">
                     <h3 className="filter-title">LỌC SẢN PHẨM THEO</h3>
                   </div>
-                  
+
                   <div className="filter-group">
                     <h4 className="filter-group-title">HÃNG SẢN XUẤT</h4>
                     <div className="checkbox-list">
@@ -377,28 +377,28 @@ export default function BuildPC() {
                     <div className="toolbar-left">
                       <span style={{ fontSize: '14px', marginRight: '10px' }}>Sắp xếp:</span>
                       <div style={{ width: '180px', marginRight: '20px' }}>
-                        <CustomSelect 
+                        <CustomSelect
                           value={sortBy}
                           onChange={(val) => setSortBy(val)}
                           options={[
-                            {value: 'Tùy chọn', label: 'Tùy chọn'},
-                            {value: 'Giá tăng dần', label: 'Giá tăng dần'},
-                            {value: 'Giá giảm dần', label: 'Giá giảm dần'}
+                            { value: 'Tùy chọn', label: 'Tùy chọn' },
+                            { value: 'Giá tăng dần', label: 'Giá tăng dần' },
+                            { value: 'Giá giảm dần', label: 'Giá giảm dần' }
                           ]}
                         />
                       </div>
                       <label className="stock-filter" style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', userSelect: 'none' }}>
-                        <input 
-                          type="checkbox" 
-                          checked={inStockOnly} 
-                          onChange={(e) => setInStockOnly(e.target.checked)} 
+                        <input
+                          type="checkbox"
+                          checked={inStockOnly}
+                          onChange={(e) => setInStockOnly(e.target.checked)}
                           style={{ cursor: 'pointer' }}
                         />
                         Còn hàng
                       </label>
                       <button className="btn-clear-filter">Xóa bộ lọc</button>
                     </div>
-                    
+
                     <div className="toolbar-pagination">
                       <button className="page-btn active">1</button>
                       <button className="page-btn">2</button>
@@ -416,7 +416,7 @@ export default function BuildPC() {
                           <div className="list-product-img">
                             <img src={product.image} alt={product.name} />
                           </div>
-                          
+
                           <div className="list-product-info">
                             <h4 className="list-product-name">{product.name}</h4>
                             <div className="list-product-specs">
@@ -428,9 +428,9 @@ export default function BuildPC() {
                               {product.price.toLocaleString()} VNĐ
                             </div>
                           </div>
-                          
+
                           <div className="list-product-actions">
-                            <button 
+                            <button
                               className="btn btn-add-config"
                               onClick={() => handleSelectComponent(product)}
                             >

@@ -6,6 +6,7 @@ from sqlalchemy import or_, func, cast, String
 
 from app.database import get_db
 from app.models.product import Product, ProductSKU, ProductImage
+from app.models.review import Review
 from app.models.category import Category
 from app.models.brand import Brand
 from app.schemas.product import ProductListResponse, ProductDetailResponse
@@ -116,7 +117,7 @@ def get_product_detail(slug: str, db: Session = Depends(get_db)):
         joinedload(Product.brand),
         joinedload(Product.images),
         joinedload(Product.skus).joinedload(ProductSKU.images),
-        joinedload(Product.skus).joinedload(ProductSKU.reviews)
+        joinedload(Product.skus).joinedload(ProductSKU.reviews).joinedload(Review.user)
     ).first()
     
     if not product:
