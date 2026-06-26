@@ -1,51 +1,107 @@
 # ⚡ EZ4ENCE — Gaming & Tech E-Commerce Platform
 
-> Nền tảng thương mại điện tử chuyên về linh kiện máy tính, Gaming Gear và Custom PC cao cấp. Được xây dựng với giao diện **Cyberpunk / Sci-Fi** kết hợp mô hình 3D tương tác, Layout Bento Box hiện đại và hệ thống CI tự động.
+> Nền tảng thương mại điện tử chuyên cung cấp thiết bị công nghệ và linh kiện PC (PC Building). Được xây dựng với giao diện **Cyberpunk / Sci-Fi** hiện đại, kết hợp mô hình 3D tương tác, Layout Bento Box và cơ chế tối ưu hóa hiệu năng siêu tốc.
 
 ---
 
 ## 📋 Mục Lục
 
-- [Tổng Quan](#tổng-quan)
+- [Tổng Quan Kiến Trúc](#tổng-quan-kiến-trúc)
 - [Tính Năng Nổi Bật](#tính-năng-nổi-bật)
 - [Tech Stack](#tech-stack)
+- [Tối Ưu Hóa Hiệu Năng (Performance)](#tối-ưu-hóa-hiệu-năng-performance)
+- [Cài Đặt & Chạy (Setup)](#cài-đặt--chạy-setup)
 - [Cấu Trúc Dự Án](#cấu-trúc-dự-án)
-- [Cài Đặt & Chạy](#cài-đặt--chạy)
 - [CI / CD Pipeline](#ci--cd-pipeline)
-- [Biến Môi Trường](#biến-môi-trường)
 
 ---
 
-## Tổng Quan
+## Tổng Quan Kiến Trúc
 
-**EZ4ENCE** là hệ thống e-commerce full-stack được thiết kế dành riêng cho game thủ và những người đam mê công nghệ:
+Dự án hoạt động theo mô hình **Client-Server (Frontend - Backend tách biệt)**:
 
-- 🖥️ **Frontend**: Trải nghiệm UI/UX mang hơi hướng tương lai với hiệu ứng Glitch, Cyber Particle Background, hệ thống Banner hiển thị theo phong cách **Bento Box**, Thanh thông báo chạy ngang (Marquee) bám dính (Sticky), và mô hình 3D Gamepad tương tác.
-- ⚙️ **Backend**: RESTful API mạnh mẽ, tốc độ cao được tối ưu bằng FastAPI, xử lý xác thực JWT, quản lý sản phẩm, giỏ hàng.
-- 🗄️ **Database**: PostgreSQL với kiến trúc dữ liệu chuẩn thương mại điện tử.
+1. **Truy Cập (Frontend):** Trình duyệt tải React App với tính năng **Code Splitting (Lazy Load)** giúp trang tải nhanh chớp nhoáng vì chỉ tải tài nguyên cần thiết.
+2. **Gọi Dữ Liệu:** Giao diện gửi request API (RESTful) tới Backend FastAPI.
+3. **Xử Lý (Backend):** FastAPI tiếp nhận, sử dụng ORM SQLAlchemy để giao tiếp với **PostgreSQL**. Ảnh sản phẩm/User được lấy từ Cloudinary.
+4. **Hiển Thị:** Frontend nhận dữ liệu JSON và render ra màn hình qua hệ thống component được tối ưu hóa hiển thị.
 
 ---
 
 ## Tính Năng Nổi Bật
 
-- **Bento Banners**: Hệ thống lưới banner quảng cáo hiện đại (Grid 3x3) tích hợp slider chuyển ảnh siêu mượt bằng `framer-motion`.
-- **Sticky Top Marquee**: Dải băng chuyền Flash Sale chạy ngang màn hình, luôn bám dính lấy thanh điều hướng khi cuộn chuột.
-- **Sticky Sidebar**: Thanh danh mục sản phẩm (Category Sidebar) thông minh, tự động cuộn độc lập khi nội dung quá dài.
-- **3D Product Viewer**: Hiển thị mô hình thiết bị 3D trực tiếp trên trình duyệt web bằng Three.js.
-- **Automated CI/CD**: Tích hợp GitHub Actions tự động chạy ESLint (Frontend) và Pytest (Backend) trên mỗi lần Push hoặc tạo Pull Request.
+- 💠 **Bento Banners**: Hệ thống lưới banner quảng cáo hiện đại tích hợp slider chuyển ảnh bằng `framer-motion`.
+- ⚡ **Sticky Top Marquee**: Dải băng chuyền Flash Sale chạy ngang màn hình, luôn bám dính khi cuộn trang.
+- 📦 **3D Product Viewer**: Hiển thị mô hình thiết bị 3D trực tiếp trên trình duyệt web bằng `Three.js`.
+- 🛒 **Giỏ Hàng & Thanh Toán**: Quản lý giỏ hàng qua Context API, tích hợp cổng thanh toán nội địa VNPAY & quốc tế PayPal.
+- 💬 **Real-time Chat**: Hệ thống nhắn tin hỗ trợ khách hàng trực tuyến (WebSockets).
+- 🛡️ **Quản Trị Hệ Thống (Admin Dashboard)**: Trang quản lý tập trung (Sản phẩm, Đơn hàng, Doanh thu) với biểu đồ `Recharts`.
 
 ---
 
 ## Tech Stack
 
-| Layer     | Công Nghệ                                      |
-|-----------|------------------------------------------------|
-| Frontend  | React 19, Vite, React Router DOM, Framer Motion|
-| UI / 3D   | Vanilla CSS Modules, Three.js, React Three Fiber|
-| Backend   | Python 3.13, FastAPI, Uvicorn                  |
-| ORM       | SQLAlchemy 2.0, Alembic                        |
-| Database  | PostgreSQL                                     |
-| CI/CD     | GitHub Actions (Lint, Pytest, Build check)     |
+| Layer     | Công Nghệ Dạng Ngắn | Mô Tả Chức Năng Cốt Lõi |
+|-----------|---------------------|-------------------------|
+| **Frontend** | React 19, Vite 8, React Router DOM | Xử lý giao diện (SPA), định tuyến, Code Splitting |
+| **UI / 3D**  | Vanilla CSS, Framer Motion, Three.js | Animation siêu mượt, xử lý vật thể 3D, hiệu ứng Cyberpunk |
+| **Backend**  | Python, FastAPI, Uvicorn | Xử lý API tốc độ cao (Bất đồng bộ - Asynchronous), Swagger |
+| **Database** | PostgreSQL, SQLAlchemy | Lưu trữ dữ liệu quan hệ, ORM tương tác Database |
+| **Dịch Vụ**  | Cloudinary, VNPAY, PayPal, Mailchimp | Lưu trữ hình ảnh, cổng thanh toán, email marketing |
+
+---
+
+## Tối Ưu Hóa Hiệu Năng (Performance)
+
+Dự án áp dụng chặt chẽ các tiêu chuẩn tối ưu hóa cao cấp để duy trì tốc độ 60 FPS:
+- **GPU Hardware Acceleration:** Ép Card đồ họa xử lý chuyển động CSS (Các hạt `cyber-particle`) thay vì CPU.
+- **Glassmorphism Optimization:** Tối ưu hóa bộ lọc `backdrop-filter` để cuộn trang không bị khựng (Drop FPS).
+- **React Lazy & Suspense:** Chia nhỏ gói Bundle khổng lồ, tách biệt code Admin và Customer để giảm Time-to-Interactive (TTI).
+- **React Memoization:** Sử dụng `React.memo` trên hàng trăm thẻ Card Sản Phẩm để triệt tiêu các vòng lặp Render vô ích.
+
+---
+
+## Cài Đặt & Chạy (Setup)
+
+Dự án có sẵn script cài đặt siêu tốc.
+
+### 1. Khởi Tạo Database (PostgreSQL)
+
+Mở Terminal tại thư mục gốc và chạy 1 trong 2 file sau tuỳ vào Hệ điều hành:
+
+- **Windows:**
+  ```cmd
+  cd database
+  setup_db.bat
+  ```
+- **macOS / Linux:**
+  ```bash
+  cd database
+  chmod +x setup_db.sh
+  ./setup_db.sh
+  ```
+*(Script sẽ tự động kết nối PostgreSQL, tạo CSDL `EZ4ENCE`, Import Schema mới nhất và sinh file `.env` cho Backend)*
+
+### 2. Khởi Chạy Backend (FastAPI)
+
+```bash
+cd backend
+python -m venv venv
+# Windows: venv\Scripts\activate
+# Mac/Linux: source venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+```
+API Documentation (Swagger UI): http://localhost:8000/docs
+
+### 3. Khởi Chạy Frontend (React)
+
+Mở 1 Terminal mới:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Trang chủ: http://localhost:5173
 
 ---
 
@@ -53,98 +109,32 @@
 
 ```
 EZ4ENCE/
-├── .github/workflows/         # File cấu hình CI/CD (ci.yml, cd.yml)
-├── frontend/                  # React + Vite App
-│   ├── public/
-│   │   └── models/            # File mô hình 3D (.glb)
+├── frontend/                  # React + Vite App (Cửa hàng & Trang Quản Trị)
+│   ├── public/                # Ảnh tĩnh, Mô hình 3D (.glb)
 │   └── src/
-│       ├── components/
-│       │   ├── 3d/            # GamepadScene, GamepadModel
-│       │   ├── layout/        # Header, Footer, MainLayout
-│       │   └── ui/            # BentoBanners, TopMarquee, CyberBackground...
-│       ├── pages/             # Home, Products, BuildPC...
-│       └── utils/             # api.js
+│       ├── components/        # Các phần tử tái sử dụng (UI, 3D, Layout)
+│       ├── context/           # React Context (Auth, Cart, Theme, Wishlist)
+│       ├── pages/             # Trang độc lập (chia theo Customer và Admin)
+│       └── index.css          # CSS gốc chứa toàn bộ Theme Variables
 │
 ├── backend/                   # FastAPI App
 │   ├── app/
-│   │   ├── models/            # SQLAlchemy models
-│   │   ├── routers/           # API endpoints
+│   │   ├── models/            # SQLAlchemy DB Models
+│   │   ├── routers/           # API Endpoints (Controllers)
+│   │   ├── schemas/           # Pydantic Schemas (Validation)
 │   │   └── main.py            # Entry point FastAPI
-│   ├── alembic/               # Database migrations
-│   ├── tests/                 # Unit tests với Pytest
-│   └── requirements.txt
+│   └── tests/                 # Unit tests (Pytest)
 │
 └── database/
-    └── ez4ence_schema.sql     # Schema PostgreSQL export
-```
-
----
-
-## Cài Đặt & Chạy
-
-### 1. Database (PostgreSQL)
-
-```bash
-# Đăng nhập PostgreSQL
-psql -U postgres
-# Tạo Database
-CREATE DATABASE ez4ence;
-\q
-
-# Import dữ liệu mẫu
-psql -h localhost -U postgres -d ez4ence -f database/ez4ence_schema.sql
-```
-
-### 2. Backend (FastAPI)
-
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate    # Hoặc venv\Scripts\activate trên Windows
-pip install -r requirements.txt
-
-# Tạo file .env và điền DATABASE_URL (xem phần Biến Môi Trường)
-
-# Khởi động server (Chạy tại port 8000)
-uvicorn app.main:app --reload --port 8000
-```
-*(Swagger UI Docs: `http://localhost:8000/api/docs`)*
-
-### 3. Frontend (React + Vite)
-
-```bash
-cd frontend
-npm install
-
-# Khởi động Frontend
-npm run dev
+    ├── ez4ence_schema.sql     # File kết xuất Schema PostgreSQL (Backup)
+    └── setup_db.*             # Script tự động hóa cài đặt DB
 ```
 
 ---
 
 ## CI / CD Pipeline
 
-Dự án này sử dụng **GitHub Actions** để đảm bảo chất lượng code:
-- **Frontend Job**: Cài đặt dependencies, chạy `npm run lint` để kiểm tra chuẩn React Hooks, và chạy `npm run build` để kiểm tra lỗi biên dịch.
-- **Backend Job**: Thiết lập Python 3.13, kiểm tra Syntax, và chạy toàn bộ unit tests bằng `pytest`.
-
-> *Quy trình CI sẽ tự động kích hoạt mỗi khi có code mới được đẩy lên nhánh `main` hoặc `develop`.*
-
----
-
-## Biến Môi Trường
-
-Tạo file `.env` tại thư mục `backend/`:
-
-```env
-# Chuỗi kết nối Database
-DATABASE_URL=postgresql://postgres:your_password@localhost:5432/ez4ence
-
-# Chuẩn bảo mật
-JWT_SECRET=your_super_secret_key_here
-PORT=8000
-```
-
----
-
-<p align="center">Made with ⚡ by EZ4ENCE Team</p>
+Dự án sử dụng **GitHub Actions** cho việc kiểm tra chất lượng tự động:
+- **Lint Check:** Quét lỗi cú pháp Frontend (`ESLint`).
+- **Test Check:** Chạy bộ Unit Test cho Backend (`Pytest`).
+- Kích hoạt mỗi khi có lượt `push` hoặc tạo `Pull Request` vào nhánh `main`.
