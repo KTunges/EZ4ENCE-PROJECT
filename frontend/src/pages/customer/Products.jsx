@@ -167,13 +167,14 @@ export default function Products() {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [activeSubMenu, setActiveSubMenu] = useState(null);
   const [activeSpecsFilters, setActiveSpecsFilters] = useState({});
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
 
   useEffect(() => {
     const params = new URLSearchParams();
-    params.append('limit', '1000');
+    params.append('limit', ITEMS_PER_PAGE.toString());
+    params.append('page', currentPage.toString());
 
-    // Nếu có query requiredCategory, fetch đúng slug đó
-    // Ngược lại, nếu chọn category tổng hợp, fetch tất cả slug của nó.
     if (selectedCategory !== 'Tất cả') {
       const requiredCategory = getRequiredCategorySlug(selectedCategory, activeSubMenu);
       if (requiredCategory) {
@@ -188,6 +189,13 @@ export default function Products() {
 
     if (selectedBrand !== 'Tất cả') params.append('brand_slug', selectedBrand.toLowerCase());
     if (searchQuery.trim()) params.append('search', searchQuery.trim());
+    if (sortBy) params.append('sort', sortBy);
+    
+    if (selectedPrice !== 'all') {
+      const [min, max] = selectedPrice.split('-').map(Number);
+      params.append('min_price', min.toString());
+      params.append('max_price', max.toString());
+    }
 
     // Dynamic specs filtering
     Object.entries(activeSpecsFilters).forEach(([key, val]) => {
@@ -196,12 +204,10 @@ export default function Products() {
 
     fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?${params.toString()}`)
       .then(res => res.json())
-      .then(data => {
-        if (!Array.isArray(data)) {
-          console.error('API did not return an array:', data);
-          setProductsList([]);
-          return;
-        }
+      .then(resData => {
+        const data = resData.data || [];
+        setTotalPages(Math.ceil((resData.total || 0) / ITEMS_PER_PAGE));
+        setTotalProducts(resData.total || 0);
         const mapped = data.map(item => ({
           id: item.id,
           slug: item.slug,
@@ -225,7 +231,7 @@ export default function Products() {
       .catch(err => {
         console.error('Failed to fetch products', err);
       });
-  }, [selectedCategory, selectedBrand, searchQuery, activeSpecsFilters, activeSubMenu]);
+  }, [selectedCategory, selectedBrand, searchQuery, activeSpecsFilters, activeSubMenu, currentPage, selectedPrice, sortBy]);
 
   useEffect(() => {
     if (urlCategory) {
@@ -248,157 +254,7 @@ export default function Products() {
     }
   }, [urlSearch]);
 
-  // Filter & sort products
-  const filteredProducts = useMemo(() => {
-    let result = [...productsList];
-
-    // Search
-    if (searchQuery.trim()) {
-      const keywords = searchQuery.toLowerCase().trim().split(/\s+/);
-      result = result.filter(p => {
-        const textToSearch = [p.name, p.brand, p.category, ...Object.values(p.fullSpecs || {})].join(' ').toLowerCase();
-        return keywords.every(kw => textToSearch.includes(kw));
-      });
-    }
-
-    // Filter by Category — dùng CATEGORY_SLUG_MAP chính xác
-    if (selectedCategory !== 'Tất cả') {
-      const slugs = CATEGORY_SLUG_MAP[selectedCategory];
-      if (slugs && slugs.length > 1) {
-        // Danh mục tổng hợp → lọc frontend theo danh sách slug
-        result = result.filter(p => slugs.includes(p.categorySlug));
-      }
-      // Nếu slugs.length === 1 → đã lọc từ backend, không cần lọc thêm
-      // Nếu không có trong map → lọc bằng tên danh mục
-      if (!slugs) {
-        result = result.filter(p => {
-          const pCat = (p.category || '').toLowerCase();
-          return pCat.includes(selectedCategory.toLowerCase());
-        });
-      }
-    }
-
-    // Filter by Brand
-    if (selectedBrand !== 'Tất cả') {
-      result = result.filter(p => 
-        p.brand && p.brand.toLowerCase() === selectedBrand.toLowerCase()
-      );
-    }
-
-    // Advanced Sub-category (activeSubMenu) text & price filter
-    if (activeSubMenu) {
-      const lowerSub = activeSubMenu.toLowerCase();
-      
-      if (lowerSub.includes('triệu') || lowerSub.includes('hi-end')) {
-        let min = 0, max = 999999999;
-        if (lowerSub.includes('dưới 1 triệu')) max = 1000000;
-        else if (lowerSub.includes('dưới 10 triệu')) max = 10000000;
-        else if (lowerSub.includes('dưới 15 triệu')) max = 15000000;
-        else if (lowerSub.includes('10 - 20 triệu')) { min = 10000000; max = 20000000; }
-        else if (lowerSub.includes('15 - 20 triệu')) { min = 15000000; max = 20000000; }
-        else if (lowerSub.includes('20 - 25 triệu')) { min = 20000000; max = 25000000; }
-        else if (lowerSub.includes('20 - 30 triệu')) { min = 20000000; max = 30000000; }
-        else if (lowerSub.includes('30 - 50 triệu')) { min = 30000000; max = 50000000; }
-        else if (lowerSub.includes('trên 50 triệu') || lowerSub.includes('hi-end')) min = 50000000;
-        else if (lowerSub.includes('trên 25 triệu')) min = 25000000;
-        else if (lowerSub.includes('trên 2 triệu')) min = 2000000;
-        
-        result = result.filter(p => p.price >= min && p.price <= max);
-      } else {
-        let searchKeyword = lowerSub;
-        let columnContext = '';
-
-        if (activeSubMenu.includes(': ')) {
-          const parts = activeSubMenu.split(': ');
-          columnContext = parts[0].toLowerCase();
-          searchKeyword = parts.slice(1).join(': ').toLowerCase();
-        }
-
-        const requiredCategory = getRequiredCategorySlug(selectedCategory, activeSubMenu);
-        if (requiredCategory) {
-           result = result.filter(p => (p.categorySlug || '') === requiredCategory);
-        }
-
-        const catLabel = (selectedCategory || '').toLowerCase();
-        let cleanedKeyword = searchKeyword;
-        if (catLabel && cleanedKeyword.startsWith(catLabel + ' ')) {
-          cleanedKeyword = cleanedKeyword.slice(catLabel.length).trim();
-        }
-
-        if (cleanedKeyword.includes('/')) {
-          const parts = cleanedKeyword.split('/').map(s => s.trim()).filter(Boolean);
-          const firstPart = parts[0];
-          const firstWords = firstPart.split(/\s+/);
-          let baseWords = [];
-          let alternatives = [];
-          
-          if (firstWords.length > 1) {
-            baseWords = firstWords.slice(0, -1);
-            alternatives = [firstWords[firstWords.length - 1], ...parts.slice(1)];
-          } else {
-            alternatives = parts;
-          }
-
-          result = result.filter(p => {
-            const pool = [
-              p.name, p.category, p.categorySlug, p.brand,
-              ...(p.fullSpecs ? Object.values(p.fullSpecs) : [])
-            ].join(' ').toLowerCase();
-
-            const baseMatch = baseWords.length === 0 || baseWords.every(w => pool.includes(w));
-            const altMatch = alternatives.some(alt => pool.includes(alt));
-            return baseMatch && altMatch;
-          });
-        } else {
-          const keywordWords = cleanedKeyword.split(/\s+/).filter(w => w.length > 0);
-          
-          if (keywordWords.length > 0) {
-            result = result.filter(p => {
-              const pool = [
-                p.name, p.category, p.categorySlug, p.brand,
-                ...(p.fullSpecs ? Object.values(p.fullSpecs) : [])
-              ].join(' ').toLowerCase();
-
-              return keywordWords.every(w => pool.includes(w));
-            });
-          }
-        }
-      }
-    }
-
-    // Price range
-    if (selectedPrice !== 'all') {
-      const [min, max] = selectedPrice.split('-').map(Number);
-      result = result.filter(p => p.price >= min && p.price <= max);
-    }
-
-    // Sort
-    switch (sortBy) {
-      case 'newest':
-        result.sort((a, b) => b.id.localeCompare(a.id));
-        break;
-      case 'price-asc':
-        result.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-desc':
-        result.sort((a, b) => b.price - a.price);
-        break;
-      case 'rating':
-        result.sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount);
-        break;
-      default: // popular
-        result.sort((a, b) => b.reviewCount - a.reviewCount);
-    }
-
-    return result;
-  }, [productsList, searchQuery, selectedCategory, selectedBrand, activeSubMenu, selectedPrice, sortBy]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-  const paginatedProducts = filteredProducts.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+const paginatedProducts = productsList;
 
   const activeFilterCount = [
     selectedCategory !== 'Tất cả',
@@ -473,7 +329,7 @@ export default function Products() {
             <h1 className="glitch-text text-3xl font-bold" data-text={selectedCategory === 'Tất cả' ? "SẢN PHẨM" : selectedCategory.toUpperCase()}>
               {selectedCategory === 'Tất cả' ? "SẢN PHẨM" : selectedCategory.toUpperCase()}
             </h1>
-            <p className="text-muted">{filteredProducts.length} sản phẩm được tìm thấy</p>
+            <p className="text-muted">{totalProducts} sản phẩm được tìm thấy</p>
           </section>
 
           {/* ── BENTO BANNERS ── */}

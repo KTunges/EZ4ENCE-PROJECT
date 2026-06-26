@@ -2,14 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, File, Upl
 from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 import uuid
-from sqlalchemy import or_, func, cast, String
+from sqlalchemy import or_, func, cast, String, desc
 
 from app.database import get_db
 from app.models.product import Product, ProductSKU, ProductImage
 from app.models.review import Review
 from app.models.category import Category
 from app.models.brand import Brand
-from app.schemas.product import ProductListResponse, ProductDetailResponse
+from app.schemas.product import ProductListResponse, ProductDetailResponse, ProductPaginatedResponse
 from app.services.cloudinary_service import upload_image
 
 router = APIRouter(tags=["Products"])
@@ -40,15 +40,19 @@ def upload_product_image(product_id: str, file: UploadFile = File(...), db: Sess
     
     return {"message": "Image uploaded successfully", "url": image_url, "image_id": new_image.id}
 
-@router.get("/products", response_model=List[ProductDetailResponse])
+@router.get("/products", response_model=ProductPaginatedResponse)
 def get_products(
     request: Request,
-    db: Session = Depends(get_db),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(20, ge=1, le=1000),
+    skip: int = 0,
+    limit: int = 12,
+    page: int = 1,
     category_slug: Optional[str] = None,
     brand_slug: Optional[str] = None,
-    search: Optional[str] = None
+    search: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    sort: Optional[str] = None,
+    db: Session = Depends(get_db)
 ):
     """
     Lấy danh sách sản phẩm. Có thể phân trang, lọc theo category, brand, tìm kiếm, 
@@ -83,16 +87,23 @@ def get_products(
         for kw in keywords:
             query = query.filter(Product.name.ilike(f"%{kw}%"))
         
-    # Lọc động dựa trên specifications (tất cả query params ngoài các tham số chuẩn)
-    standard_params = {"skip", "limit", "category_slug", "brand_slug", "search"}
+    # Price filtering
+    if min_price is not None:
+        query = query.join(Product.skus).filter(ProductSKU.price >= min_price)
+    if max_price is not None:
+        if min_price is None:
+            query = query.join(Product.skus)
+        query = query.filter(ProductSKU.price <= max_price)
+
+    # Lọc động dựa trên specifications
+    standard_params = {"skip", "limit", "page", "category_slug", "brand_slug", "search", "min_price", "max_price", "sort"}
     for key, value in request.query_params.items():
         if key not in standard_params and value:
-            # Lọc linh hoạt: cắt từng từ để tìm gần đúng trong JSON
             spec_keywords = value.strip().split()
             for skw in spec_keywords:
                 query = query.filter(cast(Product.specifications[key], String).ilike(f"%{skw}%"))
 
-    # Tối ưu truy vấn: load sẵn brand, category và images chính
+    # Tối ưu truy vấn
     query = query.options(
         joinedload(Product.category),
         joinedload(Product.brand),
@@ -100,8 +111,31 @@ def get_products(
         joinedload(Product.skus).joinedload(ProductSKU.reviews)
     )
     
-    products = query.offset(skip).limit(limit).all()
-    return products
+    # Sorting
+    if sort:
+        if sort == "newest":
+            query = query.order_by(desc(Product.created_at))
+        elif sort == "price-asc":
+            if min_price is None and max_price is None:
+                query = query.join(Product.skus)
+            query = query.order_by(ProductSKU.price.asc())
+        elif sort == "price-desc":
+            if min_price is None and max_price is None:
+                query = query.join(Product.skus)
+            query = query.order_by(ProductSKU.price.desc())
+
+    total = query.count()
+    
+    # Calculate skip from page
+    skip_calc = skip if skip > 0 else (page - 1) * limit if page > 0 else 0
+    products = query.offset(skip_calc).limit(limit).all()
+    
+    return {
+        "data": products,
+        "total": total,
+        "page": page,
+        "page_size": limit
+    }
 
 
 @router.get("/products/{slug}", response_model=ProductDetailResponse)

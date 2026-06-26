@@ -62,3 +62,9 @@ class ProductDetailResponse(ProductListResponse):
     skus: List[ProductSKUResponse] = []
     
     model_config = ConfigDict(from_attributes=True)
+
+class ProductPaginatedResponse(BaseModel):
+    data: List[ProductListResponse]
+    total: int
+    page: int
+    page_size: int

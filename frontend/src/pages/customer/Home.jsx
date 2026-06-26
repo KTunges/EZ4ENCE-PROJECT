@@ -84,12 +84,12 @@ export default function Home() {
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/news?limit=4`)
-      .then(res => res.json())
+      .then(res => res.json().then(d => d.data || d))
       .then(data => setNewsList(data))
       .catch(console.error);
 
     fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?limit=1000`)
-      .then(res => res.json())
+      .then(res => res.json().then(d => d.data || d))
       .then(data => {
         // Filter for beautiful products (have images, and preferably on sale)
         let featured = data.filter(item => 

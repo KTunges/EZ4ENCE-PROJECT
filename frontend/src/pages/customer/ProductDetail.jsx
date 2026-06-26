@@ -71,7 +71,7 @@ export default function ProductDetail() {
 
         // Fetch related products (same category)
         fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?category_slug=${data.category?.slug}`)
-          .then(r => r.json())
+          .then(r => r.json().then(d => d.data || d))
           .then(list => {
             const mappedList = list
               .filter(item => item.id !== data.id)
@@ -96,7 +96,7 @@ export default function ProductDetail() {
             } else {
               // Nếu không có sản phẩm cùng danh mục, lấy random sản phẩm khác
               fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?limit=5`)
-                .then(r => r.json())
+                .then(r => r.json().then(d => d.data || d))
                 .then(fallbackList => {
                   const mappedFallback = fallbackList
                     .filter(item => item.id !== data.id)

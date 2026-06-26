@@ -33,7 +33,7 @@ export default function BuildPC() {
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?limit=1000`)
-      .then(res => res.json())
+      .then(res => res.json().then(d => d.data || d))
       .then(data => {
         const mapped = data.map(item => ({
           id: item.id,
