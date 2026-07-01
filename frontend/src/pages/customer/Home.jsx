@@ -17,19 +17,15 @@ function HackerFeatureCard({ feature, index }) {
   const descText = useHackerText(feature.desc, isHovered, 15);
 
   return (
-    <motion.div
+    <div
       className="card feature-card"
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.5, delay: index * 0.15 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="feature-icon">{feature.icon}</div>
       <h3>{isHovered ? titleText : feature.title}</h3>
       <p>{isHovered ? descText : feature.desc}</p>
-    </motion.div>
+    </div>
   );
 }
 
@@ -168,18 +164,14 @@ export default function Home() {
 
       {/* ── FEATURES ── */}
       <section className="container relative z-10" style={{ padding: '40px 28px 80px' }}>
-        <motion.div 
+        <div 
           className="section-header"
           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px', gap: '8px' }}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
         >
           <span className="section-tag">// TẠI SAO CHỌN EZ4GEAR</span>
           <h2 className="section-title glitch-text" data-text="Cam Kết Của Chúng Tôi">Cam Kết Của Chúng Tôi</h2>
           <p className="section-desc">Chúng tôi không chỉ bán hàng — chúng tôi xây dựng trải nghiệm.</p>
-        </motion.div>
+        </div>
         <div className="features-grid">
           {features.map((f, index) => (
             <HackerFeatureCard key={f.title} feature={f} index={index} />
@@ -189,34 +181,24 @@ export default function Home() {
 
       {/* ── FEATURED CATEGORIES ── */}
       <section className="container relative z-10" style={{ padding: '0 28px 100px' }}>
-        <motion.div 
+        <div 
           className="section-header"
           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px', gap: '8px' }}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
         >
           <span className="section-tag">// EXPLORE</span>
           <h2 className="section-title glitch-text" data-text="Danh Mục Nổi Bật">Danh Mục Nổi Bật</h2>
-        </motion.div>
+        </div>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '20px' }}>
           {FEATURED_CATEGORIES.map((cat, index) => (
-            <motion.div
-              key={cat.id}
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-            >
+            <div key={cat.id}>
               <Link to={`/products?category=${encodeURIComponent(cat.slug)}`} className="glass-premium neon-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px 20px', borderRadius: '16px', textDecoration: 'none', height: '100%' }}>
                 <div className="neon-icon" style={{ color: cat.color, marginBottom: '16px', transition: 'all 0.3s ease' }}>
                   {cat.icon}
                 </div>
                 <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#fff', textAlign: 'center', margin: 0 }}>{cat.name}</h3>
               </Link>
-            </motion.div>
+            </div>
           ))}
         </div>
       </section>
@@ -231,18 +213,14 @@ export default function Home() {
 
       {/* ── FEATURED PRODUCTS placeholder ── */}
       <section className="container relative z-10" style={{ padding: '0 28px 100px' }}>
-        <motion.div 
+        <div 
           className="section-header"
           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px', gap: '8px' }}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
         >
           <span className="section-tag">// HOT DEAL</span>
           <h2 className="section-title glitch-text" data-text="Sản Phẩm Bán Chạy">Sản Phẩm Bán Chạy</h2>
           <p className="section-desc">Những sản phẩm được game thủ yêu thích nhất tháng này.</p>
-        </motion.div>
+        </div>
         <div className="products-grid">
           {bestSellers.map((item, index) => (
             <div key={item.id} style={{ display: 'flex' }}>
@@ -276,29 +254,19 @@ export default function Home() {
 
       {/* ── TECHNOLOGY NEWS ── */}
       <section className="container relative z-10" style={{ padding: '0 28px 100px' }}>
-        <motion.div 
+        <div 
           className="section-header"
           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px', gap: '8px' }}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
         >
           <span className="section-tag">// LATEST NEWS</span>
           <h2 className="section-title glitch-text" data-text="Tin Tức Công Nghệ">Tin Tức Công Nghệ</h2>
           <Link to="#" className="view-all-btn">Xem tất cả tin <ChevronRight size={16} /></Link>
-        </motion.div>
+        </div>
         
         <div className="news-grid-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
-          {newsList.map((news, index) => (
-            <motion.div
-              key={news.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-            >
-              <Link to={`/news/${news.slug}`} className="news-card glass-panel" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '12px', transition: 'all 0.3s ease', height: '100%' }}>
+          {newsList.map((news) => (
+            <div key={news.id} className="news-card glass-panel">
+              <Link to={`/news/${news.slug}`} style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: '12px', transition: 'all 0.3s ease', height: '100%' }}>
                 <div className="news-image-wrapper" style={{ height: '160px', overflow: 'hidden', position: 'relative' }}>
                   <img src={news.image_url || news.image} alt={news.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }} />
                   <span className="news-category-badge" style={{ position: 'absolute', bottom: '10px', left: '10px', background: 'var(--cyan)', color: '#000', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>{news.category || 'Chung'}</span>
@@ -308,7 +276,7 @@ export default function Home() {
                   <h3 className="news-title" style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-color)', lineHeight: '1.4', marginBottom: '12px', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{news.title}</h3>
                 </div>
               </Link>
-            </motion.div>
+            </div>
           ))}
         </div>
       </section>

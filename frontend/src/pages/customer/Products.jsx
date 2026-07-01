@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { SlidersHorizontal, Grid3X3, List, ChevronLeft, ChevronRight, X, Filter } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,6 +9,24 @@ import { mapProduct } from '../../utils/productMapper';
 import CustomSelect from '../../components/ui/CustomSelect';
 import CategorySidebar from '../../components/layout/CategorySidebar';
 import BentoBanners from '../../components/ui/BentoBanners';
+
+// 💾 Module-level cache: tồn tại xuyên suốt phiên làm việc
+const productCache = new Map();
+const CACHE_TTL = 3 * 60 * 1000; // 3 phút
+
+function getCached(key) {
+  const entry = productCache.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.timestamp > CACHE_TTL) {
+    productCache.delete(key);
+    return null;
+  }
+  return entry.data;
+}
+
+function setCache(key, data) {
+  productCache.set(key, { data, timestamp: Date.now() });
+}
 
 const CATEGORIES = [
   'Tất cả', 
@@ -219,19 +237,37 @@ export default function Products() {
       if (val) params.append(key, val);
     });
 
-    setLoading(true);
+    const cacheKey = params.toString();
+
+    // ⚡ Hiện cache ngay lập tức (không loading)
+    const cached = getCached(cacheKey);
+    if (cached) {
+      setProductsList(cached.products);
+      setTotalPages(cached.totalPages);
+      setTotalProducts(cached.total);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+
+    // Fetch nền để cập nhật dữ liệu mới
     fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?${params.toString()}`)
       .then(res => res.json())
       .then(resData => {
         const data = resData.data || [];
-        setTotalPages(Math.ceil((resData.total || 0) / ITEMS_PER_PAGE));
-        setTotalProducts(resData.total || 0);
+        const totalPages = Math.ceil((resData.total || 0) / ITEMS_PER_PAGE);
+        const total = resData.total || 0;
         const mapped = data.map(mapProduct);
+
+        setCache(cacheKey, { products: mapped, totalPages, total });
+        setTotalPages(totalPages);
+        setTotalProducts(total);
         setProductsList(mapped);
       })
       .finally(() => setLoading(false))
       .catch(err => {
         console.error('Failed to fetch products', err);
+        setLoading(false);
       });
   }, [selectedCategory, selectedBrand, searchQuery, activeSpecsFilters, activeSubMenu, currentPage, selectedPrice, sortBy]);
 

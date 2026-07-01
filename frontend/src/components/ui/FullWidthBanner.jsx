@@ -34,7 +34,7 @@ export default function FullWidthBanner({ position, fallbackImage, fallbackTitle
       justifyContent: 'center',
       marginTop: '40px'
     }}>
-      {/* Parallax Background */}
+      {/* Parallax Background - Removed backgroundAttachment: fixed to fix lag */}
       <div 
         className="banner-bg" 
         style={{
@@ -46,7 +46,6 @@ export default function FullWidthBanner({ position, fallbackImage, fallbackTitle
           backgroundImage: `url(${bgImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          backgroundAttachment: 'fixed', // Parallax effect
           filter: 'brightness(0.5)',
           zIndex: 1
         }}
@@ -54,12 +53,7 @@ export default function FullWidthBanner({ position, fallbackImage, fallbackTitle
       
       {/* Content */}
       <div className="container relative z-10" style={{ zIndex: 2, textAlign: 'center', padding: '0 20px' }}>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-        >
+        <div>
           {title && (
             <h2 className="glitch-text" data-text={title} style={{ 
               fontSize: '48px', 
@@ -90,7 +84,7 @@ export default function FullWidthBanner({ position, fallbackImage, fallbackTitle
               Khám Phá Ngay
             </a>
           )}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

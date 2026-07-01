@@ -20,13 +20,7 @@ const ProductCard = React.memo(({ product, index = 0 }) => {
     : 0;
 
   return (
-    <motion.div
-      className="product-card glass"
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-30px" }}
-      transition={{ duration: 0.4, delay: index * 0.06 }}
-    >
+    <div className="product-card glass">
       {/* Image */}
       <Link to={`/products/${product.slug}`} className="product-card-img-wrapper">
         {product.image ? (
@@ -124,7 +118,7 @@ const ProductCard = React.memo(({ product, index = 0 }) => {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 });
 

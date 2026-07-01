@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { useState } from 'react';
 
 export default function CyberBackground() {
@@ -14,25 +13,29 @@ export default function CyberBackground() {
   return (
     <div className="cyber-background">
       <div className="cyber-grid-overlay"></div>
+      
+      {/* Pure CSS Particles for performance instead of framer-motion */}
+      <style>{`
+        @keyframes floatParticle {
+          0% { transform: translateY(0); opacity: 0; }
+          50% { opacity: 0.8; }
+          100% { transform: translateY(-100px); opacity: 0; }
+        }
+      `}</style>
+
       {particles.map((p) => (
-        <motion.div
+        <div
           key={p.id}
           className="cyber-particle"
           style={{
+            position: 'absolute',
             width: p.size,
             height: p.size,
             left: `${p.x}%`,
             top: `${p.y}%`,
-          }}
-          animate={{
-            y: [0, -100, 0],
-            opacity: [0, 0.8, 0],
-          }}
-          transition={{
-            duration: p.duration,
-            repeat: Infinity,
-            delay: p.delay,
-            ease: "linear"
+            background: 'var(--cyan)',
+            borderRadius: '50%',
+            animation: `floatParticle ${p.duration}s linear ${p.delay}s infinite`
           }}
         />
       ))}

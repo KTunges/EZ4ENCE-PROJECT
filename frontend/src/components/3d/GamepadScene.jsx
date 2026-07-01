@@ -43,9 +43,10 @@ export default function GamepadScene() {
         alpha: true,
         antialias: true,
         toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: isDark ? 1.8 : 2.0, // Phơi sáng cao hơn để cực kỳ sáng
+        toneMappingExposure: isDark ? 1.8 : 2.0,
       }}
-      shadows
+      dpr={[1, 1.5]}
+      camera={{ position: [0, 0, 8], fov: 35 }}
     >
       {/* Ánh sáng môi trường cực mạnh */}
       <ambientLight intensity={isDark ? 1.5 : 2.0} />
@@ -55,7 +56,6 @@ export default function GamepadScene() {
         position={[-4, 4, 4]}
         intensity={isDark ? 6 : 4}
         color={isDark ? '#00dcff' : '#6b21e8'}
-        castShadow
       />
 
       {/* Fill light */}
@@ -80,15 +80,19 @@ export default function GamepadScene() {
       />
 
       <Suspense fallback={<Loader />}>
-        <Bounds fit clip observe margin={1.25}>
+        {/* Removed 'observe' to stop computing bounding box every frame */}
+        <Bounds fit clip margin={1.25}>
           <DualSenseModel isDark={isDark} />
         </Bounds>
 
+        {/* frames={1} bakes the shadow once! Huge performance boost */}
         <ContactShadows
           position={[0, -1.5, 0]}
           opacity={isDark ? 0.5 : 0.15}
           scale={6} blur={3} far={3}
           color={isDark ? '#001a33' : '#6b21e8'}
+          frames={1}
+          resolution={256}
         />
 
         {/* Night preset → ít ánh sáng môi trường, hòa với nền tối */}

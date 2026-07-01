@@ -68,7 +68,7 @@ export default function About() {
   return (
     <div className="about-page relative">
       <CyberBackground />
-      
+
       {/* ── HERO ── */}
       <section className="about-hero container relative z-10" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh', paddingTop: '20px' }}>
         <div className="about-hero-grid" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', width: '100%' }}>
@@ -81,8 +81,8 @@ export default function About() {
           >
             <span className="section-tag" style={{ alignSelf: 'center', marginBottom: '20px' }}>// ARCHIVE.SYS</span>
             <h1 className="hero-title glitch-text" data-text="THE ORIGIN" style={{ textAlign: 'center' }}>THE ORIGIN</h1>
-            <motion.h2 
-              className="about-subtitle" 
+            <motion.h2
+              className="about-subtitle"
               style={{ textAlign: 'center' }}
               initial={{ clipPath: 'inset(0 100% 0 0)' }}
               animate={{ clipPath: 'inset(0 0 0 0)' }}
@@ -90,14 +90,14 @@ export default function About() {
             >
               KHỞI NGUỒN CỦA EZ4GEAR
             </motion.h2>
-            <motion.p 
-              className="about-desc" 
+            <motion.p
+              className="about-desc"
               style={{ margin: '0 auto', textAlign: 'center' }}
               initial={{ clipPath: 'inset(0 100% 0 0)' }}
               animate={{ clipPath: 'inset(0 0 0 0)' }}
               transition={{ duration: 1.5, delay: 1, ease: "easeInOut" }}
             >
-              Khởi nguồn từ đam mê công nghệ và eSports, <strong>EZ4GEAR</strong> được tạo ra không chỉ để bán linh kiện. Chúng tôi là những người kiến tạo, mang đến những hệ thống siêu máy tính cá nhân hóa cho từng game thủ và dân chuyên nghiệp. 
+              Khởi nguồn từ đam mê công nghệ và eSports, <strong>EZ4GEAR</strong> được tạo ra không chỉ để bán linh kiện. Chúng tôi là những người kiến tạo, mang đến những hệ thống siêu máy tính cá nhân hóa cho từng game thủ và dân chuyên nghiệp.
             </motion.p>
           </motion.div>
         </div>
@@ -176,7 +176,7 @@ export default function About() {
               transition={{ duration: 0.4, delay: i * 0.1 }}
               style={{ position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '120px' }}
             >
-              <div 
+              <div
                 style={{
                   position: 'absolute',
                   inset: brand.showText ? '15px 15px 40px 15px' : '20px',
