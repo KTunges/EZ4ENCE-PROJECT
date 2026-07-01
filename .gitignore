@@ -18,3 +18,5 @@ htmlcov/
 # IDE configs
 .vscode/
 pyrightconfig.json
+# ClaudeAi
+INSTRUCTIONS.md

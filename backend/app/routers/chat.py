@@ -7,6 +7,7 @@ from app.database import get_db
 from app.models.chat import ChatSession, ChatMessage, SenderEnum
 from app.models.user import User
 from app.services.cloudinary_service import upload_image
+from app.services.ai_service import ai_service
 
 router = APIRouter(prefix="/chat", tags=["Live Chat"])
 
@@ -126,8 +127,46 @@ async def websocket_customer_endpoint(websocket: WebSocket, client_id: str, db: 
                 
                 # Send back to customer (acknowledgement / rendering)
                 await manager.send_to_customer(client_id, payload)
-                # Broadcast to all admins
-                await manager.broadcast_to_admins(payload)
+                
+                # Nếu Admin offline → AI tự động trả lời
+                if manager.admin_global_status == "offline":
+                    # Lấy lịch sử chat để AI có ngữ cảnh
+                    history = db.query(ChatMessage).filter(
+                        ChatMessage.session_id == session.id
+                    ).order_by(ChatMessage.created_at).all()
+                    history_dicts = [
+                        {"sender": m.sender.value, "content": m.content}
+                        for m in history if m.content
+                    ]
+                    
+                    # Gọi Gemini AI
+                    ai_reply_text = await ai_service.get_ai_response(history_dicts, content)
+                    
+                    # Lưu phản hồi AI vào DB (sender = ADMIN)
+                    ai_msg = ChatMessage(
+                        session_id=session.id,
+                        sender=SenderEnum.ADMIN,
+                        content=ai_reply_text
+                    )
+                    db.add(ai_msg)
+                    db.commit()
+                    db.refresh(ai_msg)
+                    
+                    ai_payload = {
+                        "type": "message",
+                        "id": ai_msg.id,
+                        "session_id": session.id,
+                        "client_id": client_id,
+                        "customer_name": session.customer_name,
+                        "sender": "ai",  # marker để frontend phân biệt AI vs Admin thật
+                        "content": ai_reply_text,
+                        "image_url": None,
+                        "created_at": ai_msg.created_at.isoformat()
+                    }
+                    await manager.send_to_customer(client_id, ai_payload)
+                else:
+                    # Admin online → broadcast như bình thường
+                    await manager.broadcast_to_admins(payload)
                 
             elif event_type in ["typing", "read"]:
                 # Chuyển tiếp sự kiện cho Admin

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { MessageSquare, X, Send, Paperclip } from 'lucide-react';
+import { MessageSquare, X, Send, Paperclip, Bot } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const VITE_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -15,6 +15,7 @@ export default function LiveChatWidget() {
   
   // Real-time UX states
   const [isAdminTyping, setIsAdminTyping] = useState(false);
+  const [isAiTyping, setIsAiTyping] = useState(false);
   const [adminStatus, setAdminStatus] = useState('offline'); // online | offline
   const [lastMessageRead, setLastMessageRead] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -60,8 +61,9 @@ export default function LiveChatWidget() {
             return [...prev, msg];
           });
           
-          if (msg.sender === "admin") {
-            setIsAdminTyping(false); // Stop typing indicator
+          if (msg.sender === "admin" || msg.sender === "ai") {
+            setIsAdminTyping(false);
+            setIsAiTyping(false); // dừng typing indicator của AI
             // Send read receipt back if chat is open
             socket.send(JSON.stringify({ type: "read" }));
             
@@ -129,6 +131,13 @@ export default function LiveChatWidget() {
       content: input.trim()
     }));
     setInput('');
+    
+    // Nếu admin offline, hiển thị AI typing indicator
+    if (adminStatus === 'offline') {
+      setIsAiTyping(true);
+      // Tự động tắt sau 10s (fallback)
+      setTimeout(() => setIsAiTyping(false), 10000);
+    }
   };
 
   const handleInputChange = (e) => {
@@ -236,14 +245,35 @@ export default function LiveChatWidget() {
             
             {messages.map((msg, idx) => {
               const isCustomer = msg.sender === 'customer';
+              const isAi = msg.sender === 'ai';
               const isLastCustomerMessage = isCustomer && idx === messages.map(m => m.sender).lastIndexOf('customer');
 
               return (
                 <div key={idx} style={{ alignSelf: isCustomer ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
+                  {/* AI Avatar */}
+                  {isAi && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                      <div style={{
+                        width: '20px', height: '20px', borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                      }}>
+                        <Bot size={12} color="white" />
+                      </div>
+                      <span style={{ fontSize: '10px', color: '#a855f7', fontWeight: '600', letterSpacing: '0.3px' }}>
+                        AI Assistant
+                      </span>
+                    </div>
+                  )}
                   <div style={{
                     padding: '10px 14px', borderRadius: '16px', fontSize: '14px', lineHeight: '1.4',
-                    background: isCustomer ? 'var(--cyan)' : 'var(--bg-page)',
+                    background: isCustomer
+                      ? 'var(--cyan)'
+                      : isAi
+                        ? 'linear-gradient(135deg, rgba(124,58,237,0.25), rgba(168,85,247,0.15))'
+                        : 'var(--bg-page)',
                     color: isCustomer ? '#fff' : 'var(--text)',
+                    border: isAi ? '1px solid rgba(168,85,247,0.4)' : 'none',
                     borderBottomRightRadius: isCustomer ? '4px' : '16px',
                     borderBottomLeftRadius: !isCustomer ? '4px' : '16px',
                   }}>
@@ -256,6 +286,7 @@ export default function LiveChatWidget() {
                   </div>
                   <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '4px', textAlign: isCustomer ? 'right' : 'left' }}>
                     {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {isAi && <span style={{ marginLeft: '4px', color: '#a855f7' }}>• AI</span>}
                   </div>
                   {isLastCustomerMessage && lastMessageRead && (
                     <div style={{ fontSize: '10px', color: 'var(--cyan)', marginTop: '2px', textAlign: 'right' }}>
@@ -269,6 +300,32 @@ export default function LiveChatWidget() {
             {isAdminTyping && (
               <div style={{ alignSelf: 'flex-start', background: 'var(--bg-page)', padding: '10px 14px', borderRadius: '16px', borderBottomLeftRadius: '4px' }}>
                 <span className="typing-dots">...</span>
+              </div>
+            )}
+            
+            {/* AI Typing Indicator */}
+            {isAiTyping && (
+              <div style={{ alignSelf: 'flex-start', maxWidth: '80%' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <div style={{
+                    width: '20px', height: '20px', borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}>
+                    <Bot size={12} color="white" />
+                  </div>
+                  <span style={{ fontSize: '10px', color: '#a855f7', fontWeight: '600' }}>AI Assistant</span>
+                </div>
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(124,58,237,0.25), rgba(168,85,247,0.15))',
+                  border: '1px solid rgba(168,85,247,0.4)',
+                  padding: '10px 14px', borderRadius: '16px', borderBottomLeftRadius: '4px',
+                  display: 'flex', gap: '4px', alignItems: 'center'
+                }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#a855f7', animation: 'pulse 1s infinite' }} />
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#a855f7', animation: 'pulse 1s infinite 0.2s' }} />
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#a855f7', animation: 'pulse 1s infinite 0.4s' }} />
+                </div>
               </div>
             )}
             

@@ -51,6 +51,9 @@ class Settings(BaseSettings):
     MAILCHIMP_SERVER_PREFIX: Optional[str] = None
     MAILCHIMP_LIST_ID: Optional[str] = None
 
+    # Groq AI (Chatbot tự động - miễn phí)
+    GROQ_API_KEY: Optional[str] = None
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
