@@ -20,7 +20,7 @@ const ProductCard = React.memo(({ product, index = 0 }) => {
     : 0;
 
   return (
-    <div className="product-card glass">
+    <div className="product-card">
       {/* Image */}
       <Link to={`/products/${product.slug}`} className="product-card-img-wrapper">
         {product.image ? (
