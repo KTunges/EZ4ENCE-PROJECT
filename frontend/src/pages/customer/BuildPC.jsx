@@ -10,6 +10,8 @@ import CyberBackground from '../../components/ui/CyberBackground';
 import CustomSelect from '../../components/ui/CustomSelect';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
+import AuthModal from '../../components/ui/AuthModal';
 
 const BUILD_SLOTS = [
   { id: 'CPU', label: 'Vi Xử Lý', icon: <Cpu size={24} /> },
@@ -103,8 +105,11 @@ export default function BuildPC() {
 
   const { addToCart } = useCart();
   const { addToast } = useToast();
+  const { user } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [pendingAddToCart, setPendingAddToCart] = useState(false);
 
-  const handleAddToCart = () => {
+  const executeAddToCart = () => {
     let addedCount = 0;
     let missingCount = 0;
     Object.values(selectedComponents).forEach(product => {
@@ -119,6 +124,25 @@ export default function BuildPC() {
     if (addedCount > 0) addToast(`Đã thêm ${addedCount} linh kiện vào giỏ hàng thành công!`, 'success');
     if (missingCount > 0) addToast(`Lỗi: ${missingCount} linh kiện không có mã SKU để thanh toán.`, 'error');
   };
+
+  const handleAddToCart = () => {
+    // Yêu cầu đăng nhập nếu là khách
+    if (!user) {
+      setPendingAddToCart(true);
+      setShowAuthModal(true);
+      return;
+    }
+    executeAddToCart();
+  };
+
+  // Tự động thêm vào giỏ hàng sau khi đăng nhập thành công nếu trước đó đã bấm thêm
+  useEffect(() => {
+    if (user && pendingAddToCart) {
+      setPendingAddToCart(false);
+      setShowAuthModal(false);
+      executeAddToCart();
+    }
+  }, [user, pendingAddToCart]);
 
   // Gọi AI Advisor API
   const handleAiAdvisor = async () => {
@@ -749,6 +773,12 @@ export default function BuildPC() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        initialMode="login"
+      />
     </div>
   );
 }

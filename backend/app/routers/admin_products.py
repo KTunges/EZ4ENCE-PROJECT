@@ -32,6 +32,7 @@ class ProductCreateUpdate(BaseModel):
     sale_price: Optional[float] = None
     stock: int = 0
     image_url: Optional[str] = None
+    additional_images: Optional[List[str]] = []
 
 @router.post("/upload-image")
 def upload_admin_image(
@@ -120,6 +121,16 @@ def create_product(
         )
         db.add(img)
 
+    for add_url in (product_in.additional_images or []):
+        if add_url:
+            add_img = ProductImage(
+                id=str(uuid.uuid4()),
+                product_id=new_product.id,
+                url=add_url,
+                is_primary=False
+            )
+            db.add(add_img)
+
     db.commit()
     db.refresh(new_product)
     return {"message": "Sản phẩm được tạo thành công", "product_id": new_product.id}
@@ -145,7 +156,9 @@ def get_product_detail(
         "price": product.skus[0].price if product.skus else 0,
         "sale_price": product.skus[0].promotional_price if product.skus else None,
         "stock": sum([sku.stock_quantity for sku in product.skus]) if product.skus else 0,
-        "image_url": next((img.url for img in product.images if img.is_primary), product.images[0].url if product.images else "")
+        "image_url": next((img.url for img in product.images if img.is_primary), product.images[0].url if product.images else ""),
+        "additional_images": [img.url for img in product.images if not img.is_primary]
+
     }
 
 @router.put("/{product_id}", response_model=dict)
@@ -189,18 +202,28 @@ def update_product(
         product.skus[0].promotional_price = product_in.sale_price
         product.skus[0].stock_quantity = product_in.stock
         
+    # Replace all images
+    db.query(ProductImage).filter(ProductImage.product_id == product.id).delete()
+    
     if product_in.image_url:
-        if product.images:
-            product.images[0].url = product_in.image_url
-        else:
-            img = ProductImage(
+        img = ProductImage(
+            id=str(uuid.uuid4()),
+            product_id=product.id,
+            url=product_in.image_url,
+            is_primary=True
+        )
+        db.add(img)
+        
+    for add_url in (product_in.additional_images or []):
+        if add_url:
+            add_img = ProductImage(
                 id=str(uuid.uuid4()),
                 product_id=product.id,
-                url=product_in.image_url,
-                is_primary=True
+                url=add_url,
+                is_primary=False
             )
-            db.add(img)
-    
+            db.add(add_img)
+
     db.commit()
     return {"message": "Cập nhật sản phẩm thành công", "product_id": product.id}
 

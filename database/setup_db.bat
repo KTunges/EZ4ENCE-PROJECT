@@ -14,17 +14,15 @@ echo    ^  EZ4ENCE -- Database Setup ^& Seed Tool
 echo ================================================
 echo.
 echo Vui long chon chuc nang:
-echo [1] Setup Database (Tao DB, Import Schema, Tao .env)
-echo [2] Seed Data (Cai Python env, thu vien va do du lieu)
-echo [3] Tao tai khoan Admin (Cap quyen Admin)
-echo [4] Thoat
+echo [1] Setup Database (Tao DB, Import Schema & Data, Tao .env)
+echo [2] Tao tai khoan Admin (Cap quyen Admin)
+echo [3] Thoat
 echo.
-set /p MENU_CHOICE="Chon [1-4]: "
+set /p MENU_CHOICE="Chon [1-3]: "
 
 if "!MENU_CHOICE!"=="1" goto SETUP_DB
-if "!MENU_CHOICE!"=="2" goto SEED_DATA
-if "!MENU_CHOICE!"=="3" goto CREATE_ADMIN
-if "!MENU_CHOICE!"=="4" exit /b 0
+if "!MENU_CHOICE!"=="2" goto CREATE_ADMIN
+if "!MENU_CHOICE!"=="3" exit /b 0
 goto MENU
 
 
@@ -204,42 +202,9 @@ if "!WRITE_ENV!"=="true" (
 :: --- Hoan Tat ---
 echo.
 echo ================================================
-echo    OK  Setup Hoan Tat! Ban co the tiep tuc Seed Data bang cach chon Option [2]
+echo    OK  Setup Hoan Tat! Ban co the su dung he thong ngay.
 echo ================================================
 echo.
-pause
-goto MENU
-
-:SEED_DATA
-cls
-echo.
-echo ================================================
-echo    ^  Do du lieu mau vao Database (Seeding)
-echo ================================================
-echo.
-set SCRIPT_DIR=%~dp0
-cd /d "!SCRIPT_DIR!..\backend"
-
-echo [1/3] Kiem tra virtual environment...
-if not exist .venv\Scripts\activate (
-    echo [INFO] Chua co thu muc .venv, dang tien hanh tao...
-    python -m venv .venv
-)
-
-echo [2/3] Cai dat dependencies (co the mat vai phut)...
-call .venv\Scripts\activate
-python -m pip install --upgrade pip >nul 2>&1
-pip install -r requirements.txt >nul 2>&1
-
-echo [3/3] Dang thuc thi file seed_db.py...
-python seed_db.py
-if %errorlevel% equ 0 (
-    echo [OK] Seed du lieu thanh cong!
-) else (
-    echo [LOI] Co loi xay ra khi seed du lieu.
-)
-
-cd /d "!SCRIPT_DIR!"
 pause
 goto MENU
 
