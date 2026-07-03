@@ -19,12 +19,11 @@ while true; do
     echo -e "${CYAN}${BOLD}================================================${NC}"
     echo ""
     echo "Vui lòng chọn chức năng:"
-    echo " [1] Setup Database (Tạo DB, Import Schema, Tạo .env)"
-    echo " [2] Seed Data (Cài Python env, thư viện và đổ dữ liệu)"
-    echo " [3] Tạo tài khoản Admin (Cấp quyền Admin)"
-    echo " [4] Thoát"
+    echo " [1] Setup Database (Tạo DB, Import Schema & Data, Tạo .env)"
+    echo " [2] Tạo tài khoản Admin (Cấp quyền Admin)"
+    echo " [3] Thoát"
     echo ""
-    read -p "Chọn [1-4]: " MENU_CHOICE
+    read -p "Chọn [1-3]: " MENU_CHOICE
 
     case $MENU_CHOICE in
         1)
@@ -210,54 +209,13 @@ EOF
 
             echo ""
             echo -e "${GREEN}${BOLD}================================================${NC}"
-            echo -e "${GREEN}${BOLD}   ✅  Setup Hoàn Tất! Bạn có thể tiếp tục Seed Data bằng Option [2]  ${NC}"
+            echo -e "${GREEN}${BOLD}   ✅  Setup Hoàn Tất! Bạn có thể sử dụng hệ thống ngay.  ${NC}"
             echo -e "${GREEN}${BOLD}================================================${NC}"
             echo ""
             read -p "Nhấn Enter để quay lại..." dummy
             ;;
 
         2)
-            # --- SEED DATA ---
-            clear
-            echo ""
-            echo -e "${CYAN}${BOLD}================================================${NC}"
-            echo -e "${CYAN}${BOLD}   ⚡  Đổ dữ liệu mẫu vào Database (Seeding)    ${NC}"
-            echo -e "${CYAN}${BOLD}================================================${NC}"
-            echo ""
-            
-            SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-            cd "$SCRIPT_DIR/../backend" || exit
-
-            echo -e "${CYAN}[1/3]${NC} Kiểm tra virtual environment..."
-            if [ ! -d ".venv" ] && [ ! -d "venv" ]; then
-                echo -e "${YELLOW}[INFO]${NC} Chưa có thư mục venv, đang tiến hành tạo..."
-                python3 -m venv .venv
-            fi
-
-            echo -e "${CYAN}[2/3]${NC} Cài đặt dependencies (có thể mất vài phút)..."
-            if [ -f ".venv/bin/activate" ]; then
-                source .venv/bin/activate
-            elif [ -f "venv/bin/activate" ]; then
-                source venv/bin/activate
-            fi
-            
-            python3 -m pip install --upgrade pip > /dev/null 2>&1
-            pip install -r requirements.txt > /dev/null 2>&1
-
-            echo -e "${CYAN}[3/3]${NC} Đang thực thi file seed_db.py..."
-            python3 seed_db.py
-            if [ $? -eq 0 ]; then
-                echo -e "${GREEN}[OK]${NC} Seed dữ liệu thành công!"
-            else
-                echo -e "${RED}[LỖI]${NC} Có lỗi xảy ra khi seed dữ liệu."
-            fi
-
-            cd "$SCRIPT_DIR" || exit
-            echo ""
-            read -p "Nhấn Enter để quay lại..." dummy
-            ;;
-
-        3)
             # --- CREATE ADMIN ---
             clear
             echo ""
@@ -290,15 +248,16 @@ EOF
             read -p "Nhấn Enter để quay lại..." dummy
             ;;
 
-        4)
+        3)
             # --- EXIT ---
-            echo -e "${GREEN}Tạm biệt!${NC}"
+            clear
+            echo -e "${GREEN}Đã thoát.${NC}"
             exit 0
             ;;
 
         *)
-            echo -e "${RED}Lựa chọn không hợp lệ.${NC}"
-            sleep 1
+            echo -e "${RED}[LỖI]${NC} Lựa chọn không hợp lệ!"
+            read -p "Nhấn Enter để quay lại..." dummy
             ;;
     esac
 done

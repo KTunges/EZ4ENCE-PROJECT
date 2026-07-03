@@ -137,6 +137,17 @@ export default function ProductDetail() {
   const wishlisted = currentSkuId ? isWishlisted(currentSkuId) : false;
   const [showStickyCart, setShowStickyCart] = useState(false);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  // Auto-play gallery images
+  useEffect(() => {
+    let interval;
+    if (isAutoPlaying && product?.images?.length > 1) {
+      interval = setInterval(() => {
+        setSelectedImage((prev) => (prev === product.images.length - 1 ? 0 : prev + 1));
+      }, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, product?.images?.length]);
   
   const { user, token } = useAuth();
   const [reviewRating, setReviewRating] = useState(5);

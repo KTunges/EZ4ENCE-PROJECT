@@ -22,6 +22,7 @@ export default function AdminProductForm() {
     status: 'ACTIVE',
     description: '',
     imageUrl: '',
+    additionalImages: [],
     specs: {}
   });
 
@@ -268,6 +269,7 @@ export default function AdminProductForm() {
             status: product.is_published ? 'ACTIVE' : 'HIDDEN',
             description: product.description || '',
             imageUrl: product.image_url || '',
+            additionalImages: product.additional_images || [],
             specs: product.specifications || {}
           });
         }
@@ -322,6 +324,38 @@ export default function AdminProductForm() {
     }
   };
 
+  const [isUploadingAdditional, setIsUploadingAdditional] = useState(false);
+  const handleAdditionalImageUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    
+    setIsUploadingAdditional(true);
+    try {
+      const newUrls = [];
+      for (const file of files) {
+        const url = await uploadAdminImage(file);
+        newUrls.push(url);
+      }
+      setFormData(prev => ({ 
+        ...prev, 
+        additionalImages: [...prev.additionalImages, ...newUrls] 
+      }));
+    } catch (error) {
+      console.error("Lỗi upload ảnh phụ:", error);
+      alert("Không thể tải ảnh lên.");
+    } finally {
+      setIsUploadingAdditional(false);
+    }
+  };
+
+  const removeAdditionalImage = (index) => {
+    setFormData(prev => {
+      const newImgs = [...prev.additionalImages];
+      newImgs.splice(index, 1);
+      return { ...prev, additionalImages: newImgs };
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -337,7 +371,8 @@ export default function AdminProductForm() {
         price: parseFloat(formData.price) || 0,
         sale_price: formData.salePrice ? parseFloat(formData.salePrice) : null,
         stock: parseInt(formData.stock) || 0,
-        image_url: formData.imageUrl
+        image_url: formData.imageUrl,
+        additional_images: formData.additionalImages
       };
       
       if (isEditing) {
@@ -519,14 +554,14 @@ export default function AdminProductForm() {
 
           {/* Product Image */}
           <div className="glass" style={{ padding: '24px', borderRadius: '12px' }}>
-            <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '20px', color: 'var(--text)' }}>Ảnh sản phẩm</h2>
+            <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '20px', color: 'var(--text)' }}>Ảnh chính (Bắt buộc)</h2>
             
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>Tải ảnh từ máy tính</label>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <input type="file" id="image-upload" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
                 <label htmlFor="image-upload" style={{ flex: 1, padding: '10px 16px', background: 'rgba(0, 210, 255, 0.1)', border: '1px dashed var(--cyan)', color: 'var(--cyan)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: 'bold' }}>
-                  <Upload size={16} /> {isUploading ? 'Đang tải lên...' : 'Chọn file ảnh'}
+                  <Upload size={16} /> {isUploading ? 'Đang tải lên...' : 'Chọn file ảnh chính'}
                 </label>
               </div>
             </div>
@@ -551,10 +586,38 @@ export default function AdminProductForm() {
               ) : (
                 <>
                   <ImageIcon size={48} color="var(--border-hover)" style={{ marginBottom: '16px' }} />
-                  <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Chưa có ảnh</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Chưa có ảnh chính</span>
                 </>
               )}
             </div>
+          </div>
+          
+          {/* Additional Images */}
+          <div className="glass" style={{ padding: '24px', borderRadius: '12px' }}>
+            <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '20px', color: 'var(--text)' }}>Các ảnh phụ</h2>
+            
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>Tải nhiều ảnh từ máy tính</label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input type="file" id="additional-images-upload" accept="image/*" multiple onChange={handleAdditionalImageUpload} style={{ display: 'none' }} />
+                <label htmlFor="additional-images-upload" style={{ flex: 1, padding: '10px 16px', background: 'transparent', border: '1px dashed var(--border)', color: 'var(--text)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: 'bold' }}>
+                  <Upload size={16} /> {isUploadingAdditional ? 'Đang tải lên...' : 'Chọn nhiều file ảnh'}
+                </label>
+              </div>
+            </div>
+
+            {formData.additionalImages.length > 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                {formData.additionalImages.map((url, idx) => (
+                  <div key={idx} style={{ aspectRatio: '1/1', position: 'relative', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                    <img src={url} alt={`Phụ ${idx+1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <button onClick={() => removeAdditionalImage(idx)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.6)', border: 'none', color: 'white', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
         </div>

@@ -1,7 +1,8 @@
 import uuid
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))) # For seed_all_products
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../backend'))) # For app.*
 from datetime import datetime, timezone
 import json
 from sqlalchemy import create_engine

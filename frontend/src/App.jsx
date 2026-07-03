@@ -46,7 +46,7 @@ const AdminMailchimp = lazy(() => import('./pages/admin/AdminMailchimp'));
 const AdminChat = lazy(() => import('./pages/admin/AdminChat'));
 
 // Google Client ID (đọc từ file .env)
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'missing-client-id';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -68,55 +68,55 @@ function App() {
               <WishlistProvider>
                 <BrowserRouter>
                   <ScrollToTop />
-                  <Suspense fallback={<div style={{paddingTop: '100px', textAlign: 'center', color: 'var(--primary-color)'}}>Đang tải...</div>}>
-                  <Routes>
-                    <Route path="/" element={<MainLayout />}>
-                    <Route index element={<Home />} />
-                    <Route path="about" element={<About />} />
-                    <Route path="products" element={<Products />} />
-                    <Route path="products/:slug" element={<ProductDetail />} />
-                    <Route path="policy/:slug" element={<PolicyPage />} />
-                    <Route path="build-pc" element={<BuildPC />} />
-                    <Route path="news/:slug" element={<NewsDetails />} />
-                    <Route path="cart" element={<Cart />} />
-                    <Route path="checkout" element={<Checkout />} />
-                    <Route path="checkout/success" element={<CheckoutSuccess />} />
-                    <Route path="checkout/vnpay-return" element={<CheckoutVnpayReturn />} />
-                    <Route path="profile" element={<Profile />} />
-                    <Route path="profile/orders/:id" element={<OrderDetails />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Route>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/ez4-portal-auth" element={<AdminLogin />} />
-                  <Route path="/admin" element={
-                    <AdminRoute>
-                      <AdminLayout />
-                    </AdminRoute>
-                  }>
-                    <Route index element={<Navigate to="dashboard" replace />} />
-                    <Route path="dashboard" element={<Dashboard />} />
-                    <Route path="orders" element={<AdminOrders />} />
-                    <Route path="products" element={<AdminProducts />} />
-                    <Route path="products/new" element={<AdminProductForm />} />
-                    <Route path="products/edit/:id" element={<AdminProductForm />} />
-                    <Route path="orders/:id" element={<AdminOrderDetails />} />
-                    <Route path="categories" element={<AdminCategories />} />
-                    <Route path="brands" element={<AdminBrands />} />
-                    <Route path="customers" element={<AdminCustomers />} />
-                    <Route path="reviews" element={<AdminReviews />} />
-                    <Route path="staffs" element={<AdminStaffs />} />
-                    <Route path="banners" element={<AdminBanners />} />
-                    <Route path="coupons" element={<AdminCoupons />} />
-                    <Route path="email" element={<AdminMailchimp />} />
-                    <Route path="chat" element={<AdminChat />} />
-                    <Route path="news" element={<AdminNews />} />
-                    <Route path="suppliers" element={<AdminSuppliers />} />
-                    <Route path="inventory" element={<AdminInventory />} />
-                    <Route path="receipts" element={<AdminReceipts />} />
-                    {/* Các route tương lai sẽ thêm vào đây */}
-                  </Route>
-                </Routes>
+                  <Suspense fallback={<div style={{ paddingTop: '100px', textAlign: 'center', color: 'var(--primary-color)' }}>Đang tải...</div>}>
+                    <Routes>
+                      <Route path="/" element={<MainLayout />}>
+                        <Route index element={<Home />} />
+                        <Route path="about" element={<About />} />
+                        <Route path="products" element={<Products />} />
+                        <Route path="products/:slug" element={<ProductDetail />} />
+                        <Route path="policy/:slug" element={<PolicyPage />} />
+                        <Route path="build-pc" element={<BuildPC />} />
+                        <Route path="news/:slug" element={<NewsDetails />} />
+                        <Route path="cart" element={<Cart />} />
+                        <Route path="checkout" element={<Checkout />} />
+                        <Route path="checkout/success" element={<CheckoutSuccess />} />
+                        <Route path="checkout/vnpay-return" element={<CheckoutVnpayReturn />} />
+                        <Route path="profile" element={<Profile />} />
+                        <Route path="profile/orders/:id" element={<OrderDetails />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Route>
+                      <Route path="/login" element={<Login />} />
+                      <Route path="/register" element={<Register />} />
+                      <Route path="/ez4-portal-auth" element={<AdminLogin />} />
+                      <Route path="/admin" element={
+                        <AdminRoute>
+                          <AdminLayout />
+                        </AdminRoute>
+                      }>
+                        <Route index element={<Navigate to="dashboard" replace />} />
+                        <Route path="dashboard" element={<Dashboard />} />
+                        <Route path="orders" element={<AdminOrders />} />
+                        <Route path="products" element={<AdminProducts />} />
+                        <Route path="products/new" element={<AdminProductForm />} />
+                        <Route path="products/edit/:id" element={<AdminProductForm />} />
+                        <Route path="orders/:id" element={<AdminOrderDetails />} />
+                        <Route path="categories" element={<AdminCategories />} />
+                        <Route path="brands" element={<AdminBrands />} />
+                        <Route path="customers" element={<AdminCustomers />} />
+                        <Route path="reviews" element={<AdminReviews />} />
+                        <Route path="staffs" element={<AdminStaffs />} />
+                        <Route path="banners" element={<AdminBanners />} />
+                        <Route path="coupons" element={<AdminCoupons />} />
+                        <Route path="email" element={<AdminMailchimp />} />
+                        <Route path="chat" element={<AdminChat />} />
+                        <Route path="news" element={<AdminNews />} />
+                        <Route path="suppliers" element={<AdminSuppliers />} />
+                        <Route path="inventory" element={<AdminInventory />} />
+                        <Route path="receipts" element={<AdminReceipts />} />
+                        {/* Các route tương lai sẽ thêm vào đây */}
+                      </Route>
+                    </Routes>
                   </Suspense>
                 </BrowserRouter>
               </WishlistProvider>

@@ -46,7 +46,6 @@ export default function GamepadScene() {
         toneMappingExposure: isDark ? 1.8 : 2.0,
       }}
       dpr={[1, 1.5]}
-      camera={{ position: [0, 0, 8], fov: 35 }}
     >
       {/* Ánh sáng môi trường cực mạnh */}
       <ambientLight intensity={isDark ? 1.5 : 2.0} />
