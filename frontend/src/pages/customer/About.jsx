@@ -160,12 +160,12 @@ export default function About() {
 
         <div className="partners-grid">
           {[
-            { name: "NVIDIA", bg: "https://cdn.simpleicons.org/nvidia/76B900", color: "#76B900", showText: true },
+            { name: "NVIDIA", bg: "https://cdn.simpleicons.org/nvidia/76B900", color: "#76B900" },
             { name: "AMD", bg: "https://cdn.simpleicons.org/amd/ED1C24", color: "#ED1C24" },
             { name: "INTEL", bg: "https://cdn.simpleicons.org/intel/0071C5", color: "#0071C5" },
             { name: "ASUS ROG", bg: "https://cdn.simpleicons.org/asus/E51015", color: "#E51015" },
-            { name: "RAZER", bg: "https://cdn.simpleicons.org/razer/00FF00", color: "#00FF00", showText: true },
-            { name: "CORSAIR", bg: "https://cdn.simpleicons.org/corsair/00dcff", color: "#000000", showText: true }
+            { name: "RAZER", bg: "https://cdn.simpleicons.org/razer/00FF00", color: "#00FF00" },
+            { name: "CORSAIR", bg: "https://cdn.simpleicons.org/corsair/00dcff", color: "#000000" }
           ].map((brand, i) => (
             <motion.div
               key={brand.name}
