@@ -1,29 +1,32 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/logo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EZ4GEAR - Gaming & Tech Store</title>
-    <!-- Anti-flash script cho Google Translate -->
-    <script>
-      (function() {
-        var match = document.cookie.match(/(?:^|;)\s*googtrans=([^;]*)/);
-        if (match && match[1] && match[1] !== '/vi/vi' && match[1] !== 'auto/vi') {
-          document.write('<style id="gt-anti-flash">body { opacity: 0 !important; transition: opacity 0.3s; }</style>');
-          // Timeout dự phòng nếu Google Translate mất quá lâu hoặc lỗi
-          setTimeout(function() {
-            var el = document.getElementById('gt-anti-flash');
-            if (el) el.remove();
-            document.body.style.opacity = '1';
-          }, 1500);
-        }
-      })();
-    </script>
-    <link rel="preload" href="/models/dualsense.glb" as="fetch" crossorigin="anonymous" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EZ4GEAR - Gaming & Tech Store</title>
+  <!-- Anti-flash script cho Google Translate -->
+  <script>
+    (function () {
+      var match = document.cookie.match(/(?:^|;)\s*googtrans=([^;]*)/);
+      if (match && match[1] && match[1] !== '/vi/vi' && match[1] !== 'auto/vi') {
+        document.write('<style id="gt-anti-flash">body { opacity: 0 !important; transition: opacity 0.3s; }</style>');
+        // Timeout dự phòng nếu Google Translate mất quá lâu hoặc lỗi
+        setTimeout(function () {
+          var el = document.getElementById('gt-anti-flash');
+          if (el) el.remove();
+          document.body.style.opacity = '1';
+        }, 1500);
+      }
+    })();
+  </script>
+  <link rel="preload" href="/models/dualsense.glb" as="fetch" crossorigin="anonymous" />
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>
