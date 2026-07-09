@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import CyberBackground from '../../components/ui/CyberBackground';
 import ProductCard from '../../components/ui/ProductCard';
 import ProductDetailSkeleton from '../../components/ui/ProductDetailSkeleton';
+import ShareButton from '../../components/ui/ShareButton';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useAuth } from '../../context/AuthContext';
@@ -440,6 +441,8 @@ export default function ProductDetail() {
               >
                 <Heart size={20} fill={wishlisted ? 'var(--pink)' : 'none'} />
               </button>
+
+              <ShareButton productName={product.name} />
             </div>
 
             <Link to="/checkout" className="btn btn-outline btn-buy-now" style={{ width: '100%', textAlign: 'center' }}>

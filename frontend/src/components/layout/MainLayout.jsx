@@ -3,6 +3,7 @@ import Header from './Header';
 import Footer from './Footer';
 import TopMarquee from '../ui/TopMarquee';
 import LiveChatWidget from '../chat/LiveChatWidget';
+import FloatingSocialChat from '../ui/FloatingSocialChat';
 
 export default function MainLayout() {
   const location = useLocation();
@@ -16,6 +17,7 @@ export default function MainLayout() {
         <Outlet />
       </main>
       <Footer />
+      <FloatingSocialChat />
       <LiveChatWidget />
     </>
   );

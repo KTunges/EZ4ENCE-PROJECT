@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Package, Clock3, CheckCircle, Truck, MapPin, CreditCard, FileText } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import PageSkeleton from '../../components/ui/PageSkeleton';
 
 export default function OrderDetails() {
   const { id } = useParams();
@@ -35,7 +36,7 @@ export default function OrderDetails() {
   }, [id, navigate]);
 
   if (loading) {
-    return <div className="min-h-screen pt-32 pb-20 flex justify-center"><div className="loader"></div></div>;
+    return <PageSkeleton variant="order" />;
   }
 
   if (!order) return null;

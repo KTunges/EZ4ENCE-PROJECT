@@ -5,6 +5,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import AuthModal from '../ui/AuthModal';
+import LanguageSwitcher from '../ui/LanguageSwitcher';
 
 export default function Header() {
   const { theme, toggleTheme } = useTheme();
@@ -217,6 +218,9 @@ export default function Header() {
                 <User size={18} />
               </button>
             )}
+
+            {/* Language Switcher */}
+            <LanguageSwitcher />
 
             {/* Theme Toggle */}
             <button

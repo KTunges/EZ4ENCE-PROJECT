@@ -4,6 +4,7 @@ import { CartProvider } from './context/CartContext';
 import { ToastProvider } from './context/ToastContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { useEffect, lazy, Suspense } from 'react';
+import PageSkeleton from './components/ui/PageSkeleton';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import MainLayout from './components/layout/MainLayout';
@@ -68,7 +69,7 @@ function App() {
               <WishlistProvider>
                 <BrowserRouter>
                   <ScrollToTop />
-                  <Suspense fallback={<div style={{ paddingTop: '100px', textAlign: 'center', color: 'var(--primary-color)' }}>Đang tải...</div>}>
+                  <Suspense fallback={<PageSkeleton variant="home" />}>
                     <Routes>
                       <Route path="/" element={<MainLayout />}>
                         <Route index element={<Home />} />

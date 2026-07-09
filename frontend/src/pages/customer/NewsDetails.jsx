@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronLeft, Calendar, Tag, User } from 'lucide-react';
 import CyberBackground from '../../components/ui/CyberBackground';
+import PageSkeleton from '../../components/ui/PageSkeleton';
 
 export default function NewsDetails() {
   const { slug } = useParams();
@@ -26,9 +27,9 @@ export default function NewsDetails() {
 
   if (loading) {
     return (
-      <div className="news-details-page" style={{ minHeight: '100vh', paddingTop: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div className="news-details-page" style={{ minHeight: '100vh', paddingTop: '20px' }}>
         <CyberBackground />
-        <div style={{ color: 'var(--cyan)', fontSize: '20px' }}>Đang tải tin tức...</div>
+        <PageSkeleton variant="news" />
       </div>
     );
   }

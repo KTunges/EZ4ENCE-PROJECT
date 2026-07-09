@@ -5,6 +5,7 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import ProductCard from '../../components/ui/ProductCard';
 import AuthModal from '../../components/ui/AuthModal';
+import PageSkeleton from '../../components/ui/PageSkeleton';
 
 export default function Cart() {
   const { cart, updateQuantity, removeItem, loading } = useCart();
@@ -81,7 +82,7 @@ export default function Cart() {
   }
 
   if (loading && !cart) {
-    return <div style={{ height: '50vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Đang tải...</div>;
+    return <PageSkeleton variant="cart" />;
   }
 
   return (
