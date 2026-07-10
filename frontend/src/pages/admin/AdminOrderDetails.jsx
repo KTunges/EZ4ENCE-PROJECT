@@ -38,7 +38,12 @@ export default function AdminOrderDetails() {
   const handleStatusChange = async (newStatus) => {
     try {
       await updateOrderStatus(id, { status: newStatus });
-      setOrder(prev => ({ ...prev, status: newStatus }));
+      // COD: DELIVERED => PAID, ngược lại => UNPAID
+      let updatedPayment = order.payment_status;
+      if (order.payment_method === 'COD') {
+        updatedPayment = newStatus === 'DELIVERED' ? 'PAID' : 'UNPAID';
+      }
+      setOrder(prev => ({ ...prev, status: newStatus, payment_status: updatedPayment }));
       alert(`Đã cập nhật trạng thái đơn hàng thành công`);
     } catch (error) {
       console.error("Lỗi cập nhật trạng thái:", error);
@@ -180,7 +185,7 @@ export default function AdminOrderDetails() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Trạng thái</span>
-              {order.payment_status === 'COMPLETED' ? (
+              {order.payment_status === 'PAID' ? (
                 <span style={{ color: '#22c55e', fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}><CheckCircle2 size={14} /> Đã thanh toán</span>
               ) : (
                 <span style={{ color: '#f59e0b', fontSize: '14px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14} /> Chưa thanh toán</span>

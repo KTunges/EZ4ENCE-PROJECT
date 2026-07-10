@@ -642,6 +642,8 @@ export default function Checkout() {
                           });
                           const ppData = await response.json();
                           if (ppData.paypal_order_id) {
+                            // Lưu db_order_id vào biến tạm để dùng khi capture
+                            window.__ez4gear_db_order_id = ppData.db_order_id || orderData.id;
                             return ppData.paypal_order_id;
                           } else {
                             throw new Error("Không thể khởi tạo PayPal Order");
