@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Truck, Zap, ShieldCheck } from 'lucide-react';
 import CustomSelect from '../../components/ui/CustomSelect';
@@ -11,6 +11,9 @@ export default function Checkout() {
   const navigate = useNavigate();
   const { cart, fetchCart, loading: cartLoading, clearCartState } = useCart();
   const { user, token } = useAuth();
+  
+  const currentOrderIdRef = useRef(null);
+  const orderTotalRef = useRef(0);
   
   const [shippingOptions, setShippingOptions] = useState([]);
   const [selectedShippingId, setSelectedShippingId] = useState('');
@@ -270,7 +273,7 @@ export default function Checkout() {
       }
 
       // COD
-      navigate('/checkout/success', { state: { method: method, total: total, orderId: orderData.id } });
+      navigate('/checkout/success', { state: { method: method, total: orderData.total_amount, orderId: orderData.id } });
     } catch (err) {
       console.error("Checkout error", err);
       alert("Lỗi thanh toán: " + err.message);
@@ -625,6 +628,9 @@ export default function Checkout() {
                           });
                           const orderData = await orderRes.json();
                           if (!orderRes.ok) throw new Error(orderData.detail || 'Lỗi tạo đơn');
+                          
+                          currentOrderIdRef.current = orderData.id;
+                          orderTotalRef.current = orderData.total_amount;
 
                           // Xoá giỏ
                           clearCartState();
@@ -650,12 +656,15 @@ export default function Checkout() {
                           const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/payment/paypal/capture-order`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                            body: JSON.stringify({ order_id: data.orderID }),
+                            body: JSON.stringify({ 
+                              paypal_order_id: data.orderID,
+                              db_order_id: currentOrderIdRef.current
+                            }),
                           });
                           const orderData = await response.json();
                           
                           if (orderData.success) {
-                            navigate('/checkout/success', { state: { method: 'paypal', total: total, orderId: data.orderID } });
+                            navigate('/checkout/success', { state: { method: 'paypal', total: orderTotalRef.current, orderId: currentOrderIdRef.current } });
                           } else {
                             throw new Error("Capture failed");
                           }

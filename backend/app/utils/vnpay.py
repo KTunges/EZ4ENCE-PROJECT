@@ -3,6 +3,7 @@ import hmac
 import urllib.parse
 from app.config import settings
 
+
 class VNPay:
     def __init__(self):
         self.tmn_code = settings.VNPAY_TMN_CODE
@@ -13,9 +14,9 @@ class VNPay:
         self.responseData = {}
 
     def get_payment_url(self):
+        # Sort parameters alphabetically by key
         inputData = sorted(self.requestData.items())
         queryString = ''
-        hasData = ''
         seq = 0
         for key, val in inputData:
             if seq == 1:
@@ -29,11 +30,12 @@ class VNPay:
 
     def validate_response(self, secret_key):
         vnp_SecureHash = self.responseData.get('vnp_SecureHash', '')
+        # Remove hash fields before validating
         if 'vnp_SecureHash' in self.responseData:
             self.responseData.pop('vnp_SecureHash')
         if 'vnp_SecureHashType' in self.responseData:
             self.responseData.pop('vnp_SecureHashType')
-            
+
         inputData = sorted(self.responseData.items())
         hasData = ''
         seq = 0
@@ -44,7 +46,7 @@ class VNPay:
                 else:
                     seq = 1
                     hasData = str(key) + '=' + urllib.parse.quote_plus(str(val))
-                    
+
         hashValue = self.__hmacsha512(secret_key, hasData)
         return vnp_SecureHash == hashValue
 

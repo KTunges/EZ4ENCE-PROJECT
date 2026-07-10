@@ -22,7 +22,8 @@ class PayPalOrderRequest(BaseModel):
     order_id: str # Dùng order_id thật từ db
 
 class PayPalCaptureRequest(BaseModel):
-    order_id: str # ID của PayPal Order (không phải ID đơn hàng trong DB)
+    paypal_order_id: str
+    db_order_id: str
 
 def get_paypal_access_token():
     client_id = settings.PAYPAL_CLIENT_ID
@@ -97,15 +98,23 @@ def capture_paypal_order(req: PayPalCaptureRequest, background_tasks: Background
         "Content-Type": "application/json"
     }
     
-    response = httpx.post(f"{base_url}/v2/checkout/orders/{req.order_id}/capture", headers=headers)
+    response = httpx.post(f"{base_url}/v2/checkout/orders/{req.paypal_order_id}/capture", headers=headers)
     
     if response.status_code in (200, 201):
         data = response.json()
         if data["status"] == "COMPLETED":
-            order = db.query(Order).filter(Order.id == req.order_id).first()
+            
+            # Lấy Mã giao dịch thực sự (Merchant Transaction ID) từ mảng captures
+            capture_id = data.get("id")
+            try:
+                capture_id = data["purchase_units"][0]["payments"]["captures"][0]["id"]
+            except (KeyError, IndexError, TypeError):
+                pass
+                
+            order = db.query(Order).filter(Order.id == req.db_order_id).first()
             if order:
                 order.payment_status = PaymentStatus.PAID
-                order.payment_transaction_id = data.get("id")
+                order.payment_transaction_id = capture_id
                 
                 from app.models.order import OrderStatusHistory, OrderStatus
                 import uuid
@@ -113,7 +122,7 @@ def capture_paypal_order(req: PayPalCaptureRequest, background_tasks: Background
                     id=str(uuid.uuid4()),
                     order_id=order.id,
                     status=order.status,
-                    description=f"Thanh toán PayPal thành công. Mã GD: {data.get('id')}"
+                    description=f"Thanh toán PayPal thành công. Mã GD: {capture_id}"
                 )
                 db.add(history)
                 db.commit()
@@ -139,15 +148,15 @@ def create_vnpay_url(req: VNPAYOrderRequest, request: Request, db: Session = Dep
 
     vnp = VNPay()
     
-    amount = int(order.total_amount * 100) # VNPAY yêu cầu nhân 100
+    amount = int(order.total_amount) * 100  # VNPAY yêu cầu nhân 100, đảm bảo là int rồi convert str
     
     vnp.requestData['vnp_Version'] = '2.1.0'
     vnp.requestData['vnp_Command'] = 'pay'
     vnp.requestData['vnp_TmnCode'] = settings.VNPAY_TMN_CODE
-    vnp.requestData['vnp_Amount'] = amount
+    vnp.requestData['vnp_Amount'] = str(amount)
     vnp.requestData['vnp_CurrCode'] = 'VND'
-    vnp.requestData['vnp_TxnRef'] = req.order_id
-    vnp.requestData['vnp_OrderInfo'] = f'Thanh toan don hang {req.order_id}'
+    vnp.requestData['vnp_TxnRef'] = str(req.order_id)
+    vnp.requestData['vnp_OrderInfo'] = 'Thanh toan don hang ' + str(req.order_id)
     vnp.requestData['vnp_OrderType'] = 'billpayment'
     vnp.requestData['vnp_Locale'] = 'vn'
     
