@@ -92,8 +92,9 @@ export default function AdminOrderDetails() {
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {order.items.map(item => {
-                const imageUrl = item.sku?.product?.images?.[0]?.url || 'https://via.placeholder.com/60/1a1a2e/00d2ff?text=No+Img';
-                const name = item.sku?.product?.name || 'Sản phẩm';
+                const imageUrl = item.image_url || item.sku?.product?.images?.[0]?.url || 'https://via.placeholder.com/60/1a1a2e/00d2ff?text=No+Img';
+                const name = item.product_name || item.sku?.product?.name || 'Sản phẩm';
+                const price = item.price_at_purchase || item.price || 0;
                 return (
                 <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
                   <img src={imageUrl} alt={name} style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} />
@@ -101,7 +102,7 @@ export default function AdminOrderDetails() {
                     <div style={{ fontWeight: 'bold', fontSize: '15px' }}>{name}</div>
                     <div style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '4px' }}>SL: {item.quantity}</div>
                   </div>
-                  <div style={{ fontWeight: 'bold' }}>{(item.price * item.quantity).toLocaleString('vi-VN')} đ</div>
+                  <div style={{ fontWeight: 'bold' }}>{(price * item.quantity).toLocaleString('vi-VN')} đ</div>
                 </div>
               )})}
             </div>
@@ -159,9 +160,9 @@ export default function AdminOrderDetails() {
               <User size={20} color="var(--cyan)" /> Khách hàng
             </h2>
             <div style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.6' }}>
-              <p style={{ fontWeight: 'bold', color: 'var(--text)' }}>{order.shipping_address?.full_name || order.user?.full_name || 'Khách vãng lai'}</p>
-              <p>{order.user?.email || 'Chưa cập nhật email'}</p>
-              <p>{order.shipping_address?.phone || 'Chưa cập nhật SĐT'}</p>
+              <p style={{ color: 'var(--text)' }}><span style={{ fontWeight: 'bold' }}>Tên khách hàng:</span> {order.shipping_address?.full_name || order.user?.full_name || 'Khách vãng lai'}</p>
+              <p><span style={{ fontWeight: 'bold' }}>Email:</span> {order.user?.email || 'Chưa cập nhật email'}</p>
+              <p><span style={{ fontWeight: 'bold' }}>Số điện thoại:</span> {order.shipping_address?.phone || 'Chưa cập nhật SĐT'}</p>
             </div>
             
             <hr style={{ borderColor: 'var(--border)', margin: '16px 0' }} />
@@ -182,6 +183,10 @@ export default function AdminOrderDetails() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Phương thức</span>
               <span style={{ fontSize: '14px', fontWeight: 'bold' }}>{order.payment_method || 'Chưa rõ'}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Mã giao dịch</span>
+              <span style={{ fontSize: '14px', fontWeight: 'bold', fontFamily: 'monospace', color: 'var(--cyan)' }}>{order.payment_transaction_id || 'Chưa có'}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Trạng thái</span>

@@ -14,6 +14,7 @@ const Cart = lazy(() => import('./pages/customer/Cart'));
 const Checkout = lazy(() => import('./pages/customer/Checkout'));
 const CheckoutSuccess = lazy(() => import('./pages/customer/CheckoutSuccess'));
 const CheckoutVnpayReturn = lazy(() => import('./pages/customer/CheckoutVnpayReturn'));
+const CheckoutMomoReturn = lazy(() => import('./pages/customer/CheckoutMomoReturn'));
 const Profile = lazy(() => import('./pages/customer/Profile'));
 const OrderDetails = lazy(() => import('./pages/customer/OrderDetails'));
 const Login = lazy(() => import('./pages/customer/Login'));
@@ -83,6 +84,7 @@ function App() {
                         <Route path="checkout" element={<Checkout />} />
                         <Route path="checkout/success" element={<CheckoutSuccess />} />
                         <Route path="checkout/vnpay-return" element={<CheckoutVnpayReturn />} />
+                        <Route path="checkout/momo-return" element={<CheckoutMomoReturn />} />
                         <Route path="profile" element={<Profile />} />
                         <Route path="profile/orders/:id" element={<OrderDetails />} />
                         <Route path="*" element={<NotFound />} />

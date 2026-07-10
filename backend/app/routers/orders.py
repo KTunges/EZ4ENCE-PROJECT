@@ -16,10 +16,12 @@ router = APIRouter(prefix="/orders", tags=["Orders"])
 
 @router.post("", response_model=OrderResponse)
 def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    # 1. Fetch user's cart
-    cart = db.query(Cart).filter(Cart.user_id == current_user.id).first()
-    if not cart or not cart.items:
-        raise HTTPException(status_code=400, detail="Giỏ hàng đang trống")
+    # 1. Fetch user's cart (nếu không phải là Mua Ngay)
+    cart = None
+    if not req.buy_now_item:
+        cart = db.query(Cart).filter(Cart.user_id == current_user.id).first()
+        if not cart or not cart.items:
+            raise HTTPException(status_code=400, detail="Giỏ hàng đang trống")
         
     # 2. Xử lý Address
     if req.address_id:
@@ -53,19 +55,21 @@ def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db:
     subtotal = 0
     order_items = []
     
-    for cart_item in cart.items:
-        sku = cart_item.sku
+    if req.buy_now_item:
+        sku = db.query(ProductSKU).filter(ProductSKU.id == req.buy_now_item.sku_id).first()
+        if not sku:
+            raise HTTPException(status_code=404, detail="Sản phẩm không tồn tại")
         product = sku.product
         
         # Check stock
-        if sku.stock_quantity < cart_item.quantity:
+        if sku.stock_quantity < req.buy_now_item.quantity:
             raise HTTPException(status_code=400, detail=f"Sản phẩm {product.name} không đủ số lượng trong kho")
             
         price_at_purchase = sku.price
-        subtotal += price_at_purchase * cart_item.quantity
+        subtotal += price_at_purchase * req.buy_now_item.quantity
         
         # Trừ kho
-        sku.stock_quantity -= cart_item.quantity
+        sku.stock_quantity -= req.buy_now_item.quantity
         
         o_item = OrderItem(
             id=str(uuid.uuid4()),
@@ -73,9 +77,33 @@ def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db:
             product_name=product.name,
             sku_code=sku.sku_code,
             price_at_purchase=price_at_purchase,
-            quantity=cart_item.quantity
+            quantity=req.buy_now_item.quantity
         )
         order_items.append(o_item)
+    elif cart:
+        for cart_item in cart.items:
+            sku = cart_item.sku
+            product = sku.product
+            
+            # Check stock
+            if sku.stock_quantity < cart_item.quantity:
+                raise HTTPException(status_code=400, detail=f"Sản phẩm {product.name} không đủ số lượng trong kho")
+                
+            price_at_purchase = sku.price
+            subtotal += price_at_purchase * cart_item.quantity
+            
+            # Trừ kho
+            sku.stock_quantity -= cart_item.quantity
+            
+            o_item = OrderItem(
+                id=str(uuid.uuid4()),
+                sku_id=sku.id,
+                product_name=product.name,
+                sku_code=sku.sku_code,
+                price_at_purchase=price_at_purchase,
+                quantity=cart_item.quantity
+            )
+            order_items.append(o_item)
         
     total_amount = subtotal + (req.shipping_fee or 0)
     shipping_fee = req.shipping_fee or 0
@@ -100,6 +128,11 @@ def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db:
     final_total = total_amount - discount_amount
     
     # 4. Create Order
+    # Tự động sinh mã giao dịch cho COD
+    txn_id = None
+    if req.payment_method == PaymentMethod.COD:
+        txn_id = f"COD-{uuid.uuid4().hex[:8].upper()}"
+        
     new_order = Order(
         id=str(uuid.uuid4()),
         user_id=current_user.id,
@@ -108,6 +141,7 @@ def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db:
         status=OrderStatus.PENDING,
         payment_method=req.payment_method,
         payment_status=PaymentStatus.UNPAID,
+        payment_transaction_id=txn_id,
         total_amount=final_total,
         shipping_fee=shipping_fee,
         shipping_provider=req.shipping_provider,
@@ -130,9 +164,10 @@ def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db:
         item.order_id = new_order.id
         db.add(item)
         
-    # 5. Clear Cart
-    for item in cart.items:
-        db.delete(item)
+    # 5. Clear Cart (chỉ khi không phải mua ngay)
+    if not req.buy_now_item and cart:
+        for item in cart.items:
+            db.delete(item)
         
     db.commit()
     db.refresh(new_order)

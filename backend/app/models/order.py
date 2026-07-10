@@ -16,6 +16,7 @@ class PaymentMethod(str, enum.Enum):
     COD = "COD"
     PAYPAL = "PAYPAL"
     VNPAY = "VNPAY"
+    MOMO = "MOMO"
 
 
 class PaymentStatus(str, enum.Enum):

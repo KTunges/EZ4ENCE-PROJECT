@@ -158,8 +158,8 @@ def create_vnpay_url(req: VNPAYOrderRequest, request: Request, db: Session = Dep
     vnp.requestData['vnp_TmnCode'] = settings.VNPAY_TMN_CODE
     vnp.requestData['vnp_Amount'] = str(amount)
     vnp.requestData['vnp_CurrCode'] = 'VND'
-    vnp.requestData['vnp_TxnRef'] = str(req.order_id)
-    vnp.requestData['vnp_OrderInfo'] = 'Thanh toan don hang ' + str(req.order_id)
+    vnp.requestData['vnp_TxnRef'] = req.order_id
+    vnp.requestData['vnp_OrderInfo'] = 'Thanh toan don hang ' + req.order_id
     vnp.requestData['vnp_OrderType'] = 'billpayment'
     vnp.requestData['vnp_Locale'] = 'vn'
     
@@ -224,3 +224,67 @@ def verify_vnpay_return(request: Request, background_tasks: BackgroundTasks, db:
     else:
         return {"success": False, "message": "Sai chữ ký bảo mật (Invalid Signature)"}
 
+@router.post("/momo/create-url")
+def create_momo_url(req: PayPalOrderRequest, db: Session = Depends(get_db)):
+    order = db.query(Order).filter(Order.id == req.order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    from app.utils.momo import MomoPayment
+    momo = MomoPayment()
+    
+    amount = int(order.total_amount)
+    order_info = f"Thanh toan don hang {req.order_id}"
+    
+    pay_url = momo.create_payment_url(req.order_id, amount, order_info)
+    
+    if pay_url:
+        return {"payment_url": pay_url}
+    else:
+        raise HTTPException(status_code=500, detail="Lỗi khi tạo URL thanh toán Momo")
+
+@router.get("/momo/verify-return")
+def verify_momo_return(request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    input_data = dict(request.query_params)
+    
+    from app.utils.momo import MomoPayment
+    momo = MomoPayment()
+    
+    if momo.verify_response(input_data):
+        result_code = input_data.get("resultCode")
+        order_id = input_data.get("orderId")
+        amount = int(input_data.get("amount", 0))
+        trans_id = input_data.get("transId")
+        
+        if str(result_code) == "0":
+            # Thành công
+            order = db.query(Order).filter(Order.id == order_id).first()
+            if order:
+                order.payment_status = PaymentStatus.PAID
+                order.payment_transaction_id = str(trans_id)
+                
+                from app.models.order import OrderStatusHistory
+                import uuid
+                history = OrderStatusHistory(
+                    id=str(uuid.uuid4()),
+                    order_id=order.id,
+                    status=order.status,
+                    description=f"Thanh toán Momo thành công. Mã GD: {trans_id}"
+                )
+                db.add(history)
+                db.commit()
+                
+                # Send confirmation email
+                background_tasks.add_task(send_order_confirmation_email, order, order.user, order.shipping_address)
+                
+            return {
+                "success": True, 
+                "message": "Giao dịch thành công", 
+                "order_id": order_id, 
+                "amount": amount
+            }
+        else:
+            message = input_data.get("message", "Giao dịch thất bại")
+            return {"success": False, "message": message}
+    else:
+        return {"success": False, "message": "Sai chữ ký bảo mật Momo (Invalid Signature)"}

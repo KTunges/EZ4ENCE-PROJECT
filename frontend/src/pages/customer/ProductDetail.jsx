@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Heart, Star, Minus, Plus, ChevronRight, Shield, Truck, RotateCcw, Package, Check, Gift, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CyberBackground from '../../components/ui/CyberBackground';
@@ -133,7 +133,8 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSku, setSelectedSku] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState('description');
+  const [activeTab, setActiveTab] = useState('specs');
+  const navigate = useNavigate();
   const currentSkuId = product?.skus?.[selectedSku]?.id;
   const wishlisted = currentSkuId ? isWishlisted(currentSkuId) : false;
   const [showStickyCart, setShowStickyCart] = useState(false);
@@ -233,6 +234,27 @@ export default function ProductDetail() {
   const discount = currentSku?.originalPrice
     ? Math.round((1 - currentSku.price / currentSku.originalPrice) * 100)
     : 0;
+
+  const handleBuyNow = () => {
+    if (!currentSku) return;
+    if (currentSku.stock === 0) {
+      alert('Sản phẩm tạm hết hàng!');
+      return;
+    }
+    // Navigate to checkout with specific item state
+    navigate('/checkout', { 
+      state: { 
+        buyNowItem: {
+          sku_id: currentSku.id,
+          product_name: product.name,
+          sku_code: currentSku.sku_code,
+          price: currentSku.price,
+          quantity: quantity,
+          image_url: product.images?.[0]
+        }
+      } 
+    });
+  };
 
   if (loading) {
     return <ProductDetailSkeleton />;
@@ -445,9 +467,14 @@ export default function ProductDetail() {
               <ShareButton productName={product.name} productSlug={product.slug} />
             </div>
 
-            <Link to="/checkout" className="btn btn-outline btn-buy-now" style={{ width: '100%', textAlign: 'center' }}>
+            <button 
+              onClick={handleBuyNow} 
+              className="btn btn-outline btn-buy-now" 
+              style={{ width: '100%', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
+              disabled={!currentSku || currentSku.stock === 0}
+            >
               <ChevronRight size={18} /> MUA NGAY
-            </Link>
+            </button>
 
             {/* Trust Badges */}
             <div className="product-trust-badges">

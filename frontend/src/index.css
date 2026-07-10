@@ -1303,14 +1303,14 @@ h1, h2, h3, h4, h5, h6 {
 [data-theme="dark"] .toggle-thumb {
   left: 3px;
   background: var(--cyan);
-  color: #000;
+  color: #fff;
   box-shadow: 0 0 10px var(--cyan-glow);
 }
 
 [data-theme="light"] .toggle-thumb {
   left: 27px;
   background: var(--purple);
-  color: var(--text-color);
+  color: #fff;
   box-shadow: 0 0 10px var(--purple-glow);
 }
 

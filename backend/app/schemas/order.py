@@ -17,7 +17,14 @@ class OrderItemResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class BuyNowItem(BaseModel):
+    sku_id: str
+    quantity: int
+
 class OrderCreateRequest(BaseModel):
+    # Hỗ trợ chức năng mua ngay (không dùng giỏ hàng)
+    buy_now_item: Optional[BuyNowItem] = None
+    
     # Dùng address_id nếu chọn từ sổ địa chỉ
     address_id: Optional[str] = None
     

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, Truck, Zap, ShieldCheck } from 'lucide-react';
 import CustomSelect from '../../components/ui/CustomSelect';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
@@ -9,6 +9,9 @@ import useVietnamProvinces from '../../hooks/useVietnamProvinces';
 
 export default function Checkout() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const buyNowItem = location.state?.buyNowItem;
+  
   const { cart, fetchCart, loading: cartLoading, clearCartState } = useCart();
   const { user, token } = useAuth();
   
@@ -150,8 +153,8 @@ export default function Checkout() {
     }
   }, [selectedAddressId, provinceName, districtName, savedAddresses]);
 
-  const items = cart?.items || [];
-  const subtotal = cart?.total_amount || 0;
+  const items = buyNowItem ? [buyNowItem] : (cart?.items || []);
+  const subtotal = buyNowItem ? (buyNowItem.price * buyNowItem.quantity) : (cart?.total_amount || 0);
   
   const selectedShipping = shippingOptions.find(o => o.id === selectedShippingId);
   const rawShippingFee = selectedShipping ? selectedShipping.fee : 0;
@@ -222,6 +225,13 @@ export default function Checkout() {
         note: note,
         promotion_id: appliedPromo ? appliedPromo.id : null
       };
+      
+      if (buyNowItem) {
+        payload.buy_now_item = {
+          sku_id: buyNowItem.sku_id,
+          quantity: buyNowItem.quantity
+        };
+      }
 
       // Nếu người dùng chọn lưu địa chỉ
       if (selectedAddressId === 'new' && saveAddress) {
@@ -252,7 +262,9 @@ export default function Checkout() {
         throw new Error(orderData.detail || 'Lỗi tạo đơn hàng');
       }
 
-      clearCartState(); // Synchronously clear cart state
+      if (!buyNowItem) {
+        clearCartState(); // Synchronously clear cart state only if not Buy Now
+      }
 
       if (method === 'vnpay') {
         const payRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/payment/vnpay/create-url`, {
@@ -268,6 +280,22 @@ export default function Checkout() {
           window.location.href = payData.payment_url;
         } else {
           alert("Không thể tạo URL thanh toán VNPAY.");
+        }
+        return;
+      } else if (method === 'momo') {
+        const payRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/payment/momo/create-url`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ order_id: orderData.id }),
+        });
+        const payData = await payRes.json();
+        if (payData.payment_url) {
+          window.location.href = payData.payment_url;
+        } else {
+          alert("Không thể tạo URL thanh toán Momo.");
         }
         return;
       }

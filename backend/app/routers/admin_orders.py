@@ -44,10 +44,12 @@ def get_order_detail(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_admin)
 ):
+    from app.models.product import Product
     order = db.query(Order).filter(Order.id == order_id).options(
         joinedload(Order.user),
         joinedload(Order.shipping_address),
-        joinedload(Order.items).joinedload(OrderItem.sku).joinedload(ProductSKU.product),
+        joinedload(Order.items).joinedload(OrderItem.sku).joinedload(ProductSKU.product).joinedload(Product.images),
+        joinedload(Order.items).joinedload(OrderItem.sku).joinedload(ProductSKU.images),
         joinedload(Order.status_history)
     ).first()
     

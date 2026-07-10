@@ -117,11 +117,35 @@ def get_dashboard_stats(period: str = "week", db: Session = Depends(get_db)):
             "created_at": o.created_at.isoformat()
         })
 
+    # 7. Order Status Distribution
+    status_counts = db.query(Order.status, func.count(Order.id)).group_by(Order.status).all()
+    order_status_distribution = [{"name": s.value if hasattr(s, 'value') else s, "value": c} for s, c in status_counts]
+
+    # 8. Top 5 Selling Products
+    from app.models.order import OrderItem
+    from app.models.product import ProductSKU
+    top_products_db = db.query(Product.name, func.sum(OrderItem.quantity).label('total_sold')).\
+        join(ProductSKU, Product.id == ProductSKU.product_id).\
+        join(OrderItem, ProductSKU.id == OrderItem.sku_id).\
+        group_by(Product.id).\
+        order_by(func.sum(OrderItem.quantity).desc()).limit(5).all()
+    top_products = [{"name": p, "sold": s} for p, s in top_products_db]
+
+    # 9. Low Stock Alerts (< 10)
+    low_stock_db = db.query(Product.name, ProductSKU.sku_code, ProductSKU.stock_quantity).\
+        join(ProductSKU, Product.id == ProductSKU.product_id).\
+        filter(ProductSKU.stock_quantity < 10, ProductSKU.stock_quantity > 0).\
+        order_by(ProductSKU.stock_quantity.asc()).limit(5).all()
+    low_stock_items = [{"product_name": p, "sku_code": sc, "stock": st} for p, sc, st in low_stock_db]
+
     return {
         "totalRevenue": total_revenue,
         "totalOrders": total_orders,
         "activeProducts": active_products,
         "totalCustomers": total_customers,
         "revenueChart": revenue_chart,
-        "recentOrders": latest_orders
+        "recentOrders": latest_orders,
+        "orderStatusDistribution": order_status_distribution,
+        "topProducts": top_products,
+        "lowStockItems": low_stock_items
     }

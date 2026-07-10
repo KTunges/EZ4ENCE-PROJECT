@@ -80,8 +80,8 @@ const ProductCard = React.memo(({ product, index = 0 }) => {
 
         {/* Specs Pills */}
         {product.specs && product.specs.length > 0 && (
-          <div className="product-card-specs" style={{ maxHeight: '60px', overflow: 'hidden' }}>
-            {product.specs.slice(0, 4).map((spec, idx) => (
+          <div className="product-card-specs">
+            {product.specs.slice(0, 2).map((spec, idx) => (
               <span key={idx} className="spec-pill" style={{ display: 'inline-block', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{spec}</span>
             ))}
           </div>

@@ -33,6 +33,13 @@ class Settings(BaseSettings):
     PAYPAL_CLIENT_ID: Optional[str] = None
     PAYPAL_CLIENT_SECRET: Optional[str] = None
     PAYPAL_ENVIRONMENT: str = "sandbox"
+    
+    MOMO_PARTNER_CODE: str = ""
+    MOMO_ACCESS_KEY: str = ""
+    MOMO_SECRET_KEY: str = ""
+    MOMO_ENDPOINT: str = "https://test-payment.momo.vn/v2/gateway/api/create"
+    MOMO_RETURN_URL: str = ""
+    MOMO_NOTIFY_URL: str = ""
 
     # VNPAY
     VNPAY_TMN_CODE: Optional[str] = None
