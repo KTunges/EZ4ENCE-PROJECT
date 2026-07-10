@@ -169,7 +169,7 @@ export default function AdminOrderDetails() {
             <div style={{ display: 'flex', gap: '8px' }}>
               <MapPin size={16} color="#94a3b8" style={{ flexShrink: 0, marginTop: '4px' }} />
               <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.6' }}>
-                {order.shipping_address ? `${order.shipping_address.street}, ${order.shipping_address.ward}, ${order.shipping_address.district}, ${order.shipping_address.province}` : 'Không có địa chỉ'}
+                {order.shipping_address ? `${order.shipping_address.address_line}, ${order.shipping_address.ward}, ${order.shipping_address.district}, ${order.shipping_address.city}` : 'Không có địa chỉ'}
               </p>
             </div>
           </div>

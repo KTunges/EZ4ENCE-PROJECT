@@ -110,11 +110,15 @@ export default function ShareButton({ productName, productSlug, productUrl }) {
     },
   ];
 
+  const handleShareClick = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
     <div className="share-button-wrapper" ref={menuRef} style={{ position: 'relative' }}>
       <button
         className="btn-share-toggle"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleShareClick}
         title="Chia sẻ sản phẩm"
       >
         {isOpen ? <X size={20} /> : <Share2 size={20} />}
