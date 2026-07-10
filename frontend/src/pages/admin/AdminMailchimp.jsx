@@ -46,9 +46,9 @@ export default function AdminMailchimp() {
           </h1>
           <p style={{ color: 'var(--text-muted)', margin: 0 }}>Quản lý đồng bộ khách hàng từ website sang hệ thống Mailchimp.</p>
         </div>
-        <a 
-          href="https://mailchimp.com" 
-          target="_blank" 
+        <a
+          href="https://mailchimp.com"
+          target="_blank"
           rel="noopener noreferrer"
           style={{ background: '#FFE01B', color: '#000', textDecoration: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
         >
@@ -65,7 +65,7 @@ export default function AdminMailchimp() {
             <div>
               <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '4px' }}>Khách hàng hợp lệ (Đã xác thực)</div>
               {loading ? (
-                <div className="spinner-border text-cyan" style={{width: '20px', height: '20px', borderWidth: '2px'}}></div>
+                <div className="spinner-border text-cyan" style={{ width: '20px', height: '20px', borderWidth: '2px' }}></div>
               ) : (
                 <div style={{ fontSize: '28px', fontWeight: 'bold' }}>{stats?.verified_users || 0}</div>
               )}
@@ -88,17 +88,17 @@ export default function AdminMailchimp() {
           <p style={{ fontSize: '14px', color: 'var(--text-muted)', margin: 0, lineHeight: '1.5' }}>
             Nếu bạn mới kết nối Mailchimp hoặc nghi ngờ có dữ liệu bị sót, bạn có thể quét lại toàn bộ database để đồng bộ cưỡng bức tất cả tài khoản hợp lệ lên Mailchimp.
           </p>
-          <button 
+          <button
             onClick={handleManualSync}
             disabled={syncing}
-            style={{ 
-              marginTop: 'auto', background: syncing ? 'rgba(255, 255, 255, 0.1)' : 'var(--bg-dark)', 
-              color: syncing ? '#666' : 'var(--text)', border: '1px solid var(--border)', 
-              padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: syncing ? 'not-allowed' : 'pointer', 
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s' 
+            style={{
+              marginTop: 'auto', background: syncing ? 'rgba(255, 255, 255, 0.1)' : 'var(--bg-dark)',
+              color: syncing ? '#666' : 'var(--text)', border: '1px solid var(--border)',
+              padding: '12px', borderRadius: '8px', fontWeight: 'bold', cursor: syncing ? 'not-allowed' : 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s'
             }}
           >
-            <RefreshCw size={18} className={syncing ? 'spin' : ''} color={syncing ? '#666' : 'var(--cyan)'} /> 
+            <RefreshCw size={18} className={syncing ? 'spin' : ''} color={syncing ? '#666' : 'var(--cyan)'} />
             {syncing ? 'Đang kích hoạt đồng bộ...' : 'Chạy Đồng Bộ Cưỡng Bức'}
           </button>
         </div>
