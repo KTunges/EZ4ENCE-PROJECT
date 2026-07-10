@@ -3698,14 +3698,14 @@ textarea.checkout-input {
 }
 
 .product-detail-header {
-  padding: 100px 0 10px;
+  padding: 20px 0 10px;
   position: relative;
   z-index: 2;
 }
 
 .product-detail-main {
   position: relative;
-  z-index: 2;
+  z-index: 10;
   padding-top: 20px;
 }
 
@@ -6029,15 +6029,20 @@ body {
   position: static !important;
 }
 
+/* Ẩn tất cả các iframe & div mà Google Translate chèn vào */
 .goog-te-banner-frame,
 .goog-te-banner-frame.skiptranslate,
 .goog-te-gadget-icon,
 .goog-logo-link,
 #goog-gt-tt,
 .goog-te-spinner-pos,
-.goog-te-spinner-animation {
+.goog-te-spinner-animation,
+iframe.skiptranslate {
   display: none !important;
   visibility: hidden !important;
+  height: 0 !important;
+  width: 0 !important;
+  border: none !important;
 }
 
 .goog-text-highlight {
@@ -6048,6 +6053,8 @@ body {
 /* Ẩn cái div banner ngang màn hình do Google chèn thẳng vào body */
 body > .skiptranslate {
   display: none !important;
+  height: 0 !important;
+  overflow: hidden !important;
 }
 
 /* Fix lỗi chữ đè lên nhau do hiệu ứng glitch khi trang bị dịch */

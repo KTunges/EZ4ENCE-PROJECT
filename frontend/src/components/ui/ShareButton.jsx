@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Share2, X, Link2, Check, Mail } from 'lucide-react';
+import { Share2, X, Link2, Check, Mail, MessageCircle } from 'lucide-react';
 
 /**
  * ShareButton — Nút chia sẻ sản phẩm qua mạng xã hội.
@@ -38,6 +38,22 @@ export default function ShareButton({ productName, productUrl }) {
       action: () => window.open(`https://www.facebook.com/dialog/send?link=${encodedUrl}&app_id=${import.meta.env.VITE_FACEBOOK_APP_ID || '1706350950812679'}&redirect_uri=${encodedUrl}`, '_blank', 'width=600,height=400'),
     },
     {
+      name: 'Zalo',
+      icon: <MessageCircle size={18} />,
+      color: '#0068FF',
+      action: () => window.open(`https://zalo.me/share?url=${encodedUrl}`, '_blank', 'width=600,height=600'),
+    },
+    {
+      name: 'Instagram',
+      icon: <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>,
+      color: '#E1306C',
+      action: () => {
+        navigator.clipboard.writeText(url);
+        alert('Đã sao chép link! Mở Instagram để dán vào tin nhắn hoặc story của bạn.');
+        window.open('https://www.instagram.com/', '_blank');
+      },
+    },
+    {
       name: 'X (Twitter)',
       icon: <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>,
       color: 'var(--text)',
@@ -61,11 +77,15 @@ export default function ShareButton({ productName, productUrl }) {
     },
   ];
 
+  const handleShareClick = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
     <div className="share-button-wrapper" ref={menuRef} style={{ position: 'relative' }}>
       <button
         className="btn-share-toggle"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleShareClick}
         title="Chia sẻ sản phẩm"
       >
         {isOpen ? <X size={20} /> : <Share2 size={20} />}
