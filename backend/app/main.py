@@ -10,7 +10,7 @@ from app.routers import (
     admin_dashboard, admin_categories, admin_brands, admin_products,
     admin_users, admin_orders, admin_reviews, admin_marketing, admin_news,
     admin_inventory, admin_staffs, admin_mailchimp, addresses, marketing, news,
-    ai_advisor
+    ai_advisor, og
 )
 
 logger.add("../database/app.log", rotation="10 MB", level="INFO")
@@ -57,6 +57,7 @@ app.include_router(chat.router, prefix="/api")
 app.include_router(reviews.router, prefix="/api")
 app.include_router(wishlist.router, prefix="/api")
 app.include_router(ai_advisor.router, prefix="/api")
+app.include_router(og.router, prefix="/api")
 
 @app.get("/")
 def read_root():

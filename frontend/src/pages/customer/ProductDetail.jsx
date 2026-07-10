@@ -442,7 +442,7 @@ export default function ProductDetail() {
                 <Heart size={20} fill={wishlisted ? 'var(--pink)' : 'none'} />
               </button>
 
-              <ShareButton productName={product.name} />
+              <ShareButton productName={product.name} productSlug={product.slug} />
             </div>
 
             <Link to="/checkout" className="btn btn-outline btn-buy-now" style={{ width: '100%', textAlign: 'center' }}>
