@@ -636,6 +636,8 @@ export default function Checkout() {
                           });
                           const ppData = await response.json();
                           if (ppData.paypal_order_id) {
+                            // Lưu db_order_id vào biến tạm để dùng khi capture
+                            window.__ez4gear_db_order_id = ppData.db_order_id || orderData.id;
                             return ppData.paypal_order_id;
                           } else {
                             throw new Error("Không thể khởi tạo PayPal Order");
@@ -650,12 +652,17 @@ export default function Checkout() {
                           const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/payment/paypal/capture-order`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                            body: JSON.stringify({ order_id: data.orderID }),
+                            body: JSON.stringify({ 
+                              order_id: data.orderID,
+                              db_order_id: window.__ez4gear_db_order_id 
+                            }),
                           });
                           const orderData = await response.json();
                           
                           if (orderData.success) {
-                            navigate('/checkout/success', { state: { method: 'paypal', total: total, orderId: data.orderID } });
+                            const dbOrderId = window.__ez4gear_db_order_id;
+                            delete window.__ez4gear_db_order_id;
+                            navigate('/checkout/success', { state: { method: 'paypal', total: total, orderId: dbOrderId || data.orderID } });
                           } else {
                             throw new Error("Capture failed");
                           }

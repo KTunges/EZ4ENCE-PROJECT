@@ -23,6 +23,7 @@ class PayPalOrderRequest(BaseModel):
 
 class PayPalCaptureRequest(BaseModel):
     order_id: str # ID của PayPal Order (không phải ID đơn hàng trong DB)
+    db_order_id: str | None = None # ID đơn hàng thật trong DB
 
 def get_paypal_access_token():
     client_id = settings.PAYPAL_CLIENT_ID
@@ -85,7 +86,8 @@ def create_paypal_order(req: PayPalOrderRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail="Failed to create PayPal order")
         
     data = response.json()
-    return {"paypal_order_id": data["id"]}
+    # Trả về cả db_order_id để frontend gửi lại khi capture
+    return {"paypal_order_id": data["id"], "db_order_id": req.order_id}
 
 @router.post("/paypal/capture-order")
 def capture_paypal_order(req: PayPalCaptureRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
@@ -102,7 +104,9 @@ def capture_paypal_order(req: PayPalCaptureRequest, background_tasks: Background
     if response.status_code in (200, 201):
         data = response.json()
         if data["status"] == "COMPLETED":
-            order = db.query(Order).filter(Order.id == req.order_id).first()
+            # Dùng db_order_id (ID thật trong DB) thay vì PayPal order ID
+            lookup_id = req.db_order_id or req.order_id
+            order = db.query(Order).filter(Order.id == lookup_id).first()
             if order:
                 order.payment_status = PaymentStatus.PAID
                 order.payment_transaction_id = data.get("id")

@@ -82,12 +82,23 @@ def update_order_status(
                 product = db.query(Product).filter(Product.id == item.sku.product_id).first()
                 if product:
                     product.sold_count += item.quantity
+        
+        # COD: Khi giao hàng thành công → tự động đánh dấu đã thanh toán
+        from app.models.order import PaymentMethod
+        if order.payment_method == PaymentMethod.COD:
+            order.payment_status = PaymentStatus.PAID
+            
     elif old_status == OrderStatus.DELIVERED and new_status != OrderStatus.DELIVERED:
         for item in order.items:
             if item.sku and item.sku.product_id:
                 product = db.query(Product).filter(Product.id == item.sku.product_id).first()
                 if product:
                     product.sold_count = max(0, product.sold_count - item.quantity)
+        
+        # COD: Nếu hủy trạng thái "Đã giao" → trả về "Chưa thanh toán"
+        from app.models.order import PaymentMethod
+        if order.payment_method == PaymentMethod.COD:
+            order.payment_status = PaymentStatus.UNPAID
     
     history = OrderStatusHistory(
         id=str(uuid.uuid4()),
@@ -99,6 +110,39 @@ def update_order_status(
     db.commit()
     
     return {"message": "Order status updated", "new_status": new_status.value}
+
+# --- Cập nhật trạng thái thanh toán (Admin) ---
+class PaymentStatusUpdate(BaseModel):
+    payment_status: str  # "PAID" hoặc "UNPAID"
+
+@router.put("/{order_id}/payment-status")
+def update_payment_status(
+    order_id: str,
+    req: PaymentStatusUpdate,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    try:
+        new_payment_status = PaymentStatus(req.payment_status)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid payment status. Use 'PAID' or 'UNPAID'")
+    
+    order.payment_status = new_payment_status
+    
+    history = OrderStatusHistory(
+        id=str(uuid.uuid4()),
+        order_id=order.id,
+        status=order.status,
+        description=f"Trạng thái thanh toán cập nhật thành {new_payment_status.value} bởi Admin"
+    )
+    db.add(history)
+    db.commit()
+    
+    return {"message": "Payment status updated", "new_payment_status": new_payment_status.value}
 
 @router.delete("/{order_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_order(
