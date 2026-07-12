@@ -172,6 +172,13 @@ def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db:
     db.commit()
     db.refresh(new_order)
     
+    # 6. Tạo thông báo cho Admin khi có đơn hàng mới
+    try:
+        from app.services.notification_service import notify_admins_new_order
+        notify_admins_new_order(db, new_order.id, new_order.id, current_user.full_name or current_user.username or "Khách hàng", final_total)
+    except Exception:
+        pass  # Không để lỗi notification làm hỏng flow đặt hàng
+    
     # Send email for COD orders immediately
     if req.payment_method == PaymentMethod.COD:
         # Get address details since we might have just created it

@@ -11,15 +11,96 @@ import { useAuth } from '../../context/AuthContext';
 export default function AdminLayout() {
   const { adminUser, adminLogout } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: 'Đơn hàng mới', message: 'Bạn có 1 đơn hàng mới #ORD1234', time: '5 phút trước', read: false, type: 'order' },
-    { id: 2, title: 'Cảnh báo tồn kho', message: 'Sản phẩm "Bàn phím cơ" sắp hết hàng', time: '1 giờ trước', read: false, type: 'inventory' },
-    { id: 3, title: 'Khách hàng mới', message: 'Nguyễn Văn A vừa đăng ký tài khoản', time: '2 giờ trước', read: true, type: 'user' }
-  ]);
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const markAllAsRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, read: true })));
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+  const fetchNotifications = async () => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      if (!token) return;
+      const res = await fetch(`${API_URL}/api/notifications/admin?limit=20`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setNotifications(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch notifications:", err);
+    }
+  };
+
+  const fetchUnreadCount = async () => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      if (!token) return;
+      const res = await fetch(`${API_URL}/api/notifications/admin/unread-count`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUnreadCount(data.unread_count);
+      }
+    } catch (err) {
+      console.error("Failed to fetch unread count:", err);
+    }
+  };
+
+  // Fetch on mount + poll every 30 seconds
+  useEffect(() => {
+    fetchNotifications();
+    fetchUnreadCount();
+    const interval = setInterval(() => {
+      fetchUnreadCount();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Refresh notifications when dropdown opens
+  useEffect(() => {
+    if (showNotifications) {
+      fetchNotifications();
+    }
+  }, [showNotifications]);
+
+  const markAllAsRead = async () => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      await fetch(`${API_URL}/api/notifications/admin/read-all`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setNotifications(notifications.map(n => ({ ...n, is_read: true })));
+      setUnreadCount(0);
+    } catch (err) {
+      console.error("Failed to mark all as read:", err);
+    }
+  };
+
+  const markOneAsRead = async (notifId) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      await fetch(`${API_URL}/api/notifications/admin/${notifId}/read`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setNotifications(notifications.map(n => n.id === notifId ? { ...n, is_read: true } : n));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (err) {
+      console.error("Failed to mark as read:", err);
+    }
+  };
+
+  const timeAgo = (dateStr) => {
+    const now = new Date();
+    const date = new Date(dateStr);
+    const diff = Math.floor((now - date) / 1000);
+    if (diff < 60) return 'Vừa xong';
+    if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
+    return `${Math.floor(diff / 86400)} ngày trước`;
   };
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -218,13 +299,23 @@ export default function AdminLayout() {
                       <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>Không có thông báo nào</div>
                     ) : (
                       notifications.map(notif => (
-                        <div key={notif.id} style={{ padding: '16px', borderBottom: '1px solid var(--border)', background: notif.read ? 'transparent' : 'rgba(0, 220, 255, 0.05)', cursor: 'pointer', transition: 'background 0.2s' }} className="hover:bg-white/5">
+                        <div 
+                          key={notif.id} 
+                          onClick={() => {
+                            if (!notif.is_read) markOneAsRead(notif.id);
+                            if (notif.reference_type === 'order' && notif.reference_id) {
+                              navigate(`/admin/orders/${notif.reference_id}`);
+                              setShowNotifications(false);
+                            }
+                          }}
+                          style={{ padding: '16px', borderBottom: '1px solid var(--border)', background: notif.is_read ? 'transparent' : 'rgba(0, 220, 255, 0.05)', cursor: 'pointer', transition: 'background 0.2s' }} className="hover:bg-white/5"
+                        >
                           <div style={{ display: 'flex', gap: '12px' }}>
-                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: notif.read ? 'transparent' : '#00dcff', marginTop: '6px', flexShrink: 0 }}></div>
+                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: notif.is_read ? 'transparent' : '#00dcff', marginTop: '6px', flexShrink: 0 }}></div>
                             <div>
-                              <div style={{ fontSize: '14px', fontWeight: 'bold', color: notif.read ? 'var(--text)' : 'var(--cyan)', marginBottom: '4px' }}>{notif.title}</div>
+                              <div style={{ fontSize: '14px', fontWeight: 'bold', color: notif.is_read ? 'var(--text)' : 'var(--cyan)', marginBottom: '4px' }}>{notif.title}</div>
                               <div style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.4', marginBottom: '8px' }}>{notif.message}</div>
-                              <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>{notif.time}</div>
+                              <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>{timeAgo(notif.created_at)}</div>
                             </div>
                           </div>
                         </div>

@@ -111,6 +111,13 @@ def update_order_status(
     db.add(history)
     db.commit()
     
+    # Gửi thông báo cho khách hàng khi đơn hàng chuyển trạng thái
+    try:
+        from app.services.notification_service import notify_customer_order_status
+        notify_customer_order_status(db, order.user_id, order.id, order.id, new_status.value)
+    except Exception:
+        pass  # Không để lỗi notification làm hỏng flow
+    
     return {"message": "Order status updated", "new_status": new_status.value}
 
 # --- Cập nhật trạng thái thanh toán (Admin) ---
