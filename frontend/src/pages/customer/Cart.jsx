@@ -9,11 +9,16 @@ import PageSkeleton from '../../components/ui/PageSkeleton';
 
 export default function Cart() {
   const { cart, updateQuantity, removeItem, loading } = useCart();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const navigate = useNavigate();
   const [promoCode, setPromoCode] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState(null);
+  const [promoError, setPromoError] = useState('');
+  const [promoLoading, setPromoLoading] = useState(false);
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [showAuth, setShowAuth] = useState(false);
+  const [shippingFee, setShippingFee] = useState(0);
+  const [shippingCalculated, setShippingCalculated] = useState(false);
 
   useEffect(() => {
     // Fetch recommended products for empty cart state
@@ -61,8 +66,75 @@ export default function Cart() {
 
   const items = cart?.items || [];
   const subtotal = cart?.total_amount || 0;
-  const shipping = items.length > 0 ? 0 : 0; // Free shipping
-  const total = subtotal + shipping;
+  const isFreeshipEligible = subtotal >= 2000000;
+  const finalShippingFee = isFreeshipEligible ? 0 : (shippingCalculated ? shippingFee : 0);
+  
+  const discountAmount = appliedPromo ? appliedPromo.final_discount : 0;
+  const total = subtotal + finalShippingFee - discountAmount;
+
+  const handleApplyPromo = async () => {
+    if (!promoCode.trim()) return;
+    setPromoLoading(true);
+    setPromoError('');
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/promotions/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoCode.trim().toUpperCase(), order_value: subtotal })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setAppliedPromo(data);
+      } else {
+        setPromoError(data.detail || 'Mã giảm giá không hợp lệ');
+        setAppliedPromo(null);
+      }
+    } catch (err) {
+      setPromoError('Lỗi kết nối. Vui lòng thử lại sau.');
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Fetch default shipping fee if user has a default address
+    if (user && token && items.length > 0) {
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/addresses`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const defaultAddr = data.find(a => a.is_default) || (data.length > 0 ? data[0] : null);
+        if (defaultAddr) {
+          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/shipping/calculate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              city: String(defaultAddr.city), 
+              district: String(defaultAddr.district_id || defaultAddr.district), 
+              ward: String(defaultAddr.ward_code || defaultAddr.ward), 
+              weight_grams: 1000,
+              province_name: defaultAddr.city,
+              district_name: defaultAddr.district,
+              ward_name: defaultAddr.ward
+            })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.options && data.options.length > 0) {
+              const cheapest = [...data.options].sort((a,b) => a.fee - b.fee)[0];
+              setShippingFee(cheapest.fee);
+              setShippingCalculated(true);
+            }
+          })
+          .catch(console.error);
+        } else {
+          setShippingCalculated(false);
+        }
+      })
+      .catch(console.error);
+    }
+  }, [user, token, items.length]);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -173,7 +245,9 @@ export default function Cart() {
                 
                 <div className="summary-row">
                   <span>Phí giao hàng:</span>
-                  <span className="text-cyan">{items.length > 0 ? 'Miễn phí' : '0 ₫'}</span>
+                  <span className="text-cyan">
+                    {items.length === 0 ? '0 ₫' : (isFreeshipEligible ? 'Miễn phí' : (shippingCalculated ? formatPrice(shippingFee) : 'Tính khi thanh toán'))}
+                  </span>
                 </div>
 
                 <div className="summary-divider"></div>
@@ -185,13 +259,29 @@ export default function Cart() {
                       type="text" 
                       placeholder="Nhập mã giảm giá" 
                       value={promoCode}
-                      onChange={(e) => setPromoCode(e.target.value)}
+                      onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                      disabled={promoLoading || appliedPromo}
                     />
                   </div>
-                  <button className="btn btn-outline promo-btn">ÁP DỤNG</button>
+                  {appliedPromo ? (
+                    <button className="btn btn-outline promo-btn" onClick={() => { setAppliedPromo(null); setPromoCode(''); }} style={{ borderColor: '#ef4444', color: '#ef4444' }}>HỦY</button>
+                  ) : (
+                    <button className="btn btn-outline promo-btn" onClick={handleApplyPromo} disabled={promoLoading || !promoCode.trim()}>
+                      {promoLoading ? '...' : 'ÁP DỤNG'}
+                    </button>
+                  )}
                 </div>
+                {promoError && <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '8px', marginBottom: 0 }}>{promoError}</p>}
+                {appliedPromo && <p style={{ color: '#22c55e', fontSize: '13px', marginTop: '8px', marginBottom: 0 }}>{appliedPromo.message}</p>}
 
                 <div className="summary-divider"></div>
+
+                {appliedPromo && (
+                  <div className="summary-row" style={{ color: '#22c55e' }}>
+                    <span>Giảm giá ({appliedPromo.code}):</span>
+                    <span>-{formatPrice(appliedPromo.final_discount)}</span>
+                  </div>
+                )}
 
                 <div className="summary-total-row">
                   <span className="total-label">Tổng cộng:</span>
@@ -199,7 +289,7 @@ export default function Cart() {
                 </div>
                 <p className="tax-note">(Đã bao gồm VAT nếu có)</p>
 
-                <Link to="/checkout" className="btn btn-primary btn-checkout">
+                <Link to="/checkout" state={{ initialPromoCode: appliedPromo?.code || (promoCode && !promoError ? promoCode : '') }} className="btn btn-primary btn-checkout">
                   TIẾN HÀNH THANH TOÁN <ChevronRight size={20} />
                 </Link>
                 

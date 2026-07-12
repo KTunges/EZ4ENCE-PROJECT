@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Ticket, Trash2, Power, PowerOff, X, Percent, DollarSign, ShoppingCart } from 'lucide-react';
-import adminApi from '../../services/adminApi';
+import { getPromotions, createPromotion, togglePromotionStatus, deletePromotion } from '../../services/adminApi';
 
 export default function AdminCoupons() {
   const [coupons, setCoupons] = useState([]);
@@ -19,8 +19,8 @@ export default function AdminCoupons() {
   const fetchCoupons = async () => {
     try {
       setLoading(true);
-      const res = await adminApi.getPromotions();
-      setCoupons(res.data);
+      const res = await getPromotions();
+      setCoupons(res);
     } catch (error) {
       console.error('Lỗi lấy danh sách mã giảm giá:', error);
     } finally {
@@ -49,7 +49,7 @@ export default function AdminCoupons() {
         min_order_value: parseFloat(formData.min_order_value || 0)
       };
 
-      await adminApi.createPromotion(payload);
+      await createPromotion(payload);
       
       setShowModal(false);
       setFormData({ code: '', discount_percent: '', discount_amount: '', min_order_value: 0, is_active: true });
@@ -64,7 +64,7 @@ export default function AdminCoupons() {
 
   const handleToggle = async (id) => {
     try {
-      await adminApi.togglePromotionStatus(id);
+      await togglePromotionStatus(id);
       fetchCoupons();
     } catch (error) {
       console.error('Lỗi cập nhật trạng thái:', error);
@@ -74,7 +74,7 @@ export default function AdminCoupons() {
   const handleDelete = async (id) => {
     if (!window.confirm('Bạn có chắc chắn muốn xóa mã giảm giá này?')) return;
     try {
-      await adminApi.deletePromotion(id);
+      await deletePromotion(id);
       fetchCoupons();
     } catch (error) {
       console.error('Lỗi xóa mã:', error);

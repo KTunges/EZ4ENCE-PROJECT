@@ -35,10 +35,11 @@ export default function Checkout() {
   const [saveAddress, setSaveAddress] = useState(true);
 
   // Thêm state cho mã giảm giá
-  const [promoCode, setPromoCode] = useState('');
+  const [promoCode, setPromoCode] = useState(location.state?.initialPromoCode || '');
   const [appliedPromo, setAppliedPromo] = useState(null);
   const [promoError, setPromoError] = useState('');
   const [promoLoading, setPromoLoading] = useState(false);
+  const hasAppliedInitialPromo = useRef(false);
 
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState('new');
@@ -173,7 +174,7 @@ export default function Checkout() {
     setPromoLoading(true);
     setPromoError('');
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/marketing/promotions/apply`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/promotions/apply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: promoCode.trim().toUpperCase(), order_value: subtotal })
@@ -191,6 +192,34 @@ export default function Checkout() {
       setPromoLoading(false);
     }
   };
+
+  useEffect(() => {
+    const initPromo = location.state?.initialPromoCode;
+    if (initPromo && subtotal > 0 && !hasAppliedInitialPromo.current) {
+      hasAppliedInitialPromo.current = true;
+      const applyInitialPromo = async () => {
+        setPromoLoading(true);
+        try {
+          const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/promotions/apply`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: initPromo.toUpperCase(), order_value: subtotal })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            setAppliedPromo(data);
+          } else {
+            setPromoError(data.detail || 'Mã giảm giá không hợp lệ');
+          }
+        } catch (err) {
+          setPromoError('Lỗi kết nối.');
+        } finally {
+          setPromoLoading(false);
+        }
+      };
+      applyInitialPromo();
+    }
+  }, [subtotal, location.state]);
 
   const handleSpecificCheckout = async (method) => {
     if (selectedAddressId === 'new') {
