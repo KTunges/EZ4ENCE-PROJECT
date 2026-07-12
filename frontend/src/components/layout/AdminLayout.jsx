@@ -18,7 +18,7 @@ export default function AdminLayout() {
 
   const fetchNotifications = async () => {
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem('admin_token');
       if (!token) return;
       const res = await fetch(`${API_URL}/api/notifications/admin?limit=20`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -34,7 +34,7 @@ export default function AdminLayout() {
 
   const fetchUnreadCount = async () => {
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem('admin_token');
       if (!token) return;
       const res = await fetch(`${API_URL}/api/notifications/admin/unread-count`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -67,7 +67,7 @@ export default function AdminLayout() {
 
   const markAllAsRead = async () => {
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem('admin_token');
       await fetch(`${API_URL}/api/notifications/admin/read-all`, {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}` }
@@ -81,7 +81,7 @@ export default function AdminLayout() {
 
   const markOneAsRead = async (notifId) => {
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem('admin_token');
       await fetch(`${API_URL}/api/notifications/admin/${notifId}/read`, {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}` }

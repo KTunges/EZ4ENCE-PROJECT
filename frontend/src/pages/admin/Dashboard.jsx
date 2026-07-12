@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { DollarSign, Users, ShoppingCart, Package, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { DollarSign, Users, ShoppingCart, Package, ArrowUpRight, ArrowDownRight, ChevronDown } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, PieChart, Pie, Cell } from 'recharts';
 import { getDashboardStats } from '../../services/adminApi';
+import { downloadReport } from '../../utils/exportUtils';
+import { DownloadCloud } from 'lucide-react';
 
 export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState({
@@ -18,6 +20,7 @@ export default function Dashboard() {
 
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState('week');
+  const [showExport, setShowExport] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -58,29 +61,67 @@ export default function Dashboard() {
   }
 
   return (
-    <div>
+    <div className="admin-page animate-fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <h1 className="text-2xl font-bold">Tổng quan Dashboard</h1>
-        <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-card)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border)' }}>
-          {['week', 'month', 'year'].map(p => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-card)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border)' }}>
+            {['week', 'month', 'year'].map(p => (
+              <button 
+                key={p}
+                onClick={() => setPeriod(p)}
+                style={{
+                  padding: '6px 16px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  background: period === p ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+                  color: period === p ? '#38bdf8' : 'var(--text-muted)',
+                  fontWeight: period === p ? 'bold' : '500',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  fontSize: '13px'
+                }}
+              >
+                {p === 'week' ? '7 Ngày' : p === 'month' ? '30 Ngày' : '1 Năm'}
+              </button>
+            ))}
+          </div>
+          <div style={{ position: 'relative' }}>
             <button 
-              key={p}
-              onClick={() => setPeriod(p)}
-              style={{
-                padding: '6px 16px',
-                borderRadius: '6px',
-                border: 'none',
-                background: period === p ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
-                color: period === p ? '#38bdf8' : 'var(--text-muted)',
-                fontWeight: period === p ? 'bold' : '500',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                fontSize: '13px'
-              }}
+              onClick={() => setShowExport(!showExport)}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'transparent', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
             >
-              {p === 'week' ? '7 Ngày' : p === 'month' ? '30 Ngày' : '1 Năm'}
+              <DownloadCloud size={18} /> Xuất dữ liệu <ChevronDown size={14} />
             </button>
-          ))}
+            {showExport && (
+              <div className="glass" style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', borderRadius: '12px', padding: '8px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '160px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+                <button 
+                  onClick={() => {
+                    const token = localStorage.getItem('admin_token');
+                    downloadReport(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/admin/reports/revenue/export?format=csv`, token, 'Revenue_Report.csv');
+                    setShowExport(false);
+                  }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', textAlign: 'left', background: 'transparent', border: 'none', color: 'var(--text)', cursor: 'pointer', borderRadius: '6px', fontWeight: '500', transition: 'background 0.2s' }}
+                  onMouseOver={(e) => e.target.style.background = 'rgba(128,128,128,0.15)'}
+                  onMouseOut={(e) => e.target.style.background = 'transparent'}
+                >
+                  <DownloadCloud size={16} /> Xuất File CSV
+                </button>
+                <button 
+                  onClick={() => {
+                    const token = localStorage.getItem('admin_token');
+                    downloadReport(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/admin/reports/revenue/export?format=xlsx`, token, 'Revenue_Report.xlsx');
+                    setShowExport(false);
+                  }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', textAlign: 'left', background: 'transparent', border: 'none', color: 'var(--text)', cursor: 'pointer', borderRadius: '6px', fontWeight: '500', transition: 'background 0.2s' }}
+                  onMouseOver={(e) => e.target.style.background = 'rgba(128,128,128,0.15)'}
+                  onMouseOut={(e) => e.target.style.background = 'transparent'}
+                >
+                  <DownloadCloud size={16} /> Xuất File Excel
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
       
@@ -220,7 +261,7 @@ export default function Dashboard() {
                 <XAxis type="number" stroke="#94a3b8" tick={{fill: 'var(--text-muted)'}} axisLine={false} tickLine={false} />
                 <YAxis dataKey="name" type="category" stroke="#94a3b8" tickFormatter={(val) => val.length > 15 ? val.slice(0, 15) + '...' : val} tick={{fill: 'var(--text)', fontSize: 11}} width={100} axisLine={false} tickLine={false} />
                 <Tooltip 
-                  cursor={{fill: 'rgba(255,255,255,0.05)'}}
+                  cursor={{fill: 'rgba(128,128,128,0.15)'}}
                   contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', border: '1px solid var(--border)', borderRadius: '8px', maxWidth: '300px', whiteSpace: 'normal' }}
                   itemStyle={{ color: '#38bdf8', fontWeight: 'bold' }}
                   labelStyle={{ color: '#fff', fontWeight: 'bold', marginBottom: '4px' }}

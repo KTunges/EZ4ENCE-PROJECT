@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Search, Eye, Trash2, ChevronDown, Filter, Plus } from 'lucide-react';
+import { Search, Eye, Trash2, ChevronDown, Filter, Plus, DownloadCloud } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAdminOrders, deleteOrder } from '../../services/adminApi';
+import { downloadReport } from '../../utils/exportUtils';
 
 export default function AdminOrders() {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ export default function AdminOrders() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
+  const [showExport, setShowExport] = useState(false);
   const itemsPerPage = 10;
 
   const filteredOrders = orders.filter(o => {
@@ -74,9 +76,47 @@ export default function AdminOrders() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <h1 className="text-2xl font-bold">Quản lý Đơn hàng</h1>
-        <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--cyan)', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
-          <Plus size={18} /> Tạo đơn thủ công
-        </button>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <div style={{ position: 'relative' }}>
+            <button 
+              onClick={() => setShowExport(!showExport)}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'transparent', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
+            >
+              <DownloadCloud size={18} /> Xuất dữ liệu <ChevronDown size={14} />
+            </button>
+            {showExport && (
+              <div className="glass" style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', borderRadius: '12px', padding: '8px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '160px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+                <button 
+                  onClick={() => {
+                    const token = localStorage.getItem('admin_token');
+                    downloadReport(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/admin/reports/orders/export?format=csv`, token, 'Orders_Report.csv');
+                    setShowExport(false);
+                  }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', textAlign: 'left', background: 'transparent', border: 'none', color: 'var(--text)', cursor: 'pointer', borderRadius: '6px', fontWeight: '500', transition: 'background 0.2s' }}
+                  onMouseOver={(e) => e.target.style.background = 'rgba(128,128,128,0.15)'}
+                  onMouseOut={(e) => e.target.style.background = 'transparent'}
+                >
+                  <DownloadCloud size={16} /> Xuất File CSV
+                </button>
+                <button 
+                  onClick={() => {
+                    const token = localStorage.getItem('admin_token');
+                    downloadReport(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/admin/reports/orders/export?format=xlsx`, token, 'Orders_Report.xlsx');
+                    setShowExport(false);
+                  }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', textAlign: 'left', background: 'transparent', border: 'none', color: 'var(--text)', cursor: 'pointer', borderRadius: '6px', fontWeight: '500', transition: 'background 0.2s' }}
+                  onMouseOver={(e) => e.target.style.background = 'rgba(128,128,128,0.15)'}
+                  onMouseOut={(e) => e.target.style.background = 'transparent'}
+                >
+                  <DownloadCloud size={16} /> Xuất File Excel
+                </button>
+              </div>
+            )}
+          </div>
+          <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--cyan)', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
+            <Plus size={18} /> Tạo đơn thủ công
+          </button>
+        </div>
       </div>
 
       <div className="glass" style={{ borderRadius: '12px', padding: '20px' }}>
