@@ -76,3 +76,24 @@ class OrderResponse(BaseModel):
     shipping_address: Optional[AddressResponse] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+class AdminOrderItemRequest(BaseModel):
+    sku_id: str
+    quantity: int
+    custom_price: Optional[float] = None # Giữ lại nếu cần set giá custom, nếu None thì lấy giá hiện tại của SKU
+
+class AdminOrderCreateRequest(BaseModel):
+    user_id: str
+    full_name: str
+    phone: str
+    address_line: str
+    ward: str
+    district: str
+    city: str
+    
+    items: List[AdminOrderItemRequest]
+    payment_method: PaymentMethod = PaymentMethod.COD
+    payment_status: PaymentStatus = PaymentStatus.UNPAID
+    shipping_fee: float = 0
+    discount_amount: float = 0
+    note: Optional[str] = None

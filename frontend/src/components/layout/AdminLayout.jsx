@@ -347,7 +347,7 @@ export default function AdminLayout() {
         </header>
 
         {/* Dynamic Content */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: '30px', background: '#ffffff' }}>
+        <main style={{ flex: 1, overflowY: 'auto', padding: '30px', background: 'transparent' }}>
           <Outlet />
         </main>
       </div>

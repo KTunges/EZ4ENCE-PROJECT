@@ -127,6 +127,11 @@ export const getCustomers = async () => {
   return response.data;
 };
 
+export const createCustomer = async (userData) => {
+  const response = await adminApi.post('/admin/users', userData);
+  return response.data;
+};
+
 export const getCustomerDetails = async (id) => {
   const response = await adminApi.get(`/admin/users/${id}`);
   return response.data;
@@ -198,3 +203,4 @@ export const triggerManualSync = async () => { const r = await adminApi.post('/a
 
 export default adminApi;
 
+export const createAdminOrder = (orderData) => adminApi.post('/admin/orders', orderData);

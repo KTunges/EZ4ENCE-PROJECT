@@ -109,3 +109,54 @@ def get_user_details(user_id: str, db: Session = Depends(get_db), admin: User = 
         "addresses": addresses,
         "total_spent": sum([o["total_amount"] for o in orders])
     }
+
+from pydantic import BaseModel
+from app.core.security import hash_password
+import uuid
+
+class QuickUserCreate(BaseModel):
+    email: str
+    full_name: str
+    phone: str
+    password: str = "123456"
+
+@router.post("", response_model=AdminUserResponse, status_code=status.HTTP_201_CREATED)
+def create_customer(
+    req: QuickUserCreate,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    existing = db.query(User).filter(User.email == req.email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Email đã tồn tại")
+        
+    new_user = User(
+        id=str(uuid.uuid4()),
+        email=req.email,
+        full_name=req.full_name,
+        phone=req.phone,
+        hashed_password=hash_password(req.password),
+        role=Role.USER,
+        is_active=True,
+        is_email_verified=True
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    return {
+        "id": new_user.id,
+        "email": new_user.email,
+        "fullName": new_user.full_name,
+        "phone": new_user.phone,
+        "role": new_user.role,
+        "is_active": new_user.is_active,
+        "createdAt": new_user.created_at,
+        "updatedAt": new_user.updated_at,
+        "is_email_verified": new_user.is_email_verified,
+        "provider": new_user.provider,
+        "avatar": new_user.avatar,
+        "username": new_user.username,
+        "total_orders": 0,
+        "total_spent": 0
+    }

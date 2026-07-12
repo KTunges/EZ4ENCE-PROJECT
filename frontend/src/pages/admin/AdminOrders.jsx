@@ -113,7 +113,9 @@ export default function AdminOrders() {
               </div>
             )}
           </div>
-          <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--cyan)', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
+          <button 
+            onClick={() => navigate('/admin/orders/create')}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--cyan)', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
             <Plus size={18} /> Tạo đơn thủ công
           </button>
         </div>
