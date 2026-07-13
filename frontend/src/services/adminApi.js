@@ -147,6 +147,11 @@ export const getReviews = async () => {
   const response = await adminApi.get('/admin/reviews');
   return response.data;
 };
+// --- REVIEWS ---
+export const getAdminReviews = async (params) => {
+  const response = await adminApi.get('/admin/reviews', { params });
+  return response.data;
+};
 
 export const deleteReview = async (id) => {
   const response = await adminApi.delete(`/admin/reviews/${id}`);
