@@ -82,6 +82,9 @@ def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db:
         order_items.append(o_item)
     elif cart:
         for cart_item in cart.items:
+            if req.selected_cart_item_ids and cart_item.id not in req.selected_cart_item_ids:
+                continue
+                
             sku = cart_item.sku
             product = sku.product
             
@@ -104,7 +107,10 @@ def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db:
                 quantity=cart_item.quantity
             )
             order_items.append(o_item)
-        
+            
+        if not order_items:
+            raise HTTPException(status_code=400, detail="Không có sản phẩm nào được chọn để thanh toán")
+
     total_amount = subtotal + (req.shipping_fee or 0)
     shipping_fee = req.shipping_fee or 0
     discount_amount = 0
@@ -167,8 +173,12 @@ def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db:
     # 5. Clear Cart (chỉ khi không phải mua ngay)
     if not req.buy_now_item and cart:
         for item in cart.items:
-            db.delete(item)
-        
+            if req.selected_cart_item_ids:
+                if item.id in req.selected_cart_item_ids:
+                    db.delete(item)
+            else:
+                db.delete(item)
+
     db.commit()
     db.refresh(new_order)
     

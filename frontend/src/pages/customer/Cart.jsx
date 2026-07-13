@@ -19,6 +19,15 @@ export default function Cart() {
   const [showAuth, setShowAuth] = useState(false);
   const [shippingFee, setShippingFee] = useState(0);
   const [shippingCalculated, setShippingCalculated] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [hasInitializedSelection, setHasInitializedSelection] = useState(false);
+
+  useEffect(() => {
+    if (cart?.items && !hasInitializedSelection) {
+      setSelectedItems(cart.items.filter(item => item.stock_quantity > 0).map(i => i.id));
+      setHasInitializedSelection(true);
+    }
+  }, [cart, hasInitializedSelection]);
 
   useEffect(() => {
     // Fetch recommended products for empty cart state
@@ -62,10 +71,27 @@ export default function Cart() {
 
   const handleRemove = (id) => {
     removeItem(id);
+    setSelectedItems(prev => prev.filter(i => i !== id));
   };
 
   const items = cart?.items || [];
-  const subtotal = cart?.total_amount || 0;
+  
+  const handleSelectItem = (id) => {
+    setSelectedItems(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const availableItems = items.filter(i => i.stock_quantity > 0);
+  const handleSelectAll = () => {
+    if (selectedItems.length === availableItems.length && availableItems.length > 0) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(availableItems.map(i => i.id));
+    }
+  };
+
+  const activeItems = items.filter(item => selectedItems.includes(item.id));
+  const subtotal = activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const totalQuantity = activeItems.reduce((sum, item) => sum + item.quantity, 0);
   const isFreeshipEligible = subtotal >= 2000000;
   const finalShippingFee = isFreeshipEligible ? 0 : (shippingCalculated ? shippingFee : 0);
   
@@ -177,8 +203,27 @@ export default function Cart() {
             
             {/* Left Column: Cart Items */}
             <div className="cart-items-list">
+              <div className="cart-select-all glass" style={{ padding: '16px 20px', marginBottom: '16px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <input 
+                  type="checkbox" 
+                  checked={selectedItems.length === availableItems.length && availableItems.length > 0}
+                  onChange={handleSelectAll}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                />
+                <span style={{ fontWeight: 'bold' }}>Chọn tất cả ({availableItems.length} sản phẩm)</span>
+              </div>
+              
               {items.map(item => (
-                <div key={item.id} className={`cart-page-item glass ${item.stock_quantity === 0 ? 'out-of-stock' : ''}`}>
+                <div key={item.id} className={`cart-page-item glass ${item.stock_quantity === 0 ? 'out-of-stock' : ''}`} style={{ display: 'flex', alignItems: 'center', paddingLeft: '20px' }}>
+                  <div style={{ marginRight: '16px' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={selectedItems.includes(item.id)}
+                      onChange={() => handleSelectItem(item.id)}
+                      disabled={item.stock_quantity === 0}
+                      style={{ width: '18px', height: '18px', cursor: item.stock_quantity === 0 ? 'not-allowed' : 'pointer' }}
+                    />
+                  </div>
                   <div className="item-image-wrapper">
                     {item.image_url ? (
                       <img src={item.image_url} alt={item.product_name} />
@@ -239,14 +284,14 @@ export default function Cart() {
                 <h3 className="summary-title">Tóm Tắt Đơn Hàng</h3>
                 
                 <div className="summary-row">
-                  <span>Tạm tính ({items.length} SP):</span>
+                  <span>Tạm tính ({totalQuantity} SP):</span>
                   <span>{formatPrice(subtotal)}</span>
                 </div>
                 
                 <div className="summary-row">
                   <span>Phí giao hàng:</span>
                   <span className="text-cyan">
-                    {items.length === 0 ? '0 ₫' : (isFreeshipEligible ? 'Miễn phí' : (shippingCalculated ? formatPrice(shippingFee) : 'Tính khi thanh toán'))}
+                    {activeItems.length === 0 ? '0 ₫' : (isFreeshipEligible ? 'Miễn phí' : (shippingCalculated ? formatPrice(shippingFee) : 'Tính khi thanh toán'))}
                   </span>
                 </div>
 
@@ -289,7 +334,16 @@ export default function Cart() {
                 </div>
                 <p className="tax-note">(Đã bao gồm VAT nếu có)</p>
 
-                <Link to="/checkout" state={{ initialPromoCode: appliedPromo?.code || (promoCode && !promoError ? promoCode : '') }} className="btn btn-primary btn-checkout">
+                <Link 
+                  to="/checkout" 
+                  state={{ 
+                    initialPromoCode: appliedPromo?.code || (promoCode && !promoError ? promoCode : ''),
+                    selectedItems: selectedItems
+                  }} 
+                  className={`btn btn-primary btn-checkout ${selectedItems.length === 0 ? 'disabled' : ''}`}
+                  onClick={(e) => { if (selectedItems.length === 0) e.preventDefault(); }}
+                  style={selectedItems.length === 0 ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                >
                   TIẾN HÀNH THANH TOÁN <ChevronRight size={20} />
                 </Link>
                 

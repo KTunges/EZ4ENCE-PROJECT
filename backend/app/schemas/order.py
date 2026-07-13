@@ -25,6 +25,9 @@ class OrderCreateRequest(BaseModel):
     # Hỗ trợ chức năng mua ngay (không dùng giỏ hàng)
     buy_now_item: Optional[BuyNowItem] = None
     
+    # Danh sách các ID của sản phẩm trong giỏ hàng được chọn để thanh toán
+    selected_cart_item_ids: Optional[List[str]] = None
+    
     # Dùng address_id nếu chọn từ sổ địa chỉ
     address_id: Optional[str] = None
     

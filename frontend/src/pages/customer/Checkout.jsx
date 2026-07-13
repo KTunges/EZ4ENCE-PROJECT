@@ -11,6 +11,7 @@ export default function Checkout() {
   const navigate = useNavigate();
   const location = useLocation();
   const buyNowItem = location.state?.buyNowItem;
+  const selectedItems = location.state?.selectedItems || [];
   
   const { cart, fetchCart, loading: cartLoading, clearCartState } = useCart();
   const { user, token } = useAuth();
@@ -154,8 +155,15 @@ export default function Checkout() {
     }
   }, [selectedAddressId, provinceName, districtName, savedAddresses]);
 
-  const items = buyNowItem ? [buyNowItem] : (cart?.items || []);
-  const subtotal = buyNowItem ? (buyNowItem.price * buyNowItem.quantity) : (cart?.total_amount || 0);
+  const items = buyNowItem 
+    ? [buyNowItem] 
+    : (selectedItems.length > 0 && cart?.items 
+        ? cart.items.filter(item => selectedItems.includes(item.id))
+        : (cart?.items || []));
+        
+  const subtotal = buyNowItem 
+    ? (buyNowItem.price * buyNowItem.quantity) 
+    : items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   
   const selectedShipping = shippingOptions.find(o => o.id === selectedShippingId);
   const rawShippingFee = selectedShipping ? selectedShipping.fee : 0;
@@ -237,7 +245,8 @@ export default function Checkout() {
         shipping_fee: shippingFee,
         shipping_provider: selectedShipping ? selectedShipping.id : null,
         note: note,
-        promotion_id: appliedPromo ? appliedPromo.id : null
+        promotion_id: appliedPromo ? appliedPromo.id : null,
+        selected_cart_item_ids: selectedItems.length > 0 ? selectedItems : null
       } : {
         full_name: fullName,
         phone: phone,
@@ -252,7 +261,8 @@ export default function Checkout() {
         shipping_fee: shippingFee,
         shipping_provider: selectedShipping ? selectedShipping.id : null,
         note: note,
-        promotion_id: appliedPromo ? appliedPromo.id : null
+        promotion_id: appliedPromo ? appliedPromo.id : null,
+        selected_cart_item_ids: selectedItems.length > 0 ? selectedItems : null
       };
       
       if (buyNowItem) {
@@ -292,7 +302,11 @@ export default function Checkout() {
       }
 
       if (!buyNowItem) {
-        clearCartState(); // Synchronously clear cart state only if not Buy Now
+        if (selectedItems.length > 0 && selectedItems.length < (cart?.items?.length || 0)) {
+          fetchCart(); // Fetch updated cart if partially checked out
+        } else {
+          clearCartState(); // Clear all if all items checked out
+        }
       }
 
       if (method === 'vnpay') {
@@ -663,7 +677,8 @@ export default function Checkout() {
                             payment_method: "PAYPAL",
                             shipping_fee: shippingFee,
                             shipping_provider: selectedShipping ? selectedShipping.id : null,
-                            note: note
+                            note: note,
+                            selected_cart_item_ids: selectedItems.length > 0 ? selectedItems : null
                           } : {
                             full_name: fullName, phone, address_line: addressLine, 
                             ward: wardName, district: districtName, city: provinceName,
@@ -671,7 +686,8 @@ export default function Checkout() {
                             payment_method: "PAYPAL", 
                             shipping_fee: shippingFee,
                             shipping_provider: selectedShipping ? selectedShipping.id : null,
-                            note: note
+                            note: note,
+                            selected_cart_item_ids: selectedItems.length > 0 ? selectedItems : null
                           };
 
                           // Tạo đơn EZ4GEAR
@@ -690,7 +706,11 @@ export default function Checkout() {
                           orderTotalRef.current = orderData.total_amount;
 
                           // Xoá giỏ
-                          clearCartState();
+                          if (selectedItems.length > 0 && selectedItems.length < (cart?.items?.length || 0)) {
+                            fetchCart();
+                          } else {
+                            clearCartState();
+                          }
                           // Gọi PayPal backend proxy
                           const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/payment/paypal/create-order`, {
                             method: "POST",
