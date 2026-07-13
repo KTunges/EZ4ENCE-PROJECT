@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { User, Package, Clock, LogOut, Edit3, CheckCircle, Clock3, Truck, ShoppingCart, MapPin, Settings, Heart } from 'lucide-react';
+import { User, Package, Clock, LogOut, Edit3, CheckCircle, Clock3, Truck, ShoppingCart, MapPin, Settings, Heart, Star, X, Image as ImageIcon } from 'lucide-react';
 import AddressBook from '../../components/profile/AddressBook';
 import ProductCard from '../../components/ui/ProductCard';
 import { useWishlist } from '../../context/WishlistContext';
@@ -31,6 +31,74 @@ export default function Profile() {
     phone: user?.phone || '0988123456'
   });
   const [saveSuccess, setSaveSuccess] = useState(false);
+  
+  // Review Modal State
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewOrder, setReviewOrder] = useState(null);
+  const [selectedReviewItem, setSelectedReviewItem] = useState(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewImages, setReviewImages] = useState([]);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState('');
+  const [reviewedOrderIds, setReviewedOrderIds] = useState([]);
+  const [reviewSuccessMessage, setReviewSuccessMessage] = useState('');
+
+  const handleOpenReview = (order) => {
+    setReviewOrder(order);
+    if (order.items && order.items.length > 0) {
+      setSelectedReviewItem(order.items[0]);
+    }
+    setReviewRating(5);
+    setReviewComment('');
+    setReviewImages([]);
+    setReviewError('');
+    setShowReviewModal(true);
+  };
+
+  const handleReviewImageChange = (e) => {
+      const files = Array.from(e.target.files);
+      if (files.length > 5) {
+          alert('Chỉ được phép chọn tối đa 5 ảnh!');
+          return;
+      }
+      setReviewImages(files);
+  };
+
+  const handleSubmitReview = async () => {
+    if (!token || !selectedReviewItem) return;
+    if (!reviewComment.trim()) {
+        setReviewError('Vui lòng nhập nội dung đánh giá');
+        return;
+    }
+    setIsSubmittingReview(true);
+    setReviewError('');
+    try {
+      const formData = new FormData();
+      formData.append('sku_id', selectedReviewItem.sku_id);
+      formData.append('rating', reviewRating);
+      formData.append('comment', reviewComment);
+      reviewImages.forEach(img => formData.append('images', img));
+
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/reviews`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Lỗi gửi đánh giá');
+      
+      setReviewSuccessMessage('Cảm ơn bạn đã đánh giá sản phẩm!');
+      setShowReviewModal(false);
+      setReviewedOrderIds(prev => [...prev, reviewOrder.id]);
+    } catch (err) {
+      setReviewError(err.message);
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
 
   // Email OTP state
   const [emailToVerify, setEmailToVerify] = useState(user?.email || '');
@@ -479,7 +547,12 @@ export default function Profile() {
                             </span>
                           </div>
                         </div>
-                        <div className="order-card-footer">
+                        <div className="order-card-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>
+                            {order.status === 'DELIVERED' && !reviewedOrderIds.includes(order.id) && (
+                              <button className="btn btn-primary btn-sm" onClick={() => handleOpenReview(order)}>Đánh giá</button>
+                            )}
+                          </div>
                           <button className="btn btn-outline btn-sm" onClick={() => navigate(`/profile/orders/${order.id}`)}>Xem Chi Tiết</button>
                         </div>
                       </div>
@@ -568,6 +641,144 @@ export default function Profile() {
           </main>
         </div>
       </div>
+      
+      {/* Review Modal */}
+      {showReviewModal && reviewOrder && selectedReviewItem && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+          <div style={{ background: '#0f172a', width: '90%', maxWidth: '600px', borderRadius: '16px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
+            <div style={{ padding: '20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold' }}>Đánh giá sản phẩm</h3>
+              <button onClick={() => setShowReviewModal(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><X size={24} /></button>
+            </div>
+            
+            <div style={{ padding: '20px', overflowY: 'auto', flex: 1 }}>
+              {/* Item selection if multiple */}
+              {reviewOrder.items && reviewOrder.items.length > 1 && (
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', color: 'var(--text-muted)', fontWeight: '500' }}>Chọn sản phẩm để đánh giá:</label>
+                  <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
+                    {reviewOrder.items.map(item => (
+                      <div 
+                        key={item.id} 
+                        onClick={() => setSelectedReviewItem(item)}
+                        style={{ 
+                          padding: '10px', borderRadius: '8px', cursor: 'pointer', minWidth: '150px',
+                          border: selectedReviewItem.id === item.id ? '1px solid #38bdf8' : '1px solid var(--border)',
+                          background: selectedReviewItem.id === item.id ? 'rgba(56, 189, 248, 0.1)' : 'transparent',
+                          display: 'flex', alignItems: 'center', gap: '10px'
+                        }}
+                      >
+                        {item.image_url ? <img src={item.image_url} alt={item.product_name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} /> : <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px' }}></div>}
+                        <div style={{ fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.product_name}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px', padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                {selectedReviewItem.image_url ? <img src={selectedReviewItem.image_url} alt={selectedReviewItem.product_name} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }} /> : <div style={{ width: '60px', height: '60px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px' }}></div>}
+                <div>
+                  <div style={{ fontWeight: 'bold', fontSize: '15px' }}>{selectedReviewItem.product_name}</div>
+                  <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Phân loại: {selectedReviewItem.sku_code}</div>
+                </div>
+              </div>
+              
+              {reviewError && <div style={{ color: '#f87171', fontSize: '14px', marginBottom: '16px', padding: '10px 14px', background: 'rgba(248, 113, 113, 0.1)', borderRadius: '8px', border: '1px solid rgba(248, 113, 113, 0.2)' }}>{reviewError}</div>}
+              
+              <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+                 <label style={{ display: 'block', marginBottom: '10px', fontSize: '15px', fontWeight: 'bold' }}>Chất lượng sản phẩm</label>
+                 <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                    {[1, 2, 3, 4, 5].map(s => (
+                       <Star 
+                          key={s} 
+                          size={40} 
+                          style={{ cursor: 'pointer', transition: 'transform 0.15s ease' }}
+                          fill={s <= reviewRating ? '#38bdf8' : 'none'} 
+                          stroke={s <= reviewRating ? '#38bdf8' : 'var(--text-dim)'}
+                          onClick={() => setReviewRating(s)}
+                          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+                          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                       />
+                    ))}
+                 </div>
+                 <div style={{ marginTop: '8px', fontSize: '14px', color: '#38bdf8', fontWeight: 'bold' }}>
+                   {reviewRating === 1 ? 'Tệ' : reviewRating === 2 ? 'Không hài lòng' : reviewRating === 3 ? 'Bình thường' : reviewRating === 4 ? 'Hài lòng' : 'Tuyệt vời'}
+                 </div>
+              </div>
+
+              <div style={{ marginBottom: '20px', background: 'rgba(0,0,0,0.2)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                 <textarea 
+                    className="checkout-input"
+                    rows="4" 
+                    placeholder="Hãy chia sẻ nhận xét cho sản phẩm này nhé..."
+                    value={reviewComment}
+                    onChange={e => setReviewComment(e.target.value)}
+                    style={{ width: '100%', resize: 'vertical', minHeight: '100px', border: 'none', background: 'transparent', outline: 'none' }}
+                 ></textarea>
+                 
+                 <div style={{ marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+                   <label style={{ 
+                     display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 16px', 
+                     background: 'rgba(255, 255, 255, 0.05)', border: '1px dashed var(--border)', 
+                     borderRadius: '8px', cursor: 'pointer', fontSize: '13px', color: 'var(--text)', 
+                     fontWeight: '500', transition: 'all 0.2s ease'
+                   }}
+                     onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(56, 189, 248, 0.1)'; e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.3)'; e.currentTarget.style.color = '#38bdf8'; }}
+                     onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'; e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text)'; }}
+                   >
+                     <ImageIcon size={16} /> Thêm hình ảnh
+                     <input type="file" multiple accept="image/*" onChange={handleReviewImageChange} style={{ display: 'none' }} />
+                   </label>
+                   {reviewImages.length > 0 && (
+                       <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
+                           {reviewImages.map((img, i) => (
+                               <div key={i} style={{ position: 'relative', width: '60px', height: '60px' }}>
+                                 <img src={URL.createObjectURL(img)} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '6px' }} />
+                                 <button 
+                                   onClick={() => setReviewImages(prev => prev.filter((_, idx) => idx !== i))}
+                                   style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                                 >
+                                   <X size={10} />
+                                 </button>
+                               </div>
+                           ))}
+                       </div>
+                   )}
+                 </div>
+              </div>
+            </div>
+            
+            <div style={{ padding: '20px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button className="btn btn-outline" onClick={() => setShowReviewModal(false)}>Trở lại</button>
+              <button 
+                 className="btn btn-primary" 
+                 onClick={handleSubmitReview}
+                 disabled={isSubmittingReview}
+                 style={{ minWidth: '120px' }}
+              >
+                 {isSubmittingReview ? 'Đang gửi...' : 'Hoàn Thành'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Success Popup */}
+      {reviewSuccessMessage && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1050, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(5px)' }}>
+          <div style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', padding: '36px 48px', borderRadius: '24px', border: '1px solid rgba(56, 189, 248, 0.2)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)', transform: 'translateY(0)', opacity: 1 }}>
+             <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'rgba(56, 189, 248, 0.1)', border: '2px solid rgba(56, 189, 248, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#38bdf8' }}>
+                <CheckCircle size={36} />
+             </div>
+             <div style={{ textAlign: 'center' }}>
+               <h3 style={{ margin: '0 0 8px 0', fontSize: '22px', fontWeight: 'bold', color: 'white' }}>Đánh giá thành công!</h3>
+               <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '15px' }}>{reviewSuccessMessage}</p>
+             </div>
+             <button className="btn btn-primary" onClick={() => setReviewSuccessMessage('')} style={{ marginTop: '12px', padding: '12px 40px', borderRadius: '100px', fontSize: '15px', fontWeight: 'bold', letterSpacing: '0.5px' }}>ĐÓNG</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

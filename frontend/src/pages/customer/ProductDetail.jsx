@@ -655,44 +655,63 @@ export default function ProductDetail() {
                   </div>
 
                   {showReviewForm && (
-                     <div className="review-form-container glass-panel" style={{ marginTop: '20px', padding: '20px' }}>
-                        <h3 style={{ marginBottom: '15px' }}>Viết đánh giá của bạn</h3>
-                        {reviewError && <div className="text-red-400 mb-2">{reviewError}</div>}
+                     <div className="review-form-container glass-panel" style={{ marginTop: '24px', padding: '28px', borderRadius: '16px', border: '1px solid rgba(56, 189, 248, 0.15)' }}>
+                        <h3 style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <Star size={20} fill="var(--cyan)" stroke="var(--cyan)" />
+                          Viết đánh giá của bạn
+                        </h3>
+                        {reviewError && <div style={{ color: '#f87171', fontSize: '14px', marginBottom: '12px', padding: '10px 14px', background: 'rgba(248, 113, 113, 0.1)', borderRadius: '8px', border: '1px solid rgba(248, 113, 113, 0.2)' }}>{reviewError}</div>}
                         
-                        <div className="mb-4">
-                           <label className="block mb-2 text-sm text-muted">Chọn số sao</label>
-                           <div className="flex gap-2">
+                        <div style={{ marginBottom: '20px' }}>
+                           <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', color: 'var(--text-muted)', fontWeight: '500' }}>Chọn số sao</label>
+                           <div style={{ display: 'flex', gap: '6px' }}>
                               {[1, 2, 3, 4, 5].map(s => (
                                  <Star 
                                     key={s} 
-                                    size={24} 
-                                    className="cursor-pointer"
-                                    fill={s <= reviewRating ? 'var(--cyan)' : 'none'} 
-                                    stroke={s <= reviewRating ? 'var(--cyan)' : 'var(--text-dim)'}
+                                    size={32} 
+                                    style={{ cursor: 'pointer', transition: 'transform 0.15s ease' }}
+                                    fill={s <= reviewRating ? '#38bdf8' : 'none'} 
+                                    stroke={s <= reviewRating ? '#38bdf8' : 'var(--text-dim)'}
                                     onClick={() => setReviewRating(s)}
+                                    onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+                                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                                  />
                               ))}
                            </div>
                         </div>
 
-                        <div className="mb-4">
-                           <label className="block mb-2 text-sm text-muted">Nhận xét</label>
+                        <div style={{ marginBottom: '20px' }}>
+                           <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', color: 'var(--text-muted)', fontWeight: '500' }}>Nhận xét</label>
                            <textarea 
-                              className="w-full bg-black/40 border border-white/10 rounded-md p-3 text-white focus:border-cyan outline-none" 
+                              className="checkout-input"
                               rows="4" 
                               placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..."
                               value={reviewComment}
                               onChange={e => setReviewComment(e.target.value)}
+                              style={{ width: '100%', resize: 'vertical', minHeight: '100px' }}
                            ></textarea>
                         </div>
                         
-                        <div className="mb-4">
-                           <label className="block mb-2 text-sm text-muted flex items-center gap-2"><ImageIcon size={16} /> Đính kèm ảnh (Tối đa 5)</label>
-                           <input type="file" multiple accept="image/*" onChange={handleImageChange} className="text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan/10 file:text-cyan hover:file:bg-cyan/20 cursor-pointer"/>
+                        <div style={{ marginBottom: '24px' }}>
+                           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', fontSize: '14px', color: 'var(--text-muted)', fontWeight: '500' }}>
+                             <ImageIcon size={16} /> Đính kèm ảnh (Tối đa 5)
+                           </label>
+                           <label style={{ 
+                             display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', 
+                             background: 'rgba(56, 189, 248, 0.08)', border: '1px dashed rgba(56, 189, 248, 0.3)', 
+                             borderRadius: '10px', cursor: 'pointer', fontSize: '14px', color: '#38bdf8', 
+                             fontWeight: '500', transition: 'all 0.2s ease'
+                           }}
+                             onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(56, 189, 248, 0.15)'; e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.5)'; }}
+                             onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(56, 189, 248, 0.08)'; e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.3)'; }}
+                           >
+                             <ImageIcon size={18} /> Chọn ảnh
+                             <input type="file" multiple accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
+                           </label>
                            {reviewImages.length > 0 && (
-                               <div className="flex gap-2 mt-2">
+                               <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
                                    {reviewImages.map((img, i) => (
-                                       <div key={i} className="text-xs bg-gray-800 px-2 py-1 rounded text-gray-300 truncate max-w-[100px]">{img.name}</div>
+                                       <div key={i} style={{ fontSize: '12px', background: 'rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '6px', color: 'var(--text-muted)', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', border: '1px solid var(--border)' }}>{img.name}</div>
                                    ))}
                                </div>
                            )}
@@ -702,49 +721,76 @@ export default function ProductDetail() {
                            className="btn btn-primary" 
                            onClick={handleSubmitReview}
                            disabled={isSubmittingReview}
+                           style={{ padding: '12px 32px', fontSize: '15px', fontWeight: 'bold' }}
                         >
-                           {isSubmittingReview ? 'Đang gửi...' : 'Gửi Đánh Giá'}
+                           {isSubmittingReview ? 'Đang gửi...' : '✦ Gửi Đánh Giá'}
                         </button>
                      </div>
                   )}
 
                   <div className="reviews-list" style={{ marginTop: '30px' }}>
                     {product.reviews.length === 0 ? (
-                       <p className="text-muted text-center py-8">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
+                       <div style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--text-muted)' }}>
+                         <Star size={40} style={{ margin: '0 auto 16px', opacity: 0.3 }} stroke="var(--text-dim)" />
+                         <p style={{ fontSize: '16px' }}>Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
+                       </div>
                     ) : (
                        product.reviews.map(review => {
                            const initial = review.user_name ? review.user_name.charAt(0).toUpperCase() : 'K';
                            const date = new Date(review.created_at).toLocaleDateString('vi-VN');
                            return (
-                             <div key={review.id} className="review-card" style={{ padding: '20px', borderBottom: '1px solid var(--border)', marginBottom: '15px' }}>
-                               <div className="review-header flex items-center gap-4 mb-3">
-                                 <div className="review-avatar w-10 h-10 rounded-full bg-cyan-900/50 border border-cyan flex items-center justify-center font-bold text-cyan">
-                                    {review.user_avatar ? <img src={review.user_avatar} alt="avatar" className="w-full h-full rounded-full object-cover"/> : initial}
+                             <div key={review.id} style={{ padding: '24px', borderBottom: '1px solid var(--border)', marginBottom: '0', transition: 'background 0.2s' }}
+                               onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+                               onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+                             >
+                               <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '14px' }}>
+                                 <div style={{ 
+                                   width: '44px', height: '44px', borderRadius: '50%', 
+                                   background: 'rgba(56, 189, 248, 0.1)', border: '2px solid rgba(56, 189, 248, 0.3)', 
+                                   display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                                   fontWeight: 'bold', color: '#38bdf8', fontSize: '16px', flexShrink: 0,
+                                   overflow: 'hidden'
+                                 }}>
+                                    {review.user_avatar ? <img src={review.user_avatar} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/> : initial}
                                  </div>
-                                 <div className="review-meta flex-1">
-                                   <strong className="review-user block text-lg">{review.user_name || 'Khách hàng'}</strong>
-                                   <span className="review-date text-xs text-muted">{date}</span>
+                                 <div style={{ flex: 1 }}>
+                                   <strong style={{ display: 'block', fontSize: '15px', marginBottom: '2px' }}>{review.user_name || 'Khách hàng'}</strong>
+                                   <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{date}</span>
                                  </div>
-                                 <div className="review-stars flex gap-1">
+                                 <div style={{ display: 'flex', gap: '3px' }}>
                                    {[1, 2, 3, 4, 5].map(s => (
-                                     <Star key={s} size={14} fill={s <= review.rating ? 'var(--cyan)' : 'none'} stroke={s <= review.rating ? 'var(--cyan)' : 'var(--text-dim)'} />
+                                     <Star key={s} size={14} fill={s <= review.rating ? '#38bdf8' : 'none'} stroke={s <= review.rating ? '#38bdf8' : 'var(--text-dim)'} />
                                    ))}
                                  </div>
                                </div>
-                               <p className="review-content text-gray-300">{review.comment}</p>
+                               <p style={{ color: 'var(--text-muted)', lineHeight: '1.7', fontSize: '14px', marginBottom: '0' }}>{review.comment}</p>
                                
                                {review.images && review.images.length > 0 && (
-                                   <div className="flex gap-2 mt-3 flex-wrap">
+                                   <div style={{ display: 'flex', gap: '8px', marginTop: '14px', flexWrap: 'wrap' }}>
                                        {review.images.map((img, idx) => (
-                                           <img key={idx} src={img.url} alt="Review" className="w-20 h-20 object-cover rounded-md border border-white/10 cursor-pointer hover:border-cyan transition-colors" onClick={() => window.open(img.url, '_blank')} />
+                                           <img key={idx} src={img.url} alt="Review" 
+                                             style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--border)', cursor: 'pointer', transition: 'border-color 0.2s, transform 0.2s' }} 
+                                             onClick={() => window.open(img.url, '_blank')} 
+                                             onMouseOver={(e) => { e.currentTarget.style.borderColor = '#38bdf8'; e.currentTarget.style.transform = 'scale(1.05)'; }}
+                                             onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'scale(1)'; }}
+                                           />
                                        ))}
                                    </div>
                                )}
                                
-                               <div className="mt-4 flex items-center gap-4">
+                               <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', gap: '16px' }}>
                                    <button 
                                        onClick={() => handleLikeReview(review.id)}
-                                       className={`flex items-center gap-1 text-sm transition-colors ${review.is_liked_by_user ? 'text-cyan' : 'text-gray-500 hover:text-cyan'}`}
+                                       style={{ 
+                                         display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', 
+                                         background: review.is_liked_by_user ? 'rgba(56, 189, 248, 0.1)' : 'transparent', 
+                                         border: `1px solid ${review.is_liked_by_user ? 'rgba(56, 189, 248, 0.3)' : 'var(--border)'}`, 
+                                         color: review.is_liked_by_user ? '#38bdf8' : 'var(--text-muted)', 
+                                         padding: '6px 14px', borderRadius: '20px', cursor: 'pointer', 
+                                         transition: 'all 0.2s ease', fontWeight: '500'
+                                       }}
+                                       onMouseOver={(e) => { if (!review.is_liked_by_user) { e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.3)'; e.currentTarget.style.color = '#38bdf8'; }}}
+                                       onMouseOut={(e) => { if (!review.is_liked_by_user) { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)'; }}}
                                    >
                                        <ThumbsUp size={14} fill={review.is_liked_by_user ? "currentColor" : "none"} /> 
                                        {review.helpful_count > 0 ? `Hữu ích (${review.helpful_count})` : 'Hữu ích'}
@@ -752,12 +798,12 @@ export default function ProductDetail() {
                                </div>
 
                                {review.admin_reply && (
-                                   <div className="mt-4 bg-cyan-900/20 border border-cyan/20 p-4 rounded-lg">
-                                       <div className="flex items-center gap-2 mb-1">
-                                           <Shield size={14} className="text-cyan" />
-                                           <span className="text-sm font-bold text-cyan">Phản hồi từ EZ4ENCE</span>
+                                   <div style={{ marginTop: '16px', background: 'rgba(56, 189, 248, 0.05)', border: '1px solid rgba(56, 189, 248, 0.15)', padding: '16px', borderRadius: '12px' }}>
+                                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                           <Shield size={14} style={{ color: '#38bdf8' }} />
+                                           <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#38bdf8' }}>Phản hồi từ EZ4ENCE</span>
                                        </div>
-                                       <p className="text-sm text-gray-300">{review.admin_reply}</p>
+                                       <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.6', margin: 0 }}>{review.admin_reply}</p>
                                    </div>
                                )}
                              </div>

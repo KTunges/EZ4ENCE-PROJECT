@@ -232,7 +232,7 @@ export default function CategorySidebar() {
           <img 
             src={sidebarBanner.image_url} 
             alt={sidebarBanner.title || "Khuyến mãi"} 
-            style={{ width: '100%', height: 'auto', display: 'block' }}
+            style={{ width: '100%', height: '180px', objectFit: 'cover', display: 'block' }}
           />
         </a>
       )}
