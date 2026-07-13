@@ -1,78 +1,66 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-
 from app.database import get_db
 from app.models.review import Review
 from app.models.user import User
-from app.schemas.review import AdminReviewResponse, ReviewReplyRequest, ReviewToggleHiddenRequest
 from app.routers.auth import get_current_admin
+from app.schemas.review import AdminReviewResponse, ReviewReplyRequest, ReviewToggleHiddenRequest
 
 router = APIRouter(prefix="/admin/reviews", tags=["Admin Reviews"])
 
 @router.get("", response_model=List[AdminReviewResponse])
-def get_reviews(db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
-    """
-    Lấy danh sách tất cả các đánh giá.
-    Cần phải query kèm theo thông tin User và Product để hiển thị chi tiết.
-    """
-    reviews = db.query(Review).all()
+def get_all_reviews(db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+    reviews = db.query(Review).order_by(Review.created_at.desc()).all()
     
+    # Enrich with additional data
     result = []
-    for rv in reviews:
-        rv_dict = {
-            "id": rv.id,
-            "user_id": rv.user_id,
-            "sku_id": rv.sku_id,
-            "rating": rv.rating,
-            "comment": rv.comment,
-            "admin_reply": rv.admin_reply,
-            "is_hidden": rv.is_hidden,
-            "created_at": rv.created_at,
-            "images": rv.images,
-            "user_name": rv.user.full_name if rv.user else "Khách hàng",
-            "product_name": rv.sku.product.name if (rv.sku and rv.sku.product) else "Sản phẩm không rõ"
-        }
-        result.append(rv_dict)
+    for r in reviews:
+        resp = AdminReviewResponse.model_validate(r)
+        resp.user_name = r.user.full_name if r.user else "Unknown"
+        resp.product_name = r.sku.product.name if r.sku and r.sku.product else "Unknown"
+        result.append(resp)
         
     return result
 
-@router.delete("/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_review(review_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
-    """
-    Xóa một đánh giá vi phạm.
-    """
+@router.put("/{review_id}/reply", response_model=AdminReviewResponse)
+def reply_review(
+    review_id: str,
+    req: ReviewReplyRequest,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
     review = db.query(Review).filter(Review.id == review_id).first()
     if not review:
-        raise HTTPException(status_code=404, detail="Review not found")
+        raise HTTPException(status_code=404, detail="Đánh giá không tồn tại")
         
-    db.delete(review)
+    review.admin_reply = req.reply
     db.commit()
-    return None
+    db.refresh(review)
+    
+    resp = AdminReviewResponse.model_validate(review)
+    resp.user_name = review.user.full_name if review.user else "Unknown"
+    resp.product_name = review.sku.product.name if review.sku and review.sku.product else "Unknown"
+    
+    return resp
 
-@router.post("/{review_id}/reply")
-def reply_review(review_id: str, request: ReviewReplyRequest, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
-    """
-    Admin trả lời đánh giá của khách hàng.
-    """
+@router.put("/{review_id}/hide", response_model=AdminReviewResponse)
+def toggle_hide_review(
+    review_id: str,
+    req: ReviewToggleHiddenRequest,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
     review = db.query(Review).filter(Review.id == review_id).first()
     if not review:
-        raise HTTPException(status_code=404, detail="Review not found")
+        raise HTTPException(status_code=404, detail="Đánh giá không tồn tại")
         
-    review.admin_reply = request.reply
+    review.is_hidden = req.is_hidden
     db.commit()
-    return {"message": "Đã lưu câu trả lời", "admin_reply": review.admin_reply}
-
-@router.put("/{review_id}/hide")
-def toggle_hide_review(review_id: str, request: ReviewToggleHiddenRequest, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
-    """
-    Ẩn hoặc hiện đánh giá.
-    """
-    review = db.query(Review).filter(Review.id == review_id).first()
-    if not review:
-        raise HTTPException(status_code=404, detail="Review not found")
-        
-    review.is_hidden = request.is_hidden
-    db.commit()
-    status_str = "đã bị ẩn" if review.is_hidden else "đã được hiện"
-    return {"message": f"Đánh giá {status_str}", "is_hidden": review.is_hidden}
+    db.refresh(review)
+    
+    resp = AdminReviewResponse.model_validate(review)
+    resp.user_name = review.user.full_name if review.user else "Unknown"
+    resp.product_name = review.sku.product.name if review.sku and review.sku.product else "Unknown"
+    
+    return resp
