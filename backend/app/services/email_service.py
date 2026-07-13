@@ -20,12 +20,12 @@ def get_order_html_template(order_id: str, customer_name: str, customer_email: s
         
         items_html += f"""
         <tr>
-            <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; color: #f8fafc;">
+            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937;">
                 <strong>{item['name']}</strong>
             </td>
-            <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; color: #f8fafc; text-align: center;">{item['quantity']}</td>
-            <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; color: #f8fafc; text-align: right;">{price_formatted}</td>
-            <td style="padding: 12px; border-bottom: 1px solid #e2e8f0; color: #00dcff; text-align: right; font-weight: bold;">{item_total}</td>
+            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; text-align: center;">{item['quantity']}</td>
+            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #1f2937; text-align: right;">{price_formatted}</td>
+            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #0066cc; text-align: right; font-weight: bold;">{item_total}</td>
         </tr>
         """
 
@@ -43,20 +43,20 @@ def get_order_html_template(order_id: str, customer_name: str, customer_email: s
     <head>
         <meta charset="utf-8">
         <style>
-            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #03050c; margin: 0; padding: 0; }}
-            .container {{ max-width: 600px; margin: 0 auto; background-color: #0a0e17; border: 1px solid #1e293b; padding: 20px; }}
-            .header {{ text-align: center; padding-bottom: 20px; border-bottom: 1px solid #1e293b; }}
-            .logo {{ color: #00dcff; font-size: 28px; font-weight: 900; letter-spacing: 2px; text-decoration: none; }}
-            .title {{ color: #f8fafc; font-size: 22px; margin-top: 20px; }}
-            .content {{ padding: 20px 0; color: #94a3b8; font-size: 15px; line-height: 1.6; }}
-            .info-box {{ background-color: rgba(0, 220, 255, 0.05); border: 1px solid rgba(0, 220, 255, 0.2); padding: 15px; border-radius: 8px; margin-bottom: 20px; }}
-            .info-box p {{ margin: 5px 0; color: #e2e8f0; }}
-            .info-label {{ color: #00dcff; font-weight: bold; width: 130px; display: inline-block; }}
+            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; margin: 0; padding: 0; }}
+            .container {{ max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5e7eb; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }}
+            .header {{ text-align: center; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb; }}
+            .logo {{ color: #0066cc; font-size: 28px; font-weight: 900; letter-spacing: 2px; text-decoration: none; }}
+            .title {{ color: #1f2937; font-size: 22px; margin-top: 20px; }}
+            .content {{ padding: 20px 0; color: #4b5563; font-size: 15px; line-height: 1.6; }}
+            .info-box {{ background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; }}
+            .info-box p {{ margin: 5px 0; color: #1e293b; }}
+            .info-label {{ color: #0066cc; font-weight: bold; width: 130px; display: inline-block; }}
             table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
-            th {{ text-align: left; padding: 12px; background-color: #0f172a; color: #94a3b8; border-bottom: 2px solid #1e293b; }}
-            .totals-row td {{ padding: 10px 12px; color: #94a3b8; text-align: right; }}
-            .final-total td {{ padding: 15px 12px; color: #00dcff; font-size: 18px; font-weight: bold; border-top: 1px solid #1e293b; }}
-            .footer {{ text-align: center; padding-top: 20px; border-top: 1px solid #1e293b; color: #64748b; font-size: 13px; }}
+            th {{ text-align: left; padding: 12px; background-color: #f1f5f9; color: #475569; border-bottom: 2px solid #cbd5e1; font-weight: 600; }}
+            .totals-row td {{ padding: 10px 12px; color: #475569; text-align: right; }}
+            .final-total td {{ padding: 15px 12px; color: #0066cc; font-size: 18px; font-weight: bold; border-top: 1px solid #e2e8f0; }}
+            .footer {{ text-align: center; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #64748b; font-size: 13px; }}
         </style>
     </head>
     <body>
@@ -186,14 +186,14 @@ def get_order_status_html_template(order_id: str, customer_name: str, new_status
     date_str = datetime.now().strftime("%d/%m/%Y %H:%M")
     
     status_messages = {
-        "CONFIRMED": ("ĐÃ XÁC NHẬN", "Đơn hàng của bạn đã được xác nhận và đang được chuẩn bị.", "#00dcff"),
-        "SHIPPING": ("ĐANG GIAO HÀNG", "Đơn hàng của bạn đang được giao đến bạn. Vui lòng chú ý điện thoại.", "#f59e0b"),
-        "DELIVERED": ("ĐÃ GIAO THÀNH CÔNG", "Đơn hàng đã được giao thành công. Cảm ơn bạn đã mua sắm tại EZ4GEAR!", "#10b981"),
-        "CANCELLED": ("ĐÃ HUỶ", "Đơn hàng của bạn đã bị huỷ.", "#ef4444")
+        "CONFIRMED": ("ĐÃ XÁC NHẬN", "Đơn hàng của bạn đã được xác nhận và đang được chuẩn bị.", "#0066cc"),
+        "SHIPPING": ("ĐANG GIAO HÀNG", "Đơn hàng của bạn đang được giao đến bạn. Vui lòng chú ý điện thoại.", "#d97706"),
+        "DELIVERED": ("ĐÃ GIAO THÀNH CÔNG", "Đơn hàng đã được giao thành công. Cảm ơn bạn đã mua sắm tại EZ4GEAR!", "#059669"),
+        "CANCELLED": ("ĐÃ HUỶ", "Đơn hàng của bạn đã bị huỷ.", "#dc2626")
     }
     
     status_title, status_desc, status_color = status_messages.get(
-        new_status, ("CẬP NHẬT TRẠNG THÁI", f"Đơn hàng của bạn đã chuyển sang trạng thái: {new_status}", "#00dcff")
+        new_status, ("CẬP NHẬT TRẠNG THÁI", f"Đơn hàng của bạn đã chuyển sang trạng thái: {new_status}", "#0066cc")
     )
     
     cancel_html = f'<p><span class="info-label">Lý do huỷ:</span> <span style="color: #ef4444;">{cancel_reason}</span></p>' if new_status == "CANCELLED" and cancel_reason else ""
@@ -204,16 +204,16 @@ def get_order_status_html_template(order_id: str, customer_name: str, new_status
     <head>
         <meta charset="utf-8">
         <style>
-            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #03050c; margin: 0; padding: 0; }}
-            .container {{ max-width: 600px; margin: 0 auto; background-color: #0a0e17; border: 1px solid #1e293b; padding: 20px; }}
-            .header {{ text-align: center; padding-bottom: 20px; border-bottom: 1px solid #1e293b; }}
-            .logo {{ color: #00dcff; font-size: 28px; font-weight: 900; letter-spacing: 2px; text-decoration: none; }}
+            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; margin: 0; padding: 0; }}
+            .container {{ max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5e7eb; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }}
+            .header {{ text-align: center; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb; }}
+            .logo {{ color: #0066cc; font-size: 28px; font-weight: 900; letter-spacing: 2px; text-decoration: none; }}
             .title {{ color: {status_color}; font-size: 22px; margin-top: 20px; }}
-            .content {{ padding: 20px 0; color: #94a3b8; font-size: 15px; line-height: 1.6; }}
-            .info-box {{ background-color: rgba(0, 220, 255, 0.05); border: 1px solid rgba(0, 220, 255, 0.2); padding: 15px; border-radius: 8px; margin-bottom: 20px; }}
-            .info-box p {{ margin: 5px 0; color: #e2e8f0; }}
-            .info-label {{ color: #00dcff; font-weight: bold; width: 130px; display: inline-block; }}
-            .footer {{ text-align: center; padding-top: 20px; border-top: 1px solid #1e293b; color: #64748b; font-size: 13px; }}
+            .content {{ padding: 20px 0; color: #4b5563; font-size: 15px; line-height: 1.6; }}
+            .info-box {{ background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; }}
+            .info-box p {{ margin: 5px 0; color: #1e293b; }}
+            .info-label {{ color: #0066cc; font-weight: bold; width: 130px; display: inline-block; }}
+            .footer {{ text-align: center; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #64748b; font-size: 13px; }}
         </style>
     </head>
     <body>
