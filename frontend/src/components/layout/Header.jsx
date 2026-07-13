@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, User, Sun, Moon } from 'lucide-react';
+import { Search, ShoppingCart, User, Sun, Moon, Bell } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
@@ -16,7 +16,76 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [customerNotifs, setCustomerNotifs] = useState([]);
+  const [customerUnread, setCustomerUnread] = useState(0);
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+  // Fetch customer notifications
+  useEffect(() => {
+    if (!user) return;
+    const fetchUnread = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        const res = await fetch(`${API_URL}/api/notifications/unread-count`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCustomerUnread(data.unread_count);
+        }
+      } catch (err) { /* silent */ }
+    };
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  useEffect(() => {
+    if (!showNotifications || !user) return;
+    const fetchNotifs = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_URL}/api/notifications?limit=15`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) setCustomerNotifs(await res.json());
+      } catch (err) { /* silent */ }
+    };
+    fetchNotifs();
+  }, [showNotifications, user]);
+
+  const markCustomerAllRead = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await fetch(`${API_URL}/api/notifications/read-all`, {
+        method: 'PATCH', headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setCustomerNotifs(customerNotifs.map(n => ({ ...n, is_read: true })));
+      setCustomerUnread(0);
+    } catch (err) { /* silent */ }
+  };
+
+  const markCustomerOneRead = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      await fetch(`${API_URL}/api/notifications/${id}/read`, {
+        method: 'PATCH', headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setCustomerNotifs(customerNotifs.map(n => n.id === id ? { ...n, is_read: true } : n));
+      setCustomerUnread(prev => Math.max(0, prev - 1));
+    } catch (err) { /* silent */ }
+  };
+
+  const timeAgo = (dateStr) => {
+    const diff = Math.floor((new Date() - new Date(dateStr)) / 1000);
+    if (diff < 60) return 'Vừa xong';
+    if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
+    return `${Math.floor(diff / 86400)} ngày trước`;
+  };
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -186,6 +255,73 @@ export default function Header() {
                 </div>
               )}
             </div>
+            {/* Notification Bell for Customer */}
+            {user && (
+              <div style={{ position: 'relative' }}>
+                <button
+                  className="icon-btn"
+                  aria-label="Notifications"
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  style={{ position: 'relative' }}
+                >
+                  <Bell size={18} />
+                  {customerUnread > 0 && (
+                    <span style={{
+                      position: 'absolute', top: '-5px', right: '-8px', background: '#ef4444',
+                      color: '#fff', fontSize: '10px', fontWeight: 'bold', width: '18px', height: '18px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%'
+                    }}>
+                      {customerUnread > 9 ? '9+' : customerUnread}
+                    </span>
+                  )}
+                </button>
+                {showNotifications && (
+                  <div style={{
+                    position: 'absolute', top: 'calc(100% + 12px)', right: '-20px', width: '340px',
+                    background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.3)', zIndex: 9999, overflow: 'hidden'
+                  }}>
+                    <div style={{ padding: '16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>Thông báo</h3>
+                      {customerUnread > 0 && (
+                        <button onClick={markCustomerAllRead} style={{ fontSize: '12px', color: 'var(--cyan)', background: 'transparent', border: 'none', cursor: 'pointer' }}>Đọc tất cả</button>
+                      )}
+                    </div>
+                    <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                      {customerNotifs.length === 0 ? (
+                        <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>Chưa có thông báo nào</div>
+                      ) : customerNotifs.map(n => (
+                        <div
+                          key={n.id}
+                          onClick={() => {
+                            if (!n.is_read) markCustomerOneRead(n.id);
+                            if (n.reference_type === 'order' && n.reference_id) {
+                              navigate(`/profile/orders/${n.reference_id}`);
+                              setShowNotifications(false);
+                            }
+                          }}
+                          style={{
+                            padding: '14px 16px', borderBottom: '1px solid var(--border)',
+                            background: n.is_read ? 'transparent' : 'rgba(0, 220, 255, 0.05)',
+                            cursor: 'pointer', transition: 'background 0.2s'
+                          }}
+                        >
+                          <div style={{ display: 'flex', gap: '10px' }}>
+                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: n.is_read ? 'transparent' : 'var(--cyan)', marginTop: '6px', flexShrink: 0 }} />
+                            <div>
+                              <div style={{ fontSize: '14px', fontWeight: n.is_read ? '500' : 'bold', color: n.is_read ? 'var(--text)' : 'var(--cyan)', marginBottom: '4px' }}>{n.title}</div>
+                              <div style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.4', marginBottom: '6px' }}>{n.message}</div>
+                              <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>{timeAgo(n.created_at)}</div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             <Link to="/cart" className="icon-btn header-cart-btn" aria-label="Cart" style={{position: 'relative'}}>
               <ShoppingCart size={18} />
               {cart?.total_items > 0 && (

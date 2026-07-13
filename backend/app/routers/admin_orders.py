@@ -111,6 +111,13 @@ def update_order_status(
     db.add(history)
     db.commit()
     
+    # Gửi thông báo cho khách hàng khi đơn hàng chuyển trạng thái
+    try:
+        from app.services.notification_service import notify_customer_order_status
+        notify_customer_order_status(db, order.user_id, order.id, order.id, new_status.value)
+    except Exception:
+        pass  # Không để lỗi notification làm hỏng flow
+    
     return {"message": "Order status updated", "new_status": new_status.value}
 
 # --- Cập nhật trạng thái thanh toán (Admin) ---
@@ -162,3 +169,95 @@ def delete_order(
     db.delete(order)
     db.commit()
     return None
+
+from app.schemas.order import AdminOrderCreateRequest
+from app.models.address import Address
+
+@router.post("", response_model=dict, status_code=status.HTTP_201_CREATED)
+def create_manual_order(
+    req: AdminOrderCreateRequest,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    # Check User
+    user = db.query(User).filter(User.id == req.user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    # Create Address
+    address = Address(
+        id=str(uuid.uuid4()),
+        user_id=user.id,
+        full_name=req.full_name,
+        phone=req.phone,
+        address_line=req.address_line,
+        ward=req.ward,
+        district=req.district,
+        city=req.city
+    )
+    db.add(address)
+    
+    # Calculate Total & Check Stock
+    total_amount = 0
+    order_items = []
+    
+    for item in req.items:
+        sku = db.query(ProductSKU).filter(ProductSKU.id == item.sku_id).first()
+        if not sku:
+            raise HTTPException(status_code=404, detail=f"SKU {item.sku_id} not found")
+            
+        if sku.stock < item.quantity:
+            raise HTTPException(status_code=400, detail=f"Not enough stock for SKU {sku.sku_code}")
+            
+        price = item.custom_price if item.custom_price is not None else sku.price
+        
+        # Deduct stock
+        sku.stock -= item.quantity
+        
+        total_amount += price * item.quantity
+        
+        order_items.append(OrderItem(
+            id=str(uuid.uuid4()),
+            sku_id=sku.id,
+            price_at_purchase=price,
+            quantity=item.quantity
+        ))
+        
+    final_total = total_amount + req.shipping_fee - req.discount_amount
+    if final_total < 0:
+        final_total = 0
+        
+    # Create Order
+    order_id = str(uuid.uuid4())
+    order = Order(
+        id=order_id,
+        user_id=user.id,
+        address_id=address.id,
+        status=OrderStatus.CONFIRMED, # Auto confirmed for manual orders
+        payment_method=req.payment_method,
+        payment_status=req.payment_status,
+        total_amount=final_total,
+        shipping_fee=req.shipping_fee,
+        discount_amount=req.discount_amount,
+        note=req.note
+    )
+    
+    # Associate items
+    for oi in order_items:
+        oi.order_id = order_id
+        db.add(oi)
+        
+    db.add(order)
+    
+    # Add History
+    history = OrderStatusHistory(
+        id=str(uuid.uuid4()),
+        order_id=order_id,
+        status=OrderStatus.CONFIRMED,
+        description="Đơn hàng được tạo thủ công bởi Admin"
+    )
+    db.add(history)
+    
+    db.commit()
+    
+    return {"message": "Order created successfully", "order_id": order_id}
