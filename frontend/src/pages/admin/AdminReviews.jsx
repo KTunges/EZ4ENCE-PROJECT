@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getAdminReviews, replyToReview, toggleHideReview } from '../../services/adminApi';
 import { Star, ShieldAlert, Check, X, Shield } from 'lucide-react';
-import toast from 'react-hot-toast';
 
 export default function AdminReviews() {
   const [reviews, setReviews] = useState([]);
@@ -17,7 +16,7 @@ export default function AdminReviews() {
       const data = await getAdminReviews();
       setReviews(data);
     } catch (error) {
-      toast.error('Lỗi khi tải danh sách đánh giá');
+      alert('Lỗi khi tải danh sách đánh giá');
     } finally {
       setLoading(false);
     }
@@ -27,25 +26,25 @@ export default function AdminReviews() {
     try {
       const updated = await toggleHideReview(id, !currentStatus);
       setReviews(prev => prev.map(r => r.id === id ? updated : r));
-      toast.success(updated.is_hidden ? 'Đã ẩn đánh giá' : 'Đã hiển thị đánh giá');
+      alert(updated.is_hidden ? 'Đã ẩn đánh giá' : 'Đã hiển thị đánh giá');
     } catch (err) {
-      toast.error('Lỗi khi ẩn/hiện đánh giá');
+      alert('Lỗi khi ẩn/hiện đánh giá');
     }
   };
 
   const handleReplySubmit = async (id) => {
     const text = replyText[id];
     if (!text?.trim()) {
-      toast.error('Vui lòng nhập nội dung phản hồi');
+      alert('Vui lòng nhập nội dung phản hồi');
       return;
     }
     try {
       const updated = await replyToReview(id, text);
       setReviews(prev => prev.map(r => r.id === id ? updated : r));
-      toast.success('Đã gửi phản hồi');
+      alert('Đã gửi phản hồi');
       setReplyText(prev => ({ ...prev, [id]: '' }));
     } catch (err) {
-      toast.error('Lỗi khi gửi phản hồi');
+      alert('Lỗi khi gửi phản hồi');
     }
   };
 
