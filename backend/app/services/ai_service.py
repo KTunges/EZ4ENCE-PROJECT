@@ -59,7 +59,7 @@ class GroqChatService:
                 max_tokens=512,
                 temperature=0.7,
             )
-            return response.choices[0].message.content
+            return response.choices[0].message.content or ""
 
         except ValueError as e:
             logger.warning(f"AI Service: {e}")

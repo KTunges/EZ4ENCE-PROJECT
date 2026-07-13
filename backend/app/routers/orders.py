@@ -185,7 +185,7 @@ def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db:
     # 6. Tạo thông báo cho Admin khi có đơn hàng mới
     try:
         from app.services.notification_service import notify_admins_new_order
-        notify_admins_new_order(db, new_order.id, new_order.id, current_user.full_name or current_user.username or "Khách hàng", final_total)
+        notify_admins_new_order(db, str(new_order.order_code), str(new_order.id), str(current_user.full_name or current_user.username or "Khách hàng"), final_total)
     except Exception:
         pass  # Không để lỗi notification làm hỏng flow đặt hàng
     

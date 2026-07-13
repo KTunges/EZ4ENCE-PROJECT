@@ -9,9 +9,9 @@ def create_notification(
     message: str,
     ntype: NotificationType,
     is_admin: bool = False,
-    user_id: str = None,
-    reference_id: str = None,
-    reference_type: str = None
+    user_id: str | None = None,
+    reference_id: str | None = None,
+    reference_type: str | None = None
 ):
     """Tạo một notification mới và lưu vào database."""
     notif = Notification(

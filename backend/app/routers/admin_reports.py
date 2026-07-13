@@ -38,7 +38,7 @@ def export_dataframe(df: pd.DataFrame, filename_prefix: str, format: str):
 
 @router.get("/orders/export")
 def export_orders(
-    format: str = Query("xlsx", regex="^(csv|xlsx)$"),
+    format: str = Query("xlsx", pattern="^(csv|xlsx)$"),
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_admin)
 ):
@@ -88,7 +88,7 @@ def export_products(
             "Thương hiệu": brand_name,
             "Tổng Tồn Kho": total_stock,
             "Đã Bán": product.sold_count,
-            "Đánh Giá": float(product.rating),
+            "Đánh Giá": product.rating,
             "Số Lượt Đánh Giá": product.review_count,
             "Trạng Thái": "Hoạt động" if product.is_active else "Ẩn",
             "Ngày Tạo": product.created_at.strftime("%Y-%m-%d") if product.created_at else ""
@@ -99,7 +99,7 @@ def export_products(
 
 @router.get("/revenue/export")
 def export_revenue(
-    format: str = Query("xlsx", regex="^(csv|xlsx)$"),
+    format: str = Query("xlsx", pattern="^(csv|xlsx)$"),
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_admin)
 ):
