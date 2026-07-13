@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Heart, Star, Minus, Plus, ChevronRight, Shield, Truck, RotateCcw, Package, Check, Gift, MapPin } from 'lucide-react';
+import { ShoppingCart, Heart, Star, Minus, Plus, ChevronRight, Shield, Truck, RotateCcw, Package, Check, Gift, MapPin, Search, Share2, RefreshCcw, Image as ImageIcon, ThumbsUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CyberBackground from '../../components/ui/CyberBackground';
 import ProductCard from '../../components/ui/ProductCard';
@@ -157,6 +157,16 @@ export default function ProductDetail() {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewError, setReviewError] = useState('');
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewImages, setReviewImages] = useState([]);
+
+  const handleImageChange = (e) => {
+      const files = Array.from(e.target.files);
+      if (files.length > 5) {
+          alert('Chỉ được phép chọn tối đa 5 ảnh!');
+          return;
+      }
+      setReviewImages(files);
+  };
 
   const handleSubmitReview = async () => {
     if (!token) return;
@@ -167,17 +177,18 @@ export default function ProductDetail() {
     setIsSubmittingReview(true);
     setReviewError('');
     try {
+      const formData = new FormData();
+      formData.append('sku_id', currentSkuId);
+      formData.append('rating', reviewRating);
+      formData.append('comment', reviewComment);
+      reviewImages.forEach(img => formData.append('images', img));
+
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/reviews`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          sku_id: currentSkuId,
-          rating: reviewRating,
-          comment: reviewComment
-        })
+        body: formData
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || 'Lỗi gửi đánh giá');
@@ -194,6 +205,7 @@ export default function ProductDetail() {
       });
       setReviewComment('');
       setReviewRating(5);
+      setReviewImages([]);
       setShowReviewForm(false);
     } catch (err) {
       setReviewError(err.message);
@@ -202,6 +214,29 @@ export default function ProductDetail() {
     }
   };
 
+  const handleLikeReview = async (reviewId) => {
+      if (!token) {
+          alert('Vui lòng đăng nhập để đánh giá hữu ích!');
+          return;
+      }
+      try {
+          const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/reviews/${reviewId}/like`, {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) {
+              const data = await res.json();
+              setProduct(prev => {
+                  const newReviews = prev.reviews.map(r => 
+                      r.id === reviewId ? { ...r, is_liked_by_user: data.is_liked, helpful_count: data.helpful_count } : r
+                  );
+                  return { ...prev, reviews: newReviews };
+              });
+          }
+      } catch (err) {
+          console.error(err);
+      }
+  };
 
   useEffect(() => {
     if (!product || product.images?.length <= 1 || !isAutoPlaying) return;
@@ -651,6 +686,18 @@ export default function ProductDetail() {
                            ></textarea>
                         </div>
                         
+                        <div className="mb-4">
+                           <label className="block mb-2 text-sm text-muted flex items-center gap-2"><ImageIcon size={16} /> Đính kèm ảnh (Tối đa 5)</label>
+                           <input type="file" multiple accept="image/*" onChange={handleImageChange} className="text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan/10 file:text-cyan hover:file:bg-cyan/20 cursor-pointer"/>
+                           {reviewImages.length > 0 && (
+                               <div className="flex gap-2 mt-2">
+                                   {reviewImages.map((img, i) => (
+                                       <div key={i} className="text-xs bg-gray-800 px-2 py-1 rounded text-gray-300 truncate max-w-[100px]">{img.name}</div>
+                                   ))}
+                               </div>
+                           )}
+                        </div>
+
                         <button 
                            className="btn btn-primary" 
                            onClick={handleSubmitReview}
@@ -685,6 +732,34 @@ export default function ProductDetail() {
                                  </div>
                                </div>
                                <p className="review-content text-gray-300">{review.comment}</p>
+                               
+                               {review.images && review.images.length > 0 && (
+                                   <div className="flex gap-2 mt-3 flex-wrap">
+                                       {review.images.map((img, idx) => (
+                                           <img key={idx} src={img.url} alt="Review" className="w-20 h-20 object-cover rounded-md border border-white/10 cursor-pointer hover:border-cyan transition-colors" onClick={() => window.open(img.url, '_blank')} />
+                                       ))}
+                                   </div>
+                               )}
+                               
+                               <div className="mt-4 flex items-center gap-4">
+                                   <button 
+                                       onClick={() => handleLikeReview(review.id)}
+                                       className={`flex items-center gap-1 text-sm transition-colors ${review.is_liked_by_user ? 'text-cyan' : 'text-gray-500 hover:text-cyan'}`}
+                                   >
+                                       <ThumbsUp size={14} fill={review.is_liked_by_user ? "currentColor" : "none"} /> 
+                                       {review.helpful_count > 0 ? `Hữu ích (${review.helpful_count})` : 'Hữu ích'}
+                                   </button>
+                               </div>
+
+                               {review.admin_reply && (
+                                   <div className="mt-4 bg-cyan-900/20 border border-cyan/20 p-4 rounded-lg">
+                                       <div className="flex items-center gap-2 mb-1">
+                                           <Shield size={14} className="text-cyan" />
+                                           <span className="text-sm font-bold text-cyan">Phản hồi từ EZ4ENCE</span>
+                                       </div>
+                                       <p className="text-sm text-gray-300">{review.admin_reply}</p>
+                                   </div>
+                               )}
                              </div>
                            );
                        })

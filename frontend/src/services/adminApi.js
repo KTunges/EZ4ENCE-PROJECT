@@ -153,8 +153,8 @@ export const deleteReview = async (id) => {
   return response.data;
 };
 
-export const replyReview = async (id, replyText) => {
-  const response = await adminApi.post(`/admin/reviews/${id}/reply`, { reply: replyText });
+export const replyToReview = async (id, replyText) => {
+  const response = await adminApi.put(`/admin/reviews/${id}/reply`, { reply: replyText });
   return response.data;
 };
 
@@ -168,7 +168,13 @@ export const toggleHideReview = async (id, isHidden) => {
 export const getPromotions = async () => { const r = await adminApi.get('/admin/marketing/promotions'); return r.data; };
 export const createPromotion = async (data) => { const r = await adminApi.post('/admin/marketing/promotions', data); return r.data; };
 export const togglePromotionStatus = async (id) => { const r = await adminApi.put(`/admin/marketing/promotions/${id}/toggle`); return r.data; };
-export const deletePromotion = async (id) => { const r = await adminApi.delete(`/admin/marketing/promotions/${id}`); return r.data; };
+export const deletePromotion = async (id) => {
+  const response = await adminApi.delete(`/admin/marketing/promotions/${id}`);
+  return response.data;
+};
+
+
+
 
 export const getAdminBanners = async () => { const r = await adminApi.get('/admin/marketing/banners'); return r.data; };
 export const createBanner = async (data) => { const r = await adminApi.post('/admin/marketing/banners', data); return r.data; };

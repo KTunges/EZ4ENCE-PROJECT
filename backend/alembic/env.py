@@ -25,7 +25,7 @@ import app.models # Import để nhận diện được các models
 target_metadata = Base.metadata
 
 from app.config import settings
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)# other values from the config, defined by the needs of env.py,
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace('%', '%%'))# other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.

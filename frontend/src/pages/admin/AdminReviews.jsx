@@ -1,196 +1,139 @@
 import { useState, useEffect } from 'react';
-import { Search, Trash2, Star, MessageCircle, Eye, EyeOff, X, CornerDownRight } from 'lucide-react';
-import { getReviews, deleteReview, replyReview, toggleHideReview } from '../../services/adminApi';
+import { getAdminReviews, replyToReview, toggleHideReview } from '../../services/adminApi';
+import { Star, ShieldAlert, Check, X, Shield } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function AdminReviews() {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const [replyingTo, setReplyingTo] = useState(null);
-  const [replyText, setReplyText] = useState('');
-
-  const filteredReviews = reviews.filter(rv => {
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    return (
-      (rv.user_name && rv.user_name.toLowerCase().includes(q)) ||
-      (rv.product_name && rv.product_name.toLowerCase().includes(q)) ||
-      (rv.comment && rv.comment.toLowerCase().includes(q))
-    );
-  });
-
-  const fetchReviews = async () => {
-    try {
-      setLoading(true);
-      const data = await getReviews();
-      setReviews(data);
-    } catch (error) {
-      console.error("Lỗi lấy danh sách đánh giá", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [replyText, setReplyText] = useState({});
 
   useEffect(() => {
     fetchReviews();
   }, []);
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa đánh giá này? Việc này không thể hoàn tác.")) {
-      try {
-        await deleteReview(id);
-        fetchReviews();
-      } catch (error) {
-        alert("Lỗi khi xóa đánh giá!");
-        console.error(error);
-      }
+  const fetchReviews = async () => {
+    try {
+      const data = await getAdminReviews();
+      setReviews(data);
+    } catch (error) {
+      toast.error('Lỗi khi tải danh sách đánh giá');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleToggleHide = async (id, currentStatus) => {
     try {
-      await toggleHideReview(id, !currentStatus);
-      fetchReviews();
-    } catch (error) {
-      alert("Lỗi khi thay đổi trạng thái!");
-      console.error(error);
+      const updated = await toggleHideReview(id, !currentStatus);
+      setReviews(prev => prev.map(r => r.id === id ? updated : r));
+      toast.success(updated.is_hidden ? 'Đã ẩn đánh giá' : 'Đã hiển thị đánh giá');
+    } catch (err) {
+      toast.error('Lỗi khi ẩn/hiện đánh giá');
     }
   };
 
-  const submitReply = async () => {
-    if (!replyText.trim()) return;
+  const handleReplySubmit = async (id) => {
+    const text = replyText[id];
+    if (!text?.trim()) {
+      toast.error('Vui lòng nhập nội dung phản hồi');
+      return;
+    }
     try {
-      await replyReview(replyingTo.id, replyText);
-      setReplyingTo(null);
-      setReplyText('');
-      fetchReviews();
-    } catch (error) {
-      alert("Lỗi khi gửi trả lời!");
-      console.error(error);
+      const updated = await replyToReview(id, text);
+      setReviews(prev => prev.map(r => r.id === id ? updated : r));
+      toast.success('Đã gửi phản hồi');
+      setReplyText(prev => ({ ...prev, [id]: '' }));
+    } catch (err) {
+      toast.error('Lỗi khi gửi phản hồi');
     }
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('vi-VN', {
-      year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
-    });
-  };
+  if (loading) {
+    return <div className="p-6 text-center text-gray-400 animate-pulse">Đang tải dữ liệu đánh giá...</div>;
+  }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 className="text-2xl font-bold">Quản lý Đánh giá</h1>
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold glitch-text" data-text="QUẢN LÝ ĐÁNH GIÁ">QUẢN LÝ ĐÁNH GIÁ</h1>
       </div>
 
-      <div className="glass" style={{ padding: '24px', borderRadius: '12px' }}>
-        {/* Toolbar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-          <div style={{ position: 'relative', width: '300px' }}>
-            <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-            <input 
-              type="text" 
-              placeholder="Tìm kiếm nội dung..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ width: '100%', padding: '10px 10px 10px 40px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)' }}
-            />
-          </div>
-        </div>
-
-        {/* Table */}
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--text-muted)' }}>
-                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px', width: '150px' }}>Ngày đăng</th>
-                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px', width: '180px' }}>Người dùng</th>
-                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px', width: '200px' }}>Sản phẩm</th>
-                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px', width: '120px' }}>Đánh giá</th>
-                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px', minWidth: '250px' }}>Nội dung</th>
-                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px', width: '100px', textAlign: 'right' }}>Thao tác</th>
+      <div className="glass-panel overflow-hidden">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-white/10 bg-black/20">
+              <th className="p-4 font-semibold text-cyan">Khách Hàng</th>
+              <th className="p-4 font-semibold text-cyan">Sản Phẩm</th>
+              <th className="p-4 font-semibold text-cyan">Đánh Giá</th>
+              <th className="p-4 font-semibold text-cyan">Phản Hồi (Admin)</th>
+              <th className="p-4 font-semibold text-cyan text-right">Hành Động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {reviews.map(review => (
+              <tr key={review.id} className={`border-b border-white/10 hover:bg-white/5 transition-colors ${review.is_hidden ? 'opacity-50' : ''}`}>
+                <td className="p-4">
+                  <div className="font-medium text-white">{review.user_name || 'Unknown'}</div>
+                  <div className="text-xs text-gray-500">{new Date(review.created_at).toLocaleDateString('vi-VN')}</div>
+                </td>
+                <td className="p-4 text-sm text-gray-300">
+                  {review.product_name}
+                </td>
+                <td className="p-4 max-w-xs">
+                  <div className="flex gap-1 mb-1">
+                    {[1, 2, 3, 4, 5].map(s => (
+                      <Star key={s} size={14} fill={s <= review.rating ? 'var(--cyan)' : 'none'} stroke={s <= review.rating ? 'var(--cyan)' : 'var(--text-dim)'} />
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-400 truncate-2-lines">{review.comment}</p>
+                  {review.images && review.images.length > 0 && (
+                      <div className="flex gap-2 mt-2">
+                          {review.images.map((img, idx) => (
+                              <img key={idx} src={img.url} className="w-10 h-10 object-cover rounded cursor-pointer border border-white/20" onClick={() => window.open(img.url, '_blank')} />
+                          ))}
+                      </div>
+                  )}
+                </td>
+                <td className="p-4">
+                  {review.admin_reply ? (
+                    <div className="bg-cyan-900/30 p-2 rounded border border-cyan/20 text-sm text-gray-300">
+                       <Shield size={12} className="inline mr-1 text-cyan"/> {review.admin_reply}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                       <input 
+                         type="text" 
+                         placeholder="Nhập phản hồi..." 
+                         className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-sm outline-none focus:border-cyan"
+                         value={replyText[review.id] || ''}
+                         onChange={(e) => setReplyText(prev => ({...prev, [review.id]: e.target.value}))}
+                       />
+                       <button onClick={() => handleReplySubmit(review.id)} className="text-xs bg-cyan text-black px-2 py-1 rounded font-bold hover:bg-cyan-light self-start">Gửi</button>
+                    </div>
+                  )}
+                </td>
+                <td className="p-4 text-right">
+                  <button 
+                    onClick={() => handleToggleHide(review.id, review.is_hidden)}
+                    className={`p-2 rounded ${review.is_hidden ? 'bg-gray-600' : 'bg-red-500/20 text-red-400 hover:bg-red-500/30'} transition-colors`}
+                    title={review.is_hidden ? "Hiển thị lại" : "Ẩn đánh giá"}
+                  >
+                    {review.is_hidden ? <Check size={18} /> : <X size={18} />}
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Đang tải...</td></tr>
-              ) : filteredReviews.length === 0 ? (
-                <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Chưa có đánh giá nào</td></tr>
-              ) : filteredReviews.map(rv => (
-                <tr key={rv.id} style={{ borderBottom: '1px solid var(--border)', verticalAlign: 'top', opacity: rv.is_hidden ? 0.5 : 1 }}>
-                  <td style={{ padding: '16px 12px', color: 'var(--text-muted)', fontSize: '13px' }}>{formatDate(rv.created_at)}</td>
-                  <td style={{ padding: '16px 12px', fontWeight: 'bold', fontSize: '14px' }}>{rv.user_name}</td>
-                  <td style={{ padding: '16px 12px', color: 'var(--cyan)', fontSize: '13px' }}>{rv.product_name}</td>
-                  <td style={{ padding: '16px 12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '2px', color: '#f59e0b' }}>
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={14} fill={i < rv.rating ? "currentColor" : "none"} color={i < rv.rating ? "currentColor" : "var(--border-hover)"} />
-                      ))}
-                    </div>
-                  </td>
-                  <td style={{ padding: '16px 12px' }}>
-                    <div style={{ fontSize: '14px', lineHeight: '1.5' }}>{rv.comment || <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>Không có nội dung</span>}</div>
-                    {rv.images && rv.images.length > 0 && (
-                      <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                        {rv.images.map(img => (
-                          <img key={img.id} src={img.url} alt="Review" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border)' }} />
-                        ))}
-                      </div>
-                    )}
-                    {rv.admin_reply && (
-                      <div style={{ marginTop: '12px', padding: '10px 12px', background: 'rgba(0, 220, 255, 0.05)', borderRadius: '8px', borderLeft: '3px solid var(--cyan)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', fontSize: '12px', color: 'var(--cyan)', fontWeight: 'bold' }}>
-                          <CornerDownRight size={14} /> Admin trả lời:
-                        </div>
-                        <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{rv.admin_reply}</div>
-                      </div>
-                    )}
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '100%', paddingTop: '10px', gap: '8px' }}>
-                      <button onClick={() => { setReplyingTo(rv); setReplyText(rv.admin_reply || ''); }} style={{ padding: '6px', background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--cyan)', borderRadius: '6px', cursor: 'pointer' }} title="Trả lời">
-                        <MessageCircle size={16} />
-                      </button>
-                      <button onClick={() => handleToggleHide(rv.id, rv.is_hidden)} style={{ padding: '6px', background: 'var(--bg-card)', border: '1px solid var(--border)', color: rv.is_hidden ? 'var(--text-muted)' : 'var(--text)', borderRadius: '6px', cursor: 'pointer' }} title={rv.is_hidden ? "Hiện đánh giá" : "Ẩn đánh giá"}>
-                        {rv.is_hidden ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
-                      <button onClick={() => handleDelete(rv.id)} style={{ padding: '6px', background: 'rgba(255, 23, 68, 0.1)', border: 'none', color: '#ff1744', borderRadius: '6px', cursor: 'pointer' }} title="Xóa đánh giá">
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+            {reviews.length === 0 && (
+              <tr>
+                <td colSpan="5" className="p-8 text-center text-gray-500">
+                  Chưa có đánh giá nào.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
-
-      {replyingTo && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="glass" style={{ width: '500px', maxWidth: '95%', background: 'var(--bg-card)', borderRadius: '16px', display: 'flex', flexDirection: 'column', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
-            <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>Trả lời đánh giá</h2>
-              <button onClick={() => setReplyingTo(null)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><X size={24} /></button>
-            </div>
-            <div style={{ padding: '24px', flex: 1 }}>
-              <div style={{ marginBottom: '16px', padding: '12px', background: 'var(--glass-bg)', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '13px', color: 'var(--text-muted)' }}>
-                <strong>{replyingTo.user_name}:</strong> {replyingTo.comment || 'Không có nội dung'}
-              </div>
-              <textarea 
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Nhập nội dung trả lời của bạn..."
-                style={{ width: '100%', height: '120px', padding: '12px', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', resize: 'none', fontFamily: 'inherit' }}
-              />
-            </div>
-            <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: '12px', background: 'var(--bg-surface)', borderRadius: '0 0 16px 16px' }}>
-              <button onClick={() => setReplyingTo(null)} style={{ padding: '8px 16px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '8px', cursor: 'pointer' }}>Hủy</button>
-              <button onClick={submitReply} style={{ padding: '8px 16px', background: 'var(--cyan)', border: 'none', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Gửi trả lời</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -29,6 +29,8 @@ class CustomerReviewResponse(ReviewBase):
     user_name: Optional[str] = None
     user_avatar: Optional[str] = None
     images: List[ReviewImageResponse] = []
+    helpful_count: int = 0
+    is_liked_by_user: bool = False
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -50,3 +52,7 @@ class ReviewReplyRequest(BaseModel):
     
 class ReviewToggleHiddenRequest(BaseModel):
     is_hidden: bool
+
+class ReviewLikeToggleResponse(BaseModel):
+    is_liked: bool
+    helpful_count: int
