@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, BackgroundTasks
 from sqlalchemy.orm import Session, joinedload
 from typing import List
 import uuid
@@ -62,6 +62,7 @@ def get_order_detail(
 def update_order_status(
     order_id: str,
     status_update: OrderStatusUpdate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_admin)
 ):
@@ -117,6 +118,24 @@ def update_order_status(
         notify_customer_order_status(db, order.user_id, order.id, order.id, new_status.value)
     except Exception:
         pass  # Không để lỗi notification làm hỏng flow
+        
+    # Gửi email thông báo
+    try:
+        from app.services.email_service import send_order_status_email
+        if order.user and order.shipping_address:
+            # We don't send email if status doesn't change or if it's just PENDING
+            if new_status.value in ["CONFIRMED", "SHIPPING", "DELIVERED", "CANCELLED"] and new_status != old_status:
+                background_tasks.add_task(
+                    send_order_status_email,
+                    order,
+                    order.user,
+                    order.shipping_address,
+                    new_status.value,
+                    status_update.description
+                )
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Failed to queue order status email: {e}")
     
     return {"message": "Order status updated", "new_status": new_status.value}
 

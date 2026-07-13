@@ -49,7 +49,23 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Newsletter section removed */}
+          <div>
+            <h3 className="footer-title">Hệ Thống Cửa Hàng</h3>
+            <div className="footer-desc" style={{ marginTop: '0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <strong style={{ color: 'var(--text)', display: 'block', marginBottom: '4px', fontSize: '14px' }}>Showroom Hà Nội</strong>
+                <span style={{ fontSize: '13px' }}>[Đang cập nhật...]</span>
+              </div>
+              <div>
+                <strong style={{ color: 'var(--text)', display: 'block', marginBottom: '4px', fontSize: '14px' }}>Showroom TP.HCM</strong>
+                <span style={{ fontSize: '13px' }}>[Đang cập nhật...]</span>
+              </div>
+              <div style={{ marginTop: '4px', padding: '12px', background: 'var(--bg-surface)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                <strong style={{ color: 'var(--cyan)', fontSize: '13px', display: 'block', marginBottom: '4px' }}>Giờ mở cửa:</strong>
+                <span style={{ fontSize: '13px' }}>08:30 - 21:30 (Tất cả các ngày trong tuần)</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="footer-bottom">

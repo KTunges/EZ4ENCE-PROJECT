@@ -181,3 +181,117 @@ def send_order_confirmation_email(order, user, address_model):
     except Exception as e:
         logger.error(f"Failed to send order email: {str(e)}")
         return False
+
+def get_order_status_html_template(order_id: str, customer_name: str, new_status: str, cancel_reason: str = "") -> str:
+    date_str = datetime.now().strftime("%d/%m/%Y %H:%M")
+    
+    status_messages = {
+        "CONFIRMED": ("ĐÃ XÁC NHẬN", "Đơn hàng của bạn đã được xác nhận và đang được chuẩn bị.", "#00dcff"),
+        "SHIPPING": ("ĐANG GIAO HÀNG", "Đơn hàng của bạn đang được giao đến bạn. Vui lòng chú ý điện thoại.", "#f59e0b"),
+        "DELIVERED": ("ĐÃ GIAO THÀNH CÔNG", "Đơn hàng đã được giao thành công. Cảm ơn bạn đã mua sắm tại EZ4GEAR!", "#10b981"),
+        "CANCELLED": ("ĐÃ HUỶ", "Đơn hàng của bạn đã bị huỷ.", "#ef4444")
+    }
+    
+    status_title, status_desc, status_color = status_messages.get(
+        new_status, ("CẬP NHẬT TRẠNG THÁI", f"Đơn hàng của bạn đã chuyển sang trạng thái: {new_status}", "#00dcff")
+    )
+    
+    cancel_html = f'<p><span class="info-label">Lý do huỷ:</span> <span style="color: #ef4444;">{cancel_reason}</span></p>' if new_status == "CANCELLED" and cancel_reason else ""
+
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #03050c; margin: 0; padding: 0; }}
+            .container {{ max-width: 600px; margin: 0 auto; background-color: #0a0e17; border: 1px solid #1e293b; padding: 20px; }}
+            .header {{ text-align: center; padding-bottom: 20px; border-bottom: 1px solid #1e293b; }}
+            .logo {{ color: #00dcff; font-size: 28px; font-weight: 900; letter-spacing: 2px; text-decoration: none; }}
+            .title {{ color: {status_color}; font-size: 22px; margin-top: 20px; }}
+            .content {{ padding: 20px 0; color: #94a3b8; font-size: 15px; line-height: 1.6; }}
+            .info-box {{ background-color: rgba(0, 220, 255, 0.05); border: 1px solid rgba(0, 220, 255, 0.2); padding: 15px; border-radius: 8px; margin-bottom: 20px; }}
+            .info-box p {{ margin: 5px 0; color: #e2e8f0; }}
+            .info-label {{ color: #00dcff; font-weight: bold; width: 130px; display: inline-block; }}
+            .footer {{ text-align: center; padding-top: 20px; border-top: 1px solid #1e293b; color: #64748b; font-size: 13px; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="logo">EZ4GEAR</div>
+                <div class="title">{status_title}</div>
+            </div>
+            
+            <div class="content">
+                <p>Xin chào <strong>{customer_name}</strong>,</p>
+                <p>{status_desc}</p>
+                
+                <div class="info-box">
+                    <p><span class="info-label">Mã đơn hàng:</span> #{order_id[:8].upper()}</p>
+                    <p><span class="info-label">Thời gian cập nhật:</span> {date_str}</p>
+                    {cancel_html}
+                </div>
+                
+                <p style="margin-top: 30px;">Bạn có thể theo dõi chi tiết đơn hàng trên website của chúng tôi. Nếu có bất kỳ thắc mắc nào, vui lòng phản hồi lại email này.</p>
+            </div>
+            
+            <div class="footer">
+                <p>&copy; {datetime.now().year} EZ4GEAR - Gaming & Tech Store. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+def send_order_status_email(order, user, address_model, new_status: str, cancel_reason: str = ""):
+    """
+    Sends an email when order status changes.
+    Should be called via BackgroundTasks to avoid blocking the API response.
+    """
+    try:
+        sender_email = settings.SMTP_EMAIL
+        sender_password = settings.SMTP_PASSWORD
+        
+        if not sender_email or not sender_password:
+            logger.warning("SMTP credentials not configured. Skipping email notification.")
+            return False
+            
+        receiver_email = user.email
+        if not receiver_email:
+            return False
+
+        customer_name = address_model.full_name or user.full_name or "Khách hàng"
+        html_content = get_order_status_html_template(
+            order_id=order.id,
+            customer_name=customer_name,
+            new_status=new_status,
+            cancel_reason=cancel_reason
+        )
+        
+        status_labels = {
+            "CONFIRMED": "Đã xác nhận",
+            "SHIPPING": "Đang giao",
+            "DELIVERED": "Đã giao thành công",
+            "CANCELLED": "Đã huỷ"
+        }
+        status_vn = status_labels.get(new_status, new_status)
+        
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = f"[EZ4GEAR] Đơn hàng #{order.id[:8].upper()} - {status_vn}"
+        msg['From'] = f"EZ4GEAR <{sender_email}>"
+        msg['To'] = receiver_email
+        
+        msg.attach(MIMEText(html_content, 'html'))
+        
+        with smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT) as server:
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
+            
+        logger.info(f"Order status email sent to {receiver_email} for order {order.id}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to send order status email: {str(e)}")
+        return False

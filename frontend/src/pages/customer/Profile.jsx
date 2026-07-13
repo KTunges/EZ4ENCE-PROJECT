@@ -645,7 +645,7 @@ export default function Profile() {
       {/* Review Modal */}
       {showReviewModal && reviewOrder && selectedReviewItem && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-          <div style={{ background: 'var(--card-bg, #fff)', color: 'var(--text)', width: '90%', maxWidth: '600px', borderRadius: '16px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', maxHeight: '90vh', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
+          <div style={{ background: 'var(--bg-card)', color: 'var(--text)', width: '90%', maxWidth: '600px', borderRadius: '16px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', maxHeight: '90vh', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
             <div style={{ padding: '20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold' }}>Đánh giá sản phẩm</h3>
               <button onClick={() => setShowReviewModal(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><X size={24} /></button>
@@ -676,7 +676,7 @@ export default function Profile() {
                 </div>
               )}
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px', padding: '16px', background: 'var(--bg, rgba(0,0,0,0.02))', borderRadius: '12px', border: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px', padding: '16px', background: 'var(--bg-surface)', borderRadius: '12px', border: '1px solid var(--border)' }}>
                 {selectedReviewItem.image_url ? <img src={selectedReviewItem.image_url} alt={selectedReviewItem.product_name} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }} /> : <div style={{ width: '60px', height: '60px', background: 'var(--border)', borderRadius: '8px' }}></div>}
                 <div>
                   <div style={{ fontWeight: 'bold', fontSize: '15px' }}>{selectedReviewItem.product_name}</div>
@@ -707,7 +707,7 @@ export default function Profile() {
                  </div>
               </div>
 
-              <div style={{ marginBottom: '20px', background: 'var(--bg, rgba(0,0,0,0.02))', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+              <div style={{ marginBottom: '20px', background: 'var(--bg-surface)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)' }}>
                  <textarea 
                     className="checkout-input"
                     rows="4" 
@@ -720,12 +720,12 @@ export default function Profile() {
                  <div style={{ marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
                    <label style={{ 
                      display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 16px', 
-                     background: 'var(--bg)', border: '1px dashed var(--border)', 
+                     background: 'var(--bg-surface)', border: '1px dashed var(--border)', 
                      borderRadius: '8px', cursor: 'pointer', fontSize: '13px', color: 'var(--text)', 
                      fontWeight: '500', transition: 'all 0.2s ease'
                    }}
-                     onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(56, 189, 248, 0.1)'; e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.3)'; e.currentTarget.style.color = '#38bdf8'; }}
-                     onMouseOut={(e) => { e.currentTarget.style.background = 'var(--bg)'; e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text)'; }}
+                     onMouseOver={(e) => { e.currentTarget.style.background = 'var(--cyan-dim)'; e.currentTarget.style.borderColor = 'var(--cyan)'; e.currentTarget.style.color = 'var(--cyan)'; }}
+                     onMouseOut={(e) => { e.currentTarget.style.background = 'var(--bg-surface)'; e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text)'; }}
                    >
                      <ImageIcon size={16} /> Thêm hình ảnh
                      <input type="file" multiple accept="image/*" onChange={handleReviewImageChange} style={{ display: 'none' }} />
@@ -767,7 +767,7 @@ export default function Profile() {
       {/* Success Popup */}
       {reviewSuccessMessage && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1050, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(5px)' }}>
-          <div style={{ background: 'var(--card-bg, #fff)', color: 'var(--text)', padding: '36px 48px', borderRadius: '24px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', transform: 'translateY(0)', opacity: 1 }}>
+          <div style={{ background: 'var(--bg-card)', color: 'var(--text)', padding: '36px 48px', borderRadius: '24px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', transform: 'translateY(0)', opacity: 1 }}>
              <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'rgba(56, 189, 248, 0.1)', border: '2px solid rgba(56, 189, 248, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#38bdf8' }}>
                 <CheckCircle size={36} />
              </div>
