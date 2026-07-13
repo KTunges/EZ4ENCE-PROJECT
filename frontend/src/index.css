@@ -535,7 +535,7 @@ h1, h2, h3, h4, h5, h6 {
    ============================= */
 .hero {
   position: relative;
-  padding: 90px 0 80px;
+  padding: 0px 0 80px;
   overflow: hidden;
 }
 
@@ -794,7 +794,7 @@ h1, h2, h3, h4, h5, h6 {
 /* =============================
    SECTION HEADINGS
    ============================= */
-.section-header { text-align: center; margin-bottom: 56px; }
+.section-header { text-align: center; margin-bottom: 24px; }
 .section-tag { display: inline-block; font-family: var(--font-mono); font-size: 12px; letter-spacing: 3px; color: var(--cyan); text-transform: uppercase; margin-bottom: 14px; }
 .section-title { font-size: 42px; font-weight: 800; margin-bottom: 14px; }
 .section-desc { font-size: 17px; color: var(--text-muted); max-width: 500px; margin: 0 auto; }
@@ -843,8 +843,8 @@ h1, h2, h3, h4, h5, h6 {
  /* ── FEATURED PRODUCTS placeholder ── */
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
 }
 
 .product-placeholder {
@@ -1197,7 +1197,7 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--bg-surface);
   border-top: 1px solid var(--border);
   padding: 70px 0 30px;
-  margin-top: 80px;
+  margin-top: 40px;
   position: relative;
 }
 
@@ -3096,7 +3096,7 @@ textarea.checkout-input {
 .products-page {
   position: relative;
   min-height: 100vh;
-  padding-bottom: 80px;
+  padding-bottom: 0px;
 }
 
 .products-page-header {
@@ -3455,7 +3455,7 @@ textarea.checkout-input {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 20px;
+  padding: 12px;
   transition: transform 0.4s ease;
   will-change: transform;
 }
@@ -3476,11 +3476,11 @@ textarea.checkout-input {
 /* Badges */
 .product-card-badges {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  top: 8px;
+  left: 8px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   z-index: 2;
 }
 .badge {
@@ -3554,7 +3554,7 @@ textarea.checkout-input {
 
 /* Info */
 .product-card-info {
-  padding: 16px;
+  padding: 10px 12px;
 }
 .product-card-brand {
   display: inline-block;
@@ -3571,12 +3571,12 @@ textarea.checkout-input {
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text);
   text-decoration: none;
-  line-height: 1.5;
-  margin-bottom: 8px;
+  line-height: 1.4;
+  margin-bottom: 6px;
   transition: color var(--transition);
 }
 .product-card-name:hover { color: var(--cyan); }
@@ -3589,12 +3589,12 @@ textarea.checkout-input {
   margin-bottom: 12px;
 }
 .spec-pill {
-  font-size: 10px;
+  font-size: 9px;
   font-family: var(--font-mono);
   color: var(--text-muted);
   background: var(--bg-surface);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 2px 6px;
+  padding: 2px 4px;
   border-radius: 4px;
   white-space: nowrap;
 }
@@ -3618,7 +3618,7 @@ textarea.checkout-input {
   gap: 10px;
 }
 .product-card-price {
-  font-size: 17px;
+  font-size: 14px;
   font-weight: 700;
   font-family: var(--font-mono);
   color: var(--cyan);
@@ -3694,7 +3694,7 @@ textarea.checkout-input {
 .product-detail-page {
   position: relative;
   min-height: 100vh;
-  padding-bottom: 80px;
+  padding-bottom: 0px;
 }
 
 .product-detail-header {
@@ -3711,7 +3711,7 @@ textarea.checkout-input {
 
 .product-detail-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(350px, 450px) 1fr;
   gap: 40px;
   align-items: start;
 }
@@ -3744,13 +3744,13 @@ textarea.checkout-input {
   position: absolute;
   top: 16px;
   right: 16px;
-  padding: 6px 14px;
+  padding: 4px 10px;
   border-radius: 6px;
   background: linear-gradient(135deg, var(--pink), #ff6b35);
   color: var(--text-color);
   font-weight: 800;
   font-family: var(--font-mono);
-  font-size: 16px;
+  font-size: 14px;
   box-shadow: 0 4px 12px rgba(255, 45, 120, 0.4);
 }
 
@@ -3761,8 +3761,8 @@ textarea.checkout-input {
   padding-bottom: 4px;
 }
 .gallery-thumb {
-  width: 72px;
-  height: 72px;
+  width: 60px;
+  height: 60px;
   border-radius: var(--radius-sm);
   border: 2px solid var(--border);
   background: var(--bg-surface);
@@ -3788,7 +3788,7 @@ textarea.checkout-input {
 .product-info {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 .product-info-meta {
@@ -3819,7 +3819,7 @@ textarea.checkout-input {
 
 .product-info-name {
   font-family: var(--font-heading);
-  font-size: clamp(22px, 3vw, 30px);
+  font-size: clamp(18px, 2vw, 22px);
   font-weight: 700;
   line-height: 1.3;
   color: var(--text);
@@ -3842,19 +3842,19 @@ textarea.checkout-input {
   display: flex;
   align-items: baseline;
   gap: 14px;
-  padding: 16px 0;
+  padding: 10px 0;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
 .product-info-price {
-  font-size: 32px;
+  font-size: 22px;
   font-weight: 800;
   font-family: var(--font-mono);
   color: var(--cyan);
   text-shadow: 0 0 16px var(--cyan-dim);
 }
 .product-info-original {
-  font-size: 18px;
+  font-size: 15px;
   color: var(--text-dim);
   text-decoration: line-through;
   font-family: var(--font-mono);
@@ -3871,8 +3871,8 @@ textarea.checkout-input {
 
 /* Promotions */
 .product-promotions {
-  margin: 20px 0;
-  padding: 16px;
+  margin: 12px 0;
+  padding: 12px;
   border: 1px dashed var(--pink);
   background: rgba(255, 45, 120, 0.05);
   border-radius: var(--radius-sm);
@@ -3881,7 +3881,7 @@ textarea.checkout-input {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   font-size: 15px;
   color: var(--text);
 }
@@ -3891,7 +3891,7 @@ textarea.checkout-input {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 .promo-list li {
   position: relative;
@@ -4366,7 +4366,7 @@ textarea.checkout-input {
   position: relative;
   z-index: 2;
   margin-top: 60px;
-  padding-bottom: 40px;
+  padding-bottom: 0px;
 }
 
 /* =============================
@@ -4554,12 +4554,12 @@ textarea.checkout-input {
 .build-slot {
   display: flex;
   align-items: center;
-  padding: 20px;
+  padding: 12px 16px;
   border-radius: 12px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   transition: all 0.3s ease;
-  min-height: 90px;
+  min-height: 64px;
 }
 
 .build-slot.empty {
@@ -4578,14 +4578,14 @@ textarea.checkout-input {
 }
 
 .build-slot-icon {
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--bg-surface);
   border-radius: 10px;
-  margin-right: 20px;
+  margin-right: 14px;
   color: var(--cyan);
 }
 
@@ -4598,15 +4598,15 @@ textarea.checkout-input {
 }
 
 .build-slot-label {
-  font-size: 14px;
+  font-size: 12px;
   text-transform: uppercase;
   color: var(--text-muted);
   letter-spacing: 1px;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .build-slot-placeholder {
-  font-size: 16px;
+  font-size: 14px;
   color: #888;
   font-style: italic;
 }

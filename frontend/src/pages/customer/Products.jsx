@@ -351,17 +351,13 @@ const paginatedProducts = productsList;
         <main className="home-main">
           {/* ── PAGE HEADER ── */}
           <section className="products-page-header" style={{ paddingTop: 0, paddingBottom: '0px' }}>
-            <div className="breadcrumb">
-              {selectedCategory !== 'Tất cả' ? (
-                <>
-                  <Link to="/products" onClick={() => setSelectedCategory('Tất cả')}>Sản phẩm</Link>
-                  <span className="breadcrumb-sep">/</span>
-                  <span className="breadcrumb-current">{selectedCategory}</span>
-                </>
-              ) : (
-                <span className="breadcrumb-current">Sản phẩm</span>
-              )}
-            </div>
+            {selectedCategory !== 'Tất cả' && (
+              <div className="breadcrumb">
+                <Link to="/products" onClick={() => setSelectedCategory('Tất cả')}>Sản phẩm</Link>
+                <span className="breadcrumb-sep">/</span>
+                <span className="breadcrumb-current">{selectedCategory}</span>
+              </div>
+            )}
             <h1 className="glitch-text text-3xl font-bold" data-text={selectedCategory === 'Tất cả' ? "SẢN PHẨM" : selectedCategory.toUpperCase()}>
               {selectedCategory === 'Tất cả' ? "SẢN PHẨM" : selectedCategory.toUpperCase()}
             </h1>

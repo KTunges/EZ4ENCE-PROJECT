@@ -2,19 +2,9 @@
 
 > Nền tảng thương mại điện tử chuyên cung cấp thiết bị công nghệ và linh kiện PC. Được xây dựng với giao diện **Cyberpunk / Sci-Fi** hiện đại, kết hợp mô hình 3D tương tác, Layout Bento Box và cơ chế tối ưu hóa hiệu năng siêu tốc.
 
-## 🌐 Live Demo
-
-| Dịch Vụ | Link |
-|---|---|
-| 🟣 **Frontend (Trang Web)** | [https://ez4gear.netlify.app](https://ez4gear.netlify.app) |
-| 🔵 **Backend API** | [https://ez4ence-api.onrender.com](https://ez4ence-api.onrender.com) |
-| 📖 **API Documentation (Swagger)** | [https://ez4ence-api.onrender.com/api/docs](https://ez4ence-api.onrender.com/api/docs) |
-
----
 
 ## 📋 Mục Lục
 
-- [Live Demo](#-live-demo)
 - [Tổng Quan Kiến Trúc](#tổng-quan-kiến-trúc)
 - [Tính Năng Nổi Bật](#tính-năng-nổi-bật)
 - [Tech Stack](#tech-stack)
@@ -182,7 +172,7 @@ EZ4ENCE/
 | Backend | **Render** | Auto-deploy từ branch `main`, Free Tier (spin-down sau 15 phút) |
 | Database | **Supabase** | PostgreSQL trên Cloud, Free Tier |
 | Images | **Cloudinary** | CDN tối ưu hóa ảnh tự động |
-| Uptime | **Cron-job.org** | Ping Backend mỗi 14 phút để chống spin-down |
+| Uptime | **Cron-job.org** | Ping Backend mỗi 10 phút để chống spin-down |
 
 ---
 
