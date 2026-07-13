@@ -165,9 +165,10 @@ export default function Dashboard() {
                 <XAxis dataKey="date" stroke="#94a3b8" tick={{fill: 'var(--text-muted)'}} axisLine={false} tickLine={false} />
                 <YAxis stroke="#94a3b8" tick={{fill: 'var(--text-muted)'}} axisLine={false} tickLine={false} tickFormatter={(val) => `${val / 1000000}M`} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)' }}
-                  itemStyle={{ color: 'var(--text)' }}
-                  formatter={(value) => formatCurrency(value)}
+                  contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '8px', color: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}
+                  itemStyle={{ color: '#38bdf8', fontWeight: 'bold' }}
+                  labelStyle={{ color: '#fff', fontWeight: 'bold', marginBottom: '4px' }}
+                  formatter={(value) => [formatCurrency(value), 'Doanh thu']}
                 />
                 <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
                 <Area type="monotone" dataKey="revenue" name="Doanh thu" stroke="#38bdf8" strokeWidth={3} fillOpacity={1} fill="url(#colorCurrent)" activeDot={{ r: 6, strokeWidth: 0, fill: '#38bdf8' }} />
