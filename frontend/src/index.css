@@ -6080,3 +6080,83 @@ select {
   padding-right: 36px !important;
   cursor: pointer;
 }
+/* Chat Tooltip */
+.chat-tooltip {
+  position: absolute;
+  right: calc(100% + 15px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--bg-card);
+  color: var(--text);
+  padding: 10px 16px;
+  border-radius: 20px;
+  border-bottom-right-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border);
+  animation: tooltipBounce 2s infinite ease-in-out;
+  cursor: pointer;
+}
+
+.chat-tooltip::after {
+  content: '';
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 6px 0 6px 6px;
+  border-style: solid;
+  border-color: transparent transparent transparent var(--border);
+}
+
+@keyframes tooltipBounce {
+  0%, 100% { transform: translateY(-50%) translateX(0); }
+  50% { transform: translateY(-50%) translateX(-5px); }
+}
+
+/* Social Contact Pill - Thay thế thiết kế cũ */
+.social-contact-pill {
+  position: fixed;
+  bottom: 100px;
+  right: 24px;
+  background: var(--bg-card);
+  border-radius: 30px;
+  padding: 8px 12px 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--border);
+  z-index: 50;
+  transition: all 0.3s ease;
+}
+
+.social-contact-pill:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.social-contact-pill .pill-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-right: 4px;
+}
+
+.social-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.social-icon-wrapper:hover {
+  transform: scale(1.15) rotate(-5deg);
+}

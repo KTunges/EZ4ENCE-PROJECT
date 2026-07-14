@@ -85,7 +85,7 @@ export default function Home() {
       .then(data => setNewsList(data))
       .catch(console.error);
 
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?sort=popular&limit=8`)
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?sort=popular&limit=10`)
       .then(res => res.json().then(d => d.data || d))
       .then(data => {
         setBestSellers(data.map(mapProduct));
@@ -102,7 +102,7 @@ export default function Home() {
         <div className="container hero-split-inner">
 
           {/* Left: text */}
-          <motion.div 
+          <motion.div
             className="hero-text"
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -136,7 +136,7 @@ export default function Home() {
           </motion.div>
 
           {/* Right: DualSense 3D từ GLB */}
-          <motion.div 
+          <motion.div
             className="hero-3d"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -164,7 +164,7 @@ export default function Home() {
 
       {/* ── FEATURES ── */}
       <section className="container relative z-10" style={{ padding: '40px 28px 80px' }}>
-        <div 
+        <div
           className="section-header"
           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px', gap: '8px' }}
         >
@@ -181,14 +181,14 @@ export default function Home() {
 
       {/* ── FEATURED CATEGORIES ── */}
       <section className="container relative z-10" style={{ padding: '0 28px 100px' }}>
-        <div 
+        <div
           className="section-header"
           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px', gap: '8px' }}
         >
           <span className="section-tag">// EXPLORE</span>
           <h2 className="section-title glitch-text" data-text="Danh Mục Nổi Bật">Danh Mục Nổi Bật</h2>
         </div>
-        
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '20px' }}>
           {FEATURED_CATEGORIES.map((cat, index) => (
             <div key={cat.id}>
@@ -204,7 +204,7 @@ export default function Home() {
       </section>
 
       {/* ── PARALLAX BANNER (Giữa trang) ── */}
-      <FullWidthBanner 
+      <FullWidthBanner
         position="home_middle"
         fallbackImage="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1920&q=80"
         fallbackTitle="SETUP MƠ ƯỚC"
@@ -213,9 +213,9 @@ export default function Home() {
 
       {/* ── FEATURED PRODUCTS placeholder ── */}
       <section className="container relative z-10" style={{ padding: '0 28px 100px' }}>
-        <div 
+        <div
           className="section-header"
-          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px', gap: '8px' }}
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px', gap: '10px' }}
         >
           <span className="section-tag">// HOT DEAL</span>
           <h2 className="section-title glitch-text" data-text="Sản Phẩm Bán Chạy">Sản Phẩm Bán Chạy</h2>
@@ -245,7 +245,7 @@ export default function Home() {
       </section>
 
       {/* ── PARALLAX BANNER (Dưới cùng) ── */}
-      <FullWidthBanner 
+      <FullWidthBanner
         position="home_bottom"
         fallbackImage="https://images.unsplash.com/photo-1600861194942-f883de0dfe96?auto=format&fit=crop&w=1920&q=80"
         fallbackTitle="BÙNG NỔ ƯU ĐÃI"
@@ -254,7 +254,7 @@ export default function Home() {
 
       {/* ── TECHNOLOGY NEWS ── */}
       <section className="container relative z-10" style={{ padding: '0 28px 100px' }}>
-        <div 
+        <div
           className="section-header"
           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px', gap: '8px' }}
         >
@@ -262,7 +262,7 @@ export default function Home() {
           <h2 className="section-title glitch-text" data-text="Tin Tức Công Nghệ">Tin Tức Công Nghệ</h2>
           <Link to="#" className="view-all-btn">Xem tất cả tin <ChevronRight size={16} /></Link>
         </div>
-        
+
         <div className="news-grid-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
           {newsList.map((news) => (
             <div key={news.id} className="news-card glass-panel">

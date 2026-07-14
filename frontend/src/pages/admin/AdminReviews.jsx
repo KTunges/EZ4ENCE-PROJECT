@@ -58,64 +58,73 @@ export default function AdminReviews() {
         <h1 className="text-2xl font-bold glitch-text" data-text="QUẢN LÝ ĐÁNH GIÁ">QUẢN LÝ ĐÁNH GIÁ</h1>
       </div>
 
-      <div className="glass-panel overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      <div style={{ background: '#ffffff', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
+        <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
           <thead>
-            <tr className="border-b border-white/10 bg-black/20">
-              <th className="p-4 font-semibold text-cyan">Khách Hàng</th>
-              <th className="p-4 font-semibold text-cyan">Sản Phẩm</th>
-              <th className="p-4 font-semibold text-cyan">Đánh Giá</th>
-              <th className="p-4 font-semibold text-cyan">Phản Hồi (Admin)</th>
-              <th className="p-4 font-semibold text-cyan text-right">Hành Động</th>
+            <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+              <th style={{ padding: '16px', fontWeight: '600', color: '#334155', width: '15%', fontSize: '14px' }}>Khách Hàng</th>
+              <th style={{ padding: '16px', fontWeight: '600', color: '#334155', width: '25%', fontSize: '14px' }}>Sản Phẩm</th>
+              <th style={{ padding: '16px', fontWeight: '600', color: '#334155', width: '25%', fontSize: '14px' }}>Đánh Giá</th>
+              <th style={{ padding: '16px', fontWeight: '600', color: '#334155', width: '25%', fontSize: '14px' }}>Phản Hồi (Admin)</th>
+              <th style={{ padding: '16px', fontWeight: '600', color: '#334155', width: '10%', textAlign: 'right', fontSize: '14px' }}>Hành Động</th>
             </tr>
           </thead>
           <tbody>
             {reviews.map(review => (
-              <tr key={review.id} className={`border-b border-white/10 hover:bg-white/5 transition-colors ${review.is_hidden ? 'opacity-50' : ''}`}>
-                <td className="p-4">
-                  <div className="font-medium text-white">{review.user_name || 'Unknown'}</div>
-                  <div className="text-xs text-gray-500">{new Date(review.created_at).toLocaleDateString('vi-VN')}</div>
+              <tr key={review.id} style={{ borderBottom: '1px solid #f1f5f9', backgroundColor: review.is_hidden ? '#f8fafc' : '#ffffff', opacity: review.is_hidden ? 0.6 : 1, transition: 'background-color 0.2s' }}>
+                <td style={{ padding: '16px', verticalAlign: 'top' }}>
+                  <div style={{ fontWeight: '600', color: '#0f172a', fontSize: '15px' }}>{review.user_name || 'Unknown'}</div>
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>{new Date(review.created_at).toLocaleDateString('vi-VN')}</div>
                 </td>
-                <td className="p-4 text-sm text-gray-300">
+                <td style={{ padding: '16px', verticalAlign: 'top', color: '#334155', fontSize: '14px', lineHeight: '1.5' }}>
                   {review.product_name}
                 </td>
-                <td className="p-4 max-w-xs">
-                  <div className="flex gap-1 mb-1">
+                <td style={{ padding: '16px', verticalAlign: 'top' }}>
+                  <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
                     {[1, 2, 3, 4, 5].map(s => (
-                      <Star key={s} size={14} fill={s <= review.rating ? 'var(--cyan)' : 'none'} stroke={s <= review.rating ? 'var(--cyan)' : 'var(--text-dim)'} />
+                      <Star key={s} size={16} fill={s <= review.rating ? '#f59e0b' : 'none'} stroke={s <= review.rating ? '#f59e0b' : '#cbd5e1'} />
                     ))}
                   </div>
-                  <p className="text-sm text-gray-400 truncate-2-lines">{review.comment}</p>
+                  <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.5', margin: 0 }}>{review.comment}</p>
                   {review.images && review.images.length > 0 && (
-                      <div className="flex gap-2 mt-2">
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
                           {review.images.map((img, idx) => (
-                              <img key={idx} src={img.url} className="w-10 h-10 object-cover rounded cursor-pointer border border-white/20" onClick={() => window.open(img.url, '_blank')} />
+                              <img key={idx} src={img.url} alt="review" style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e2e8f0', cursor: 'pointer' }} onClick={() => window.open(img.url, '_blank')} />
                           ))}
                       </div>
                   )}
                 </td>
-                <td className="p-4">
+                <td style={{ padding: '16px', verticalAlign: 'top' }}>
                   {review.admin_reply ? (
-                    <div className="bg-cyan-900/30 p-2 rounded border border-cyan/20 text-sm text-gray-300">
-                       <Shield size={12} className="inline mr-1 text-cyan"/> {review.admin_reply}
+                    <div style={{ backgroundColor: '#eff6ff', padding: '12px', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
+                       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+                          <Shield size={14} color="#2563eb" style={{ marginRight: '6px' }}/> 
+                          <span style={{ fontWeight: '600', color: '#1e3a8a', fontSize: '13px' }}>Admin đã phản hồi:</span>
+                       </div>
+                       <div style={{ color: '#1e40af', fontSize: '14px', lineHeight: '1.5' }}>{review.admin_reply}</div>
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-2">
-                       <input 
-                         type="text" 
-                         placeholder="Nhập phản hồi..." 
-                         className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-sm outline-none focus:border-cyan"
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                       <textarea 
+                         placeholder="Nhập nội dung trả lời..." 
+                         rows="2"
+                         style={{ width: '100%', backgroundColor: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '10px 12px', fontSize: '14px', color: '#0f172a', outline: 'none', resize: 'vertical', minHeight: '60px' }}
                          value={replyText[review.id] || ''}
                          onChange={(e) => setReplyText(prev => ({...prev, [review.id]: e.target.value}))}
                        />
-                       <button onClick={() => handleReplySubmit(review.id)} className="text-xs bg-cyan text-black px-2 py-1 rounded font-bold hover:bg-cyan-light self-start">Gửi</button>
+                       <button 
+                         onClick={() => handleReplySubmit(review.id)} 
+                         style={{ alignSelf: 'flex-end', backgroundColor: '#2563eb', color: '#ffffff', padding: '6px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: '500', border: 'none', cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
+                       >
+                         Gửi Phản Hồi
+                       </button>
                     </div>
                   )}
                 </td>
-                <td className="p-4 text-right">
+                <td style={{ padding: '16px', verticalAlign: 'top', textAlign: 'right' }}>
                   <button 
                     onClick={() => handleToggleHide(review.id, review.is_hidden)}
-                    className={`p-2 rounded ${review.is_hidden ? 'bg-gray-600' : 'bg-red-500/20 text-red-400 hover:bg-red-500/30'} transition-colors`}
+                    style={{ padding: '8px', borderRadius: '50%', backgroundColor: review.is_hidden ? '#e2e8f0' : '#fee2e2', color: review.is_hidden ? '#64748b' : '#ef4444', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                     title={review.is_hidden ? "Hiển thị lại" : "Ẩn đánh giá"}
                   >
                     {review.is_hidden ? <Check size={18} /> : <X size={18} />}
@@ -125,7 +134,7 @@ export default function AdminReviews() {
             ))}
             {reviews.length === 0 && (
               <tr>
-                <td colSpan="5" className="p-8 text-center text-gray-500">
+                <td colSpan="5" style={{ padding: '32px', textAlign: 'center', color: '#64748b', fontSize: '14px', backgroundColor: '#f8fafc' }}>
                   Chưa có đánh giá nào.
                 </td>
               </tr>

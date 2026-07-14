@@ -8,6 +8,27 @@ const WS_URL = VITE_API_URL.replace('http', 'ws');
 export default function LiveChatWidget() {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
+
+  useEffect(() => {
+    const handleHide = () => setIsHidden(true);
+    const handleShow = () => setIsHidden(false);
+    window.addEventListener('socialChatOpened', handleHide);
+    window.addEventListener('socialChatClosed', handleShow);
+    return () => {
+      window.removeEventListener('socialChatOpened', handleHide);
+      window.removeEventListener('socialChatClosed', handleShow);
+    };
+  }, []);
+
+  const toggleOpen = (state) => {
+    setIsOpen(state);
+    if (state) {
+      window.dispatchEvent(new Event('liveChatOpened'));
+    } else {
+      window.dispatchEvent(new Event('liveChatClosed'));
+    }
+  };
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [ws, setWs] = useState(null);
@@ -176,29 +197,34 @@ export default function LiveChatWidget() {
   };
 
   return (
-    <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 50 }}>
+    <div className={`live-chat-container ${isOpen ? 'open' : ''}`} style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 50, display: isHidden ? 'none' : 'block' }}>
       {!isOpen && (
-        <button 
-          onClick={() => setIsOpen(true)}
-          style={{
-            position: 'relative', width: '60px', height: '60px', borderRadius: '50%', background: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)',
-            color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 15px rgba(14, 165, 233, 0.4)', transition: 'transform 0.2s',
-          }}
-          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
-          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          <MessageSquare size={28} />
-          {unreadCount > 0 && (
-            <div style={{
-              position: 'absolute', top: '-5px', right: '-5px', background: '#ef4444', color: 'white',
-              width: '24px', height: '24px', borderRadius: '50%', fontSize: '12px', fontWeight: 'bold',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid var(--bg-page)'
-            }}>
-              {unreadCount > 9 ? '9+' : unreadCount}
-            </div>
-          )}
-        </button>
+        <div style={{ position: 'relative' }}>
+          <div className="chat-tooltip" onClick={() => toggleOpen(true)}>
+            👋 Bạn cần tư vấn sản phẩm nào?
+          </div>
+          <button 
+            onClick={() => toggleOpen(true)}
+            style={{
+              position: 'relative', width: '60px', height: '60px', borderRadius: '50%', background: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)',
+              color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 4px 15px rgba(14, 165, 233, 0.4)', transition: 'transform 0.2s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            <MessageSquare size={28} />
+            {unreadCount > 0 && (
+              <div style={{
+                position: 'absolute', top: '-5px', right: '-5px', background: '#ef4444', color: 'white',
+                width: '24px', height: '24px', borderRadius: '50%', fontSize: '12px', fontWeight: 'bold',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid var(--bg-page)'
+              }}>
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </div>
+            )}
+          </button>
+        </div>
       )}
 
       {isOpen && (
@@ -220,7 +246,7 @@ export default function LiveChatWidget() {
                 {adminStatus === 'online' ? 'Đang hoạt động' : 'Tạm vắng'}
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}>
+            <button onClick={() => toggleOpen(false)} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}>
               <X size={20} />
             </button>
           </div>

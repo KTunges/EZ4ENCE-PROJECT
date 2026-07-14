@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MessageCircle, X, Phone } from 'lucide-react';
 
 /**
@@ -7,13 +7,35 @@ import { MessageCircle, X, Phone } from 'lucide-react';
  */
 export default function FloatingSocialChat() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
+
+  useEffect(() => {
+    const handleHide = () => setIsHidden(true);
+    const handleShow = () => setIsHidden(false);
+    window.addEventListener('liveChatOpened', handleHide);
+    window.addEventListener('liveChatClosed', handleShow);
+    return () => {
+      window.removeEventListener('liveChatOpened', handleHide);
+      window.removeEventListener('liveChatClosed', handleShow);
+    };
+  }, []);
+
+  const toggleOpen = (state) => {
+    setIsOpen(state);
+    if (state) {
+      window.dispatchEvent(new Event('socialChatOpened'));
+    } else {
+      window.dispatchEvent(new Event('socialChatClosed'));
+    }
+  };
+  if (isHidden) return null;
 
   // ============================================
   // CẤU HÌNH — Sếp thay thông tin thật ở đây
   // ============================================
-  const FACEBOOK_PAGE_ID = '61592023011597'; // Facebook Page ID của EZ4GEAR
-  const ZALO_PHONE = '0353835576';          // Số Zalo của shop
-  const HOTLINE = '0353835576';             // Hotline
+  const FACEBOOK_PAGE_ID = '61592023011597';
+  const ZALO_PHONE = '0353835576';
+  const HOTLINE = '0353835576';
 
   const channels = [
     {
@@ -29,19 +51,15 @@ export default function FloatingSocialChat() {
     },
     {
       name: 'Zalo',
-      icon: (
-        <svg viewBox="0 0 48 48" width="24" height="24" fill="white">
-          <path d="M24 4C12.95 4 4 12.95 4 24c0 6.1 2.74 11.56 7.05 15.22L9.1 44l5.08-2.77A19.8 19.8 0 0024 44c11.05 0 20-8.95 20-20S35.05 4 24 4zm9.97 26.56c-.4.9-2.34 1.74-3.23 1.8-.87.06-1.68.42-5.65-1.18-4.77-1.92-7.78-6.8-8.02-7.12-.23-.32-1.88-2.5-1.88-4.77s1.19-3.39 1.62-3.85c.43-.46.93-.57 1.24-.57h.9c.29 0 .67-.11 1.04.79.4.93 1.35 3.3 1.47 3.54.12.24.2.53.04.85-.16.32-.24.53-.47.81-.24.28-.5.63-.71.85-.24.24-.48.5-.21.98.28.48 1.24 2.04 2.66 3.31 1.82 1.63 3.36 2.13 3.84 2.37.48.24.76.2 1.04-.12.28-.32 1.2-1.4 1.52-1.88.32-.48.64-.4 1.08-.24.44.16 2.8 1.32 3.28 1.56.48.24.8.36.92.56.12.2.12 1.16-.28 2.06z" />
-        </svg>
-      ),
+      icon: <div style={{ fontSize: '14px', fontWeight: 'bold', fontFamily: 'Arial' }}>Zalo</div>,
       color: '#0068FF',
       url: `https://zalo.me/${ZALO_PHONE}`,
       desc: 'Chat qua Zalo',
     },
     {
       name: 'Hotline',
-      icon: <Phone size={24} color="white" />,
-      color: '#22c55e',
+      icon: <Phone size={20} color="white" />,
+      color: '#00B14F',
       url: `tel:${HOTLINE}`,
       desc: HOTLINE,
     },
@@ -62,7 +80,7 @@ export default function FloatingSocialChat() {
               target="_blank"
               rel="noopener noreferrer"
               className="social-chat-item"
-              onClick={() => setIsOpen(false)}
+              onClick={() => toggleOpen(false)}
             >
               <span className="social-chat-icon" style={{ background: ch.color }}>{ch.icon}</span>
               <div className="social-chat-info">
@@ -77,10 +95,27 @@ export default function FloatingSocialChat() {
       {/* Floating button */}
       <button
         className={`social-chat-fab ${isOpen ? 'active' : ''}`}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => toggleOpen(!isOpen)}
         aria-label="Liên hệ"
       >
-        {isOpen ? <X size={26} /> : <MessageCircle size={26} />}
+        {isOpen ? <X size={26} /> : (
+          <div style={{ position: 'relative', width: '40px', height: '40px' }}>
+            {/* Zalo (Top Left) */}
+            <div style={{ position: 'absolute', top: 0, left: '-4px', background: 'white', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 5px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
+            </div>
+            
+            {/* Messenger (Top Right) */}
+            <div style={{ position: 'absolute', top: 0, right: '-4px', background: 'white', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 5px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/b/be/Facebook_Messenger_logo_2020.svg" alt="FB" style={{ width: '24px', height: '24px', objectFit: 'cover' }} />
+            </div>
+            
+            {/* Phone (Bottom Center) */}
+            <div style={{ position: 'absolute', bottom: '-4px', left: '50%', transform: 'translateX(-50%)', background: '#00B14F', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 5px rgba(0,0,0,0.3)' }}>
+              <Phone size={12} color="white" />
+            </div>
+          </div>
+        )}
       </button>
     </div>
   );

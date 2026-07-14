@@ -116,7 +116,8 @@ export default function AdminChat() {
     try {
       const res = await fetch(`${VITE_API_URL}/api/chat/sessions`);
       const data = await res.json();
-      setSessions(data.filter(s => s.is_active)); // Only show active sessions
+      // Chỉ hiển thị các session đang active VÀ đã có tin nhắn (không hiển thị session rỗng)
+      setSessions(data.filter(s => s.is_active && s.last_message)); 
     } catch (err) {
       console.error('Failed to fetch sessions', err);
     }
