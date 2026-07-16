@@ -18,9 +18,9 @@ adminApi.interceptors.request.use((config) => {
 
 // --- PRODUCTS ---
 export const getAdminProducts = async (params) => {
-  // Tái sử dụng API GET /products có sẵn nhưng có thể dùng thêm param nếu cần
-  const response = await adminApi.get('/products', { params });
-  return response.data.data || response.data;
+  // API siêu nhẹ chỉ trả về dữ liệu cần cho bảng danh sách
+  const response = await adminApi.get('/admin/products/list', { params });
+  return response.data;
 };
 
 export const uploadAdminImage = async (file) => {
@@ -198,9 +198,15 @@ export const updateSupplier = async (id, data) => { const r = await adminApi.put
 export const deleteSupplier = async (id) => { const r = await adminApi.delete(`/admin/inventory/suppliers/${id}`); return r.data; };
 
 export const getInventorySkus = async () => { const r = await adminApi.get('/admin/inventory/skus'); return r.data; };
+export const getSkuHistory = async (skuId) => { const r = await adminApi.get(`/admin/inventory/skus/${skuId}/history`); return r.data; };
 
 export const getStockReceipts = async () => { const r = await adminApi.get('/admin/inventory/receipts'); return r.data; };
 export const createStockReceipt = async (data) => { const r = await adminApi.post('/admin/inventory/receipts', data); return r.data; };
+export const seedSuppliers = async () => { const r = await adminApi.post('/admin/inventory/suppliers/seed'); return r.data; };
+export const exportReceiptExcel = async (receiptId) => {
+  const r = await adminApi.get(`/admin/inventory/receipts/${receiptId}/export-excel`, { responseType: 'blob' });
+  return r.data;
+};
 
 // STAFFS
 export const getStaffs = () => adminApi.get('/admin/staffs');

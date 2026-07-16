@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func, case
 from typing import List
 import uuid
 import random
@@ -18,6 +19,103 @@ from fastapi import UploadFile, File
 from app.services.cloudinary_service import upload_image
 
 router = APIRouter(prefix="/admin/products", tags=["Admin Products"])
+
+# Simple in-memory cache for product list
+import time as _time
+_products_cache = {"data": None, "timestamp": 0}
+_CACHE_TTL = 30  # seconds
+
+
+def _invalidate_products_cache():
+    """Call this after create/update/delete product to bust cache."""
+    _products_cache["data"] = None
+    _products_cache["timestamp"] = 0
+
+
+@router.get("/list")
+def get_admin_products_list(
+    search: Optional[str] = None,
+    nocache: Optional[bool] = None,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """
+    API siêu nhẹ cho bảng danh sách sản phẩm admin.
+    Có cache 30s để tránh round-trip đến Supabase mỗi lần load.
+    """
+    now = _time.time()
+
+    # Return cache if fresh and no search filter
+    if (not search and not nocache
+            and _products_cache["data"] is not None
+            and now - _products_cache["timestamp"] < _CACHE_TTL):
+        return _products_cache["data"]
+
+    # Subquery lấy giá và tồn kho từ SKU
+    sku_sub = db.query(
+        ProductSKU.product_id,
+        func.min(ProductSKU.price).label('price'),
+        func.min(ProductSKU.promotional_price).label('sale_price'),
+        func.sum(ProductSKU.stock_quantity).label('stock')
+    ).group_by(ProductSKU.product_id).subquery()
+
+    # Subquery lấy 1 ảnh đại diện
+    img_sub = db.query(
+        ProductImage.product_id,
+        func.min(
+            case(
+                (ProductImage.is_primary == True, ProductImage.url),
+                else_=ProductImage.url
+            )
+        ).label('image_url')
+    ).group_by(ProductImage.product_id).subquery()
+
+    query = db.query(
+        Product.id,
+        Product.name,
+        Product.slug,
+        Product.is_published,
+        Product.sold_count,
+        Category.name.label('category_name'),
+        Category.id.label('category_id'),
+        Brand.name.label('brand_name'),
+        sku_sub.c.price,
+        sku_sub.c.sale_price,
+        sku_sub.c.stock,
+        img_sub.c.image_url
+    ).outerjoin(Category, Product.category_id == Category.id
+    ).outerjoin(Brand, Product.brand_id == Brand.id
+    ).outerjoin(sku_sub, Product.id == sku_sub.c.product_id
+    ).outerjoin(img_sub, Product.id == img_sub.c.product_id)
+
+    if search:
+        query = query.filter(Product.name.ilike(f"%{search}%"))
+
+    rows = query.order_by(Product.created_at.desc()).all()
+
+    result = [
+        {
+            "id": r.id,
+            "name": r.name,
+            "slug": r.slug,
+            "is_published": r.is_published,
+            "sold_count": r.sold_count or 0,
+            "category": {"id": r.category_id, "name": r.category_name} if r.category_name else None,
+            "brand": {"name": r.brand_name} if r.brand_name else None,
+            "skus": [{"sku": "", "price": float(r.price or 0), "promotional_price": float(r.sale_price) if r.sale_price else None, "stock_quantity": int(r.stock or 0)}],
+            "images": [{"url": r.image_url}] if r.image_url else [],
+            "image_url": r.image_url or ""
+        }
+        for r in rows
+    ]
+
+    # Cache result (only for non-search queries)
+    if not search:
+        _products_cache["data"] = result
+        _products_cache["timestamp"] = now
+
+    return result
+
 
 class ProductCreateUpdate(BaseModel):
     name: str
@@ -123,6 +221,7 @@ def create_product(
 
     db.commit()
     db.refresh(new_product)
+    _invalidate_products_cache()
     return {"message": "Sản phẩm được tạo thành công", "product_id": new_product.id}
 
 @router.get("/{product_id}")
@@ -203,6 +302,7 @@ def update_product(
             db.add(img)
     
     db.commit()
+    _invalidate_products_cache()
     return {"message": "Cập nhật sản phẩm thành công", "product_id": product.id}
 
 @router.delete("/{product_id}", response_model=dict)
@@ -217,4 +317,5 @@ def delete_product(
         
     db.delete(product)
     db.commit()
+    _invalidate_products_cache()
     return {"message": "Đã xóa sản phẩm"}

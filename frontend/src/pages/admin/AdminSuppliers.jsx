@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Search, X } from 'lucide-react';
-import { getSuppliers, createSupplier, updateSupplier, deleteSupplier } from '../../services/adminApi';
+import { getSuppliers, createSupplier, updateSupplier, deleteSupplier, seedSuppliers, getBrands } from '../../services/adminApi';
 
 export default function AdminSuppliers() {
   const [suppliers, setSuppliers] = useState([]);
@@ -9,17 +9,19 @@ export default function AdminSuppliers() {
   
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [brands, setBrands] = useState([]);
   const [formData, setFormData] = useState({
-    name: '', contact_name: '', phone: '', email: '', address: '', is_active: true
+    name: '', contact_name: '', phone: '', email: '', address: '', is_active: true, brand_id: ''
   });
 
   const fetchSuppliers = async () => {
     try {
       setLoading(true);
-      const data = await getSuppliers();
-      setSuppliers(data);
+      const [supData, brandData] = await Promise.all([getSuppliers(), getBrands()]);
+      setSuppliers(supData);
+      setBrands(brandData);
     } catch (error) {
-      console.error("Lỗi tải nhà cung cấp:", error);
+      console.error("Lỗi tải dữ liệu:", error);
     } finally {
       setLoading(false);
     }
@@ -31,7 +33,7 @@ export default function AdminSuppliers() {
 
   const handleCreateNew = () => {
     setEditId(null);
-    setFormData({ name: '', contact_name: '', phone: '', email: '', address: '', is_active: true });
+    setFormData({ name: '', contact_name: '', phone: '', email: '', address: '', is_active: true, brand_id: '' });
     setShowModal(true);
   };
 
@@ -43,7 +45,8 @@ export default function AdminSuppliers() {
       phone: sup.phone || '',
       email: sup.email || '',
       address: sup.address || '',
-      is_active: sup.is_active
+      is_active: sup.is_active,
+      brand_id: sup.brand_id || ''
     });
     setShowModal(true);
   };
@@ -84,9 +87,16 @@ export default function AdminSuppliers() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <h1 className="text-2xl font-bold">Nhà cung cấp</h1>
-        <button onClick={handleCreateNew} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--cyan)', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
-          <Plus size={18} /> Thêm NCC
-        </button>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          {suppliers.length === 0 && (
+            <button onClick={async () => { try { const res = await seedSuppliers(); alert(res.message); fetchSuppliers(); } catch (e) { alert('Lỗi tạo dữ liệu mẫu'); } }} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--bg-card)', color: 'var(--cyan)', borderRadius: '8px', fontWeight: 'bold', border: '1px solid var(--cyan)', cursor: 'pointer' }}>
+              Tạo dữ liệu mẫu
+            </button>
+          )}
+          <button onClick={handleCreateNew} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--cyan)', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
+            <Plus size={18} /> Thêm NCC
+          </button>
+        </div>
       </div>
 
       <div className="glass" style={{ borderRadius: '12px', padding: '20px' }}>
@@ -106,6 +116,7 @@ export default function AdminSuppliers() {
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--text-muted)' }}>
                 <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>Tên NCC</th>
+                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>Hãng đại diện</th>
                 <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>Người liên hệ</th>
                 <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>SĐT</th>
                 <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>Email</th>
@@ -115,12 +126,15 @@ export default function AdminSuppliers() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Đang tải...</td></tr>
+                <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>Đang tải...</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Chưa có nhà cung cấp</td></tr>
+                <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>Chưa có nhà cung cấp</td></tr>
               ) : filtered.map((s) => (
                 <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                   <td style={{ padding: '16px 12px', fontWeight: 'bold' }}>{s.name}</td>
+                  <td style={{ padding: '16px 12px' }}>
+                    {brands.find(b => b.id === s.brand_id)?.name || <span style={{color: 'var(--text-muted)'}}>Chưa gán</span>}
+                  </td>
                   <td style={{ padding: '16px 12px' }}>{s.contact_name || '-'}</td>
                   <td style={{ padding: '16px 12px' }}>{s.phone || '-'}</td>
                   <td style={{ padding: '16px 12px', color: 'var(--cyan)' }}>{s.email || '-'}</td>
@@ -153,9 +167,20 @@ export default function AdminSuppliers() {
               <button onClick={() => setShowModal(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text)', cursor: 'pointer' }}><X size={24} /></button>
             </div>
             <form onSubmit={handleSubmit} style={{ padding: '20px' }}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px' }}>Tên NCC *</label>
-                <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-page)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px' }}>Tên NCC *</label>
+                  <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-page)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px' }}>Hãng (Brand) *</label>
+                  <select required value={formData.brand_id} onChange={e => setFormData({...formData, brand_id: e.target.value})} style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-page)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }}>
+                    <option value="">-- Chọn Hãng --</option>
+                    {brands.map(b => (
+                      <option key={b.id} value={b.id}>{b.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                 <div>

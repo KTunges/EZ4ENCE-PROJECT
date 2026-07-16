@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, File, UploadFile
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, selectinload
 from typing import List, Optional
 import uuid
 from sqlalchemy import or_, func, cast, String, desc
@@ -114,8 +114,8 @@ def get_products(
     query = query.options(
         joinedload(Product.category),
         joinedload(Product.brand),
-        joinedload(Product.images),
-        joinedload(Product.skus).joinedload(ProductSKU.reviews)
+        selectinload(Product.images),
+        selectinload(Product.skus).selectinload(ProductSKU.reviews)
     )
     
     # Sorting

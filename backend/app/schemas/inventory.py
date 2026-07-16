@@ -12,6 +12,7 @@ class SupplierBase(BaseModel):
     email: Optional[EmailStr] = None
     address: Optional[str] = None
     is_active: bool = True
+    brand_id: Optional[str] = None
 
 class SupplierCreate(SupplierBase):
     pass
@@ -74,3 +75,17 @@ class InventorySKUResponse(BaseModel):
     stock_quantity: int
     price: float
     image_url: Optional[str] = None
+    brand_id: Optional[str] = None
+
+class SKUHistoryResponse(BaseModel):
+    receipt_code: str
+    type: str
+    quantity: int
+    unit_price: float
+    total_price: float
+    created_at: datetime
+    created_by: str
+    note: Optional[str] = None
+    
+    model_config = ConfigDict(from_attributes=True)
+

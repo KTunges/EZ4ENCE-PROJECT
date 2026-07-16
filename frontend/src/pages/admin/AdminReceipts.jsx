@@ -1,6 +1,70 @@
-import { useState, useEffect } from 'react';
-import { Plus, Eye, Search, X } from 'lucide-react';
-import { getStockReceipts, createStockReceipt, getSuppliers, getInventorySkus } from '../../services/adminApi';
+import { useState, useEffect, useRef } from 'react';
+import { Plus, Eye, Search, X, Download, ChevronDown } from 'lucide-react';
+import { getStockReceipts, createStockReceipt, getSuppliers, getInventorySkus, exportReceiptExcel } from '../../services/adminApi';
+
+const SearchableSelect = ({ value, onChange, options, placeholder }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const wrapperRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find(o => o.value === value);
+  const displayValue = selectedOption ? selectedOption.label : '';
+  const filteredOptions = options.filter(o => o.label.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <div ref={wrapperRef} style={{ position: 'relative', width: '100%' }}>
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ width: '100%', padding: '8px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '4px', color: 'var(--text)', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+      >
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {displayValue || placeholder}
+        </span>
+        <ChevronDown size={14} style={{ flexShrink: 0, marginLeft: '8px' }} />
+      </div>
+      
+      {isOpen && (
+        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '4px', marginTop: '4px', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+          <div style={{ padding: '8px', borderBottom: '1px solid var(--border)' }}>
+            <input 
+              autoFocus
+              type="text" 
+              placeholder="Tìm kiếm..." 
+              value={search} 
+              onChange={e => setSearch(e.target.value)} 
+              style={{ width: '100%', padding: '6px', background: 'var(--bg-page)', border: '1px solid var(--border)', borderRadius: '4px', color: 'var(--text)', outline: 'none' }}
+            />
+          </div>
+          <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+            {filteredOptions.length === 0 ? (
+              <div style={{ padding: '8px', textAlign: 'center', color: 'var(--text-muted)' }}>Không tìm thấy</div>
+            ) : filteredOptions.map(opt => (
+              <div 
+                key={opt.value}
+                onClick={() => { onChange(opt.value); setIsOpen(false); setSearch(''); }}
+                style={{ padding: '8px', cursor: 'pointer', background: opt.value === value ? 'rgba(0, 229, 255, 0.1)' : 'transparent', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '13px' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                onMouseLeave={e => e.currentTarget.style.background = opt.value === value ? 'rgba(0, 229, 255, 0.1)' : 'transparent'}
+              >
+                {opt.label}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default function AdminReceipts() {
   const [receipts, setReceipts] = useState([]);
@@ -48,15 +112,19 @@ export default function AdminReceipts() {
   }, []);
 
   const handleCreateNew = () => {
-    setFormData({ type: 'IN', supplier_id: '', note: '', items: [] });
+    setFormData({ 
+      type: 'IN', 
+      supplier_id: '', 
+      note: '', 
+      items: [{ sku_id: '', quantity: 1, unit_price: 0 }] 
+    });
     setShowModal(true);
   };
 
   const handleAddItem = () => {
-    if (skus.length === 0) return;
     setFormData({
       ...formData,
-      items: [...formData.items, { sku_id: skus[0].sku_id, quantity: 1, unit_price: 0 }]
+      items: [...formData.items, { sku_id: '', quantity: 1, unit_price: 0 }]
     });
   };
 
@@ -70,8 +138,8 @@ export default function AdminReceipts() {
     const newItems = [...formData.items];
     newItems[index][field] = value;
     
-    // Tự động điền giá nếu xuất kho
-    if (field === 'sku_id' && formData.type === 'OUT') {
+    // Tự động điền giá hiện tại của sản phẩm
+    if (field === 'sku_id') {
       const selectedSku = skus.find(s => s.sku_id === value);
       if (selectedSku) {
         newItems[index].unit_price = selectedSku.price;
@@ -103,6 +171,14 @@ export default function AdminReceipts() {
     const matchType = filterType === 'ALL' || r.type === filterType;
     return matchSearch && matchType;
   });
+
+  const getAvailableSkus = () => {
+    if (formData.type === 'OUT' || !formData.supplier_id) return skus;
+    const supplier = suppliers.find(s => s.id === formData.supplier_id);
+    if (!supplier || !supplier.brand_id) return skus;
+    return skus.filter(sku => sku.brand_id === supplier.brand_id);
+  };
+  const availableSkus = getAvailableSkus();
 
   return (
     <div>
@@ -147,13 +223,14 @@ export default function AdminReceipts() {
                 <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>Tổng tiền</th>
                 <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>Người tạo</th>
                 <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px' }}>Ngày tạo</th>
+                <th style={{ padding: '16px 12px', fontWeight: '600', fontSize: '14px', textAlign: 'right' }}>Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>Đang tải...</td></tr>
+                <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Đang tải...</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>Không có phiếu nào</td></tr>
+                <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>Không có phiếu nào</td></tr>
               ) : filtered.map((r) => (
                 <tr key={r.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                   <td style={{ padding: '16px 12px', fontWeight: 'bold' }}>{r.receipt_code}</td>
@@ -167,6 +244,11 @@ export default function AdminReceipts() {
                   <td style={{ padding: '16px 12px' }}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(r.total_amount)}</td>
                   <td style={{ padding: '16px 12px' }}>{r.created_by}</td>
                   <td style={{ padding: '16px 12px' }}>{new Date(r.created_at).toLocaleString('vi-VN')}</td>
+                  <td style={{ padding: '16px 12px', textAlign: 'right' }}>
+                    <button title="Xuất file Excel (TT133)" onClick={async () => { try { const blob = await exportReceiptExcel(r.id); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${r.receipt_code}.xlsx`; a.click(); window.URL.revokeObjectURL(url); } catch (e) { alert('Lỗi xuất file Excel'); console.error(e); } }} style={{ background: 'rgba(76, 175, 80, 0.1)', border: '1px solid #4caf50', color: '#4caf50', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                      <Download size={14} /> Excel
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -176,7 +258,7 @@ export default function AdminReceipts() {
 
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'var(--bg-card)', width: '100%', maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto', borderRadius: '12px' }}>
+          <div style={{ background: 'var(--bg-card)', width: '100%', maxWidth: '1000px', maxHeight: '90vh', overflowY: 'auto', borderRadius: '12px' }}>
             <div style={{ padding: '20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>Tạo Phiếu Mới</h2>
               <button onClick={() => setShowModal(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text)', cursor: 'pointer' }}><X size={24} /></button>
@@ -229,11 +311,12 @@ export default function AdminReceipts() {
                       {formData.items.map((item, index) => (
                         <tr key={index} style={{ borderBottom: '1px solid var(--border)' }}>
                           <td style={{ padding: '8px' }}>
-                            <select value={item.sku_id} onChange={e => handleItemChange(index, 'sku_id', e.target.value)} style={{ width: '100%', padding: '8px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '4px', color: 'var(--text)' }}>
-                              {skus.map(s => (
-                                <option key={s.sku_id} value={s.sku_id}>[{s.sku_code}] - {s.product_name}</option>
-                              ))}
-                            </select>
+                            <SearchableSelect 
+                              value={item.sku_id}
+                              onChange={val => handleItemChange(index, 'sku_id', val)}
+                              options={availableSkus.map(s => ({ value: s.sku_id, label: `[${s.sku_code}] - ${s.product_name}` }))}
+                              placeholder="-- Chọn sản phẩm --"
+                            />
                           </td>
                           <td style={{ padding: '8px' }}>
                             <input type="number" min="1" required value={item.quantity} onChange={e => handleItemChange(index, 'quantity', parseInt(e.target.value))} style={{ width: '100%', padding: '8px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '4px', color: 'var(--text)' }} />

@@ -16,7 +16,7 @@ export default function AdminProducts() {
 
   const loadProducts = async () => {
     try {
-      const data = await getAdminProducts({ limit: 1000 });
+      const data = await getAdminProducts();
       setProducts(data);
     } catch (error) {
       console.error("Lỗi khi tải sản phẩm:", error);
