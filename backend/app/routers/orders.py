@@ -226,17 +226,22 @@ def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db:
     }
 
 from typing import List
+from sqlalchemy.orm import selectinload, joinedload
 
 @router.get("", response_model=List[OrderResponse])
 def get_user_orders(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    orders = db.query(Order).filter(Order.user_id == current_user.id).order_by(Order.created_at.desc()).all()
+    orders = db.query(Order).filter(Order.user_id == current_user.id).options(
+        selectinload(Order.items).joinedload(OrderItem.sku).joinedload(ProductSKU.product).selectinload(Product.images),
+        selectinload(Order.items).joinedload(OrderItem.sku).selectinload(ProductSKU.images)
+    ).order_by(Order.created_at.desc()).all()
+    
     # add image_url to items
     for order in orders:
         for item in order.items:
-            sku = db.query(ProductSKU).filter(ProductSKU.id == item.sku_id).first()
+            sku = item.sku
             if sku:
                 product = sku.product
-                item.image_url = sku.images[0].url if sku.images else (product.images[0].url if product.images else None)
+                item.image_url = sku.images[0].url if sku.images else (product.images[0].url if product and product.images else None)
     return orders
 
 @router.get("/{order_id}", response_model=OrderResponse)

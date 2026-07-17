@@ -8,6 +8,7 @@ from app.models.category import Category
 from app.models.user import User
 from app.schemas.category import CategoryCreate, CategoryResponse
 from app.routers.auth import get_current_admin
+from app.routers.categories import invalidate_categories_cache
 
 router = APIRouter(prefix="/admin/categories", tags=["Admin Categories"])
 
@@ -32,6 +33,7 @@ def create_category(
     db.add(new_cat)
     db.commit()
     db.refresh(new_cat)
+    invalidate_categories_cache()
     return new_cat
 
 @router.put("/{category_id}", response_model=CategoryResponse)
@@ -58,6 +60,7 @@ def update_category(
     
     db.commit()
     db.refresh(cat)
+    invalidate_categories_cache()
     return cat
 
 @router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -72,4 +75,5 @@ def delete_category(
         
     db.delete(cat)
     db.commit()
+    invalidate_categories_cache()
     return None

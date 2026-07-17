@@ -13,6 +13,7 @@ from app.models.category import Category
 from app.models.brand import Brand
 from app.models.user import User, Role
 from app.routers.auth import get_current_user, get_current_admin
+from app.routers.products import invalidate_public_products_cache
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 from fastapi import UploadFile, File
@@ -131,6 +132,29 @@ class ProductCreateUpdate(BaseModel):
     stock: int = 0
     image_url: Optional[str] = None
     additional_images: Optional[List[str]] = []
+    
+    from pydantic import field_validator
+
+    @field_validator('stock')
+    @classmethod
+    def stock_must_be_non_negative(cls, v):
+        if v < 0:
+            raise ValueError('Số lượng tồn kho không được âm')
+        return v
+    
+    @field_validator('price')
+    @classmethod
+    def price_must_be_positive(cls, v):
+        if v <= 0:
+            raise ValueError('Giá bán phải lớn hơn 0')
+        return v
+    
+    @field_validator('sale_price')
+    @classmethod
+    def sale_price_must_be_non_negative(cls, v):
+        if v is not None and v < 0:
+            raise ValueError('Giá khuyến mãi không được âm')
+        return v
 
 @router.post("/upload-image")
 def upload_admin_image(
@@ -222,6 +246,7 @@ def create_product(
     db.commit()
     db.refresh(new_product)
     _invalidate_products_cache()
+    invalidate_public_products_cache()
     return {"message": "Sản phẩm được tạo thành công", "product_id": new_product.id}
 
 @router.get("/{product_id}")
@@ -303,6 +328,7 @@ def update_product(
     
     db.commit()
     _invalidate_products_cache()
+    invalidate_public_products_cache()
     return {"message": "Cập nhật sản phẩm thành công", "product_id": product.id}
 
 @router.delete("/{product_id}", response_model=dict)
@@ -318,4 +344,5 @@ def delete_product(
     db.delete(product)
     db.commit()
     _invalidate_products_cache()
+    invalidate_public_products_cache()
     return {"message": "Đã xóa sản phẩm"}

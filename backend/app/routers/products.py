@@ -40,6 +40,14 @@ def upload_product_image(product_id: str, file: UploadFile = File(...), db: Sess
     
     return {"message": "Image uploaded successfully", "url": image_url, "image_id": new_image.id}
 
+import time as _time
+_bulk_products_cache = {"data": None, "timestamp": 0}
+_CACHE_TTL = 300
+
+def invalidate_public_products_cache():
+    _bulk_products_cache["data"] = None
+    _bulk_products_cache["timestamp"] = 0
+
 @router.get("/products", response_model=ProductPaginatedResponse)
 def get_products(
     request: Request,
@@ -59,6 +67,16 @@ def get_products(
     Lấy danh sách sản phẩm. Có thể phân trang, lọc theo category, brand, tìm kiếm, 
     và các thông số kỹ thuật động (specifications).
     """
+    is_bulk_fetch = (limit >= 1000 and not category_slug and not brand_slug and not search and min_price is None and max_price is None and not sort and is_on_sale is None)
+    standard_params = {"skip", "limit", "page", "category_slug", "brand_slug", "search", "min_price", "max_price", "sort", "is_on_sale"}
+    has_spec_filters = any(key not in standard_params and request.query_params[key] for key in request.query_params.keys())
+    
+    if is_bulk_fetch and not has_spec_filters:
+        now = _time.time()
+        if _bulk_products_cache["data"] is not None and now - _bulk_products_cache["timestamp"] < _CACHE_TTL:
+            return _bulk_products_cache["data"]
+
+
     query = db.query(Product).filter(Product.is_published == True)
     
     # Cần join trước nếu có filter theo tag
@@ -139,12 +157,18 @@ def get_products(
     skip_calc = skip if skip > 0 else (page - 1) * limit if page > 0 else 0
     products = query.offset(skip_calc).limit(limit).all()
     
-    return {
+    result = {
         "data": products,
         "total": total,
         "page": page,
         "page_size": limit
     }
+    
+    if is_bulk_fetch and not has_spec_filters:
+        _bulk_products_cache["data"] = result
+        _bulk_products_cache["timestamp"] = _time.time()
+        
+    return result
 
 
 @router.get("/products/{slug}", response_model=ProductDetailResponse)

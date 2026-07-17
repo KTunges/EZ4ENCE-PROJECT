@@ -8,6 +8,7 @@ from app.models.brand import Brand
 from app.models.user import User
 from app.schemas.brand import BrandCreate, BrandResponse
 from app.routers.auth import get_current_admin
+from app.routers.brands import invalidate_brands_cache
 
 router = APIRouter(prefix="/admin/brands", tags=["Admin Brands"])
 
@@ -30,6 +31,7 @@ def create_brand(
     db.add(new_brand)
     db.commit()
     db.refresh(new_brand)
+    invalidate_brands_cache()
     return new_brand
 
 @router.put("/{brand_id}", response_model=BrandResponse)
@@ -54,6 +56,7 @@ def update_brand(
     
     db.commit()
     db.refresh(brand)
+    invalidate_brands_cache()
     return brand
 
 @router.delete("/{brand_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -68,4 +71,5 @@ def delete_brand(
         
     db.delete(brand)
     db.commit()
+    invalidate_brands_cache()
     return None

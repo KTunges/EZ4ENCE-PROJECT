@@ -358,6 +358,29 @@ export default function AdminProductForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Frontend validation
+    const stockVal = parseInt(formData.stock);
+    const priceVal = parseFloat(formData.price);
+    const salePriceVal = formData.salePrice ? parseFloat(formData.salePrice) : null;
+    
+    if (isNaN(priceVal) || priceVal <= 0) {
+      alert('Giá bán phải lớn hơn 0!');
+      return;
+    }
+    if (!isNaN(stockVal) && stockVal < 0) {
+      alert('Số lượng tồn kho không được âm!');
+      return;
+    }
+    if (salePriceVal !== null && salePriceVal < 0) {
+      alert('Giá khuyến mãi không được âm!');
+      return;
+    }
+    if (salePriceVal !== null && salePriceVal >= priceVal) {
+      alert('Giá khuyến mãi phải nhỏ hơn giá gốc!');
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
@@ -368,9 +391,9 @@ export default function AdminProductForm() {
         description: formData.description,
         specifications: formData.specs,
         is_published: formData.status === 'ACTIVE',
-        price: parseFloat(formData.price) || 0,
-        sale_price: formData.salePrice ? parseFloat(formData.salePrice) : null,
-        stock: parseInt(formData.stock) || 0,
+        price: priceVal,
+        sale_price: salePriceVal,
+        stock: isNaN(stockVal) ? 0 : Math.max(0, stockVal),
         image_url: formData.imageUrl,
         additional_images: formData.additionalImages
       };
@@ -379,12 +402,12 @@ export default function AdminProductForm() {
         await updateProduct(id, payload);
       } else {
         await createProduct(payload);
-        alert("Thêm sản phẩm thành công!");
+        alert('Thêm sản phẩm thành công!');
       }
       navigate('/admin/products');
     } catch (error) {
-      console.error("Lỗi khi lưu sản phẩm", error);
-      alert("Có lỗi xảy ra khi lưu. Vui lòng kiểm tra console.");
+      console.error('Lỗi khi lưu sản phẩm', error);
+      alert('Có lỗi xảy ra khi lưu. Vui lòng kiểm tra console.');
     } finally {
       setIsLoading(false);
     }
@@ -529,7 +552,7 @@ export default function AdminProductForm() {
             
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>Giá gốc (VNĐ) *</label>
-              <input type="number" name="price" value={formData.price} onChange={handleChange} required style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '15px' }} placeholder="0" />
+              <input type="number" name="price" value={formData.price} onChange={handleChange} required min="1" style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '15px' }} placeholder="0" />
             </div>
             
             <div style={{ marginBottom: '16px' }}>
@@ -539,7 +562,7 @@ export default function AdminProductForm() {
 
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>Số lượng tồn kho *</label>
-              <input type="number" name="stock" value={formData.stock} onChange={handleChange} required style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '15px' }} placeholder="0" />
+              <input type="number" name="stock" value={formData.stock} onChange={handleChange} required min="0" style={{ width: '100%', padding: '12px 16px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '15px' }} placeholder="0" />
             </div>
 
             <div>

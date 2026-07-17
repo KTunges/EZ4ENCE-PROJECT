@@ -81,7 +81,7 @@ export default function BentoBanners() {
         .bento-item img {
           width: 100%;
           height: 100%;
-          object-fit: cover;
+          object-fit: fill;
           display: block;
           transition: transform 0.4s ease;
         }
@@ -95,7 +95,7 @@ export default function BentoBanners() {
           left: 0;
           width: 100%;
           height: 100%;
-          object-fit: cover;
+          object-fit: fill;
         }
         .banner-dots {
           position: absolute;

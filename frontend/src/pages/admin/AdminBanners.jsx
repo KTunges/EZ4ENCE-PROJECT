@@ -128,7 +128,7 @@ export default function AdminBanners() {
                 <tr key={banner.id} style={{ borderBottom: '1px solid var(--border)' }}>
                   <td style={{ padding: '16px' }}>
                     <div style={{ width: '200px', height: '80px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)', background: '#000' }}>
-                      <img src={banner.image_url} alt={banner.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={banner.image_url} alt={banner.title} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                     </div>
                   </td>
                   <td style={{ padding: '16px' }}>
@@ -189,7 +189,7 @@ export default function AdminBanners() {
                   onClick={() => document.getElementById('banner-upload').click()}
                 >
                   {imagePreview ? (
-                    <img src={imagePreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={imagePreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   ) : (
                     <div style={{ color: 'var(--text-muted)' }}>
                       <UploadCloud size={40} style={{ marginBottom: '12px', color: 'var(--cyan)' }} />

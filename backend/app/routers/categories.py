@@ -20,12 +20,29 @@ def build_tree(categories, parent_id=None):
             tree.append(cat_dict)
     return tree
 
+import time as _time
+
+_categories_cache = {"data": None, "timestamp": 0}
+_CACHE_TTL = 300  # 5 minutes
+
+def invalidate_categories_cache():
+    _categories_cache["data"] = None
+    _categories_cache["timestamp"] = 0
+
 @router.get("/categories", response_model=List[CategoryTreeResponse])
 def get_categories(db: Session = Depends(get_db)):
     """
-    Lấy danh sách cây danh mục (Categories Tree)
+    Lấy danh sách cây danh mục (Categories Tree) - Có Cache
     """
+    now = _time.time()
+    if _categories_cache["data"] is not None and now - _categories_cache["timestamp"] < _CACHE_TTL:
+        return _categories_cache["data"]
+
     categories = db.query(Category).all()
     # Build hierarchical tree
     tree = build_tree(categories, parent_id=None)
+    
+    _categories_cache["data"] = tree
+    _categories_cache["timestamp"] = now
+    
     return tree
