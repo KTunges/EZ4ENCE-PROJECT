@@ -51,7 +51,7 @@ export default function FloatingSocialChat() {
     },
     {
       name: 'Zalo',
-      icon: <div style={{ fontSize: '14px', fontWeight: 'bold', fontFamily: 'Arial' }}>Zalo</div>,
+      icon: <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo Logo" style={{ width: '24px', height: '24px', objectFit: 'contain' }} />,
       color: '#0068FF',
       url: `https://zalo.me/${ZALO_PHONE}`,
       desc: 'Chat qua Zalo',

@@ -215,7 +215,7 @@ export default function Home() {
       <section className="container relative z-10" style={{ padding: '0 28px 100px' }}>
         <div
           className="section-header"
-          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px', gap: '10px' }}
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px', gap: '8px' }}
         >
           <span className="section-tag">// HOT DEAL</span>
           <h2 className="section-title glitch-text" data-text="Sản Phẩm Bán Chạy">Sản Phẩm Bán Chạy</h2>
