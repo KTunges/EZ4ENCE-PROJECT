@@ -378,9 +378,14 @@ const paginatedProducts = productsList;
                   </div>
                 </div>
                 <div className="products-grid-container grid-view" style={{ gap: '16px' }}>
-                  {promoProducts.map((item, index) => (
-                    <ProductCard key={`promo-${item.id}`} product={item} index={index} />
-                  ))}
+                  {promoProducts.length === 0
+                    ? Array.from({ length: 4 }).map((_, i) => (
+                        <ProductSkeleton key={`promo-sk-${i}`} index={i} />
+                      ))
+                    : promoProducts.map((item, index) => (
+                        <ProductCard key={`promo-${item.id}`} product={item} index={index} />
+                      ))
+                  }
                 </div>
               </section>
 
@@ -392,9 +397,14 @@ const paginatedProducts = productsList;
                   </div>
                 </div>
                 <div className="products-grid-container grid-view" style={{ gap: '16px' }}>
-                  {hotProducts.map((item, index) => (
-                    <ProductCard key={`hot-${item.id}`} product={item} index={index} />
-                  ))}
+                  {hotProducts.length === 0
+                    ? Array.from({ length: 4 }).map((_, i) => (
+                        <ProductSkeleton key={`hot-sk-${i}`} index={i} />
+                      ))
+                    : hotProducts.map((item, index) => (
+                        <ProductCard key={`hot-${item.id}`} product={item} index={index} />
+                      ))
+                  }
                 </div>
               </section>
             </div>

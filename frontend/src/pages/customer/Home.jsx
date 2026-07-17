@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import MarqueeBanner from '../../components/ui/MarqueeBanner';
 import ProductCard from '../../components/ui/ProductCard';
+import ProductSkeleton from '../../components/ui/ProductSkeleton';
 import { mapProduct } from '../../utils/productMapper';
 import CyberBackground from '../../components/ui/CyberBackground';
 import FullWidthBanner from '../../components/ui/FullWidthBanner';
@@ -222,11 +223,18 @@ export default function Home() {
           <p className="section-desc">Những sản phẩm được game thủ yêu thích nhất tháng này.</p>
         </div>
         <div className="products-grid">
-          {bestSellers.map((item, index) => (
-            <div key={item.id} style={{ display: 'flex' }}>
-              <ProductCard product={item} index={index} />
-            </div>
-          ))}
+          {bestSellers.length === 0
+            ? Array.from({ length: 5 }).map((_, i) => (
+                <div key={`skeleton-${i}`} style={{ display: 'flex' }}>
+                  <ProductSkeleton index={i} />
+                </div>
+              ))
+            : bestSellers.map((item, index) => (
+                <div key={item.id} style={{ display: 'flex' }}>
+                  <ProductCard product={item} index={index} />
+                </div>
+              ))
+          }
         </div>
       </section>
 
