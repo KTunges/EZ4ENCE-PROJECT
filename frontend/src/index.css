@@ -3130,6 +3130,7 @@ textarea.checkout-input {
   flex-wrap: wrap;
   background: var(--bg-surface);
   border: 1px solid var(--border);
+  overflow: visible;
 }
 
 .filter-search-wrapper {
@@ -3241,7 +3242,7 @@ textarea.checkout-input {
   backdrop-filter: blur(8px);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  z-index: 100;
+  z-index: 9999;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }

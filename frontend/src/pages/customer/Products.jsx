@@ -411,7 +411,7 @@ const paginatedProducts = productsList;
           )}
 
           {/* ── FILTER BAR ── */}
-          <section id="products-filter-bar" className="filter-bar" style={{ marginBottom: '24px', paddingTop: '20px' }}>
+          <section id="products-filter-bar" className="filter-bar" style={{ marginBottom: '24px', paddingTop: '20px', position: 'relative', zIndex: 100 }}>
         <div className="products-filter-bar glass">
           {/* Desktop Filters */}
           <div className="filter-controls-desktop" style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
