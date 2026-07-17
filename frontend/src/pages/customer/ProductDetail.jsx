@@ -44,8 +44,8 @@ export default function ProductDetail() {
           skus: data.skus?.length > 0 ? data.skus.map(sku => ({
             id: sku.id,
             label: sku.sku_code || 'Tiêu chuẩn',
-            price: sku.price || 0,
-            originalPrice: sku.promotional_price,
+            price: sku.promotional_price || sku.price || 0,
+            originalPrice: sku.promotional_price ? sku.price : null,
             stock: sku.stock_quantity || 0
           })) : [{ id: 'default', label: 'Tiêu chuẩn', price: 0, originalPrice: null, stock: 0 }],
           reviews: data.skus?.length > 0 

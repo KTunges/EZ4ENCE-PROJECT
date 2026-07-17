@@ -65,7 +65,26 @@ def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db:
         if sku.stock_quantity < req.buy_now_item.quantity:
             raise HTTPException(status_code=400, detail=f"Sản phẩm {product.name} không đủ số lượng trong kho")
             
-        price_at_purchase = sku.price
+        # Calculate correct price
+        from app.models.flash_sale import FlashSale, FlashSaleItem
+        from datetime import datetime
+        now = datetime.now()
+        active_flash_sale_item = db.query(FlashSaleItem).join(FlashSale).filter(
+            FlashSale.is_active == True,
+            FlashSale.start_time <= now,
+            FlashSale.end_time > now,
+            FlashSaleItem.product_sku_id == sku.id,
+            FlashSaleItem.sold < FlashSaleItem.quantity
+        ).first()
+
+        if active_flash_sale_item:
+            price_at_purchase = active_flash_sale_item.flash_price
+            active_flash_sale_item.sold += req.buy_now_item.quantity
+        elif sku.promotional_price and sku.promotional_price < sku.price:
+            price_at_purchase = sku.promotional_price
+        else:
+            price_at_purchase = sku.price
+
         subtotal += price_at_purchase * req.buy_now_item.quantity
         
         # Trừ kho
@@ -92,7 +111,26 @@ def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db:
             if sku.stock_quantity < cart_item.quantity:
                 raise HTTPException(status_code=400, detail=f"Sản phẩm {product.name} không đủ số lượng trong kho")
                 
-            price_at_purchase = sku.price
+            # Calculate correct price
+            from app.models.flash_sale import FlashSale, FlashSaleItem
+            from datetime import datetime
+            now = datetime.now()
+            active_flash_sale_item = db.query(FlashSaleItem).join(FlashSale).filter(
+                FlashSale.is_active == True,
+                FlashSale.start_time <= now,
+                FlashSale.end_time > now,
+                FlashSaleItem.product_sku_id == sku.id,
+                FlashSaleItem.sold < FlashSaleItem.quantity
+            ).first()
+
+            if active_flash_sale_item:
+                price_at_purchase = active_flash_sale_item.flash_price
+                active_flash_sale_item.sold += cart_item.quantity
+            elif sku.promotional_price and sku.promotional_price < sku.price:
+                price_at_purchase = sku.promotional_price
+            else:
+                price_at_purchase = sku.price
+
             subtotal += price_at_purchase * cart_item.quantity
             
             # Trừ kho

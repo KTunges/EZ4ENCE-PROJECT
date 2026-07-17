@@ -4,7 +4,7 @@ import {
   LayoutDashboard, ShoppingCart, Package, Tags, Award, Ticket, 
   Image as ImageIcon, Users, UserCog, ShieldCheck, Mail, MessageSquare, 
   Send, Truck, ArrowDownToLine, ArrowUpFromLine, ClipboardList, 
-  Search, Star, RefreshCcw, FileText, LogOut, Menu, X, Bell
+  Search, Star, RefreshCcw, FileText, LogOut, Menu, X, Bell, Zap
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -164,6 +164,7 @@ export default function AdminLayout() {
       { id: 'brands', label: 'Quản lý Thương hiệu', icon: <Award size={18} />, path: '/admin/brands', active: hasAccess('/admin/brands') }
     ]},
     { section: 'MARKETING', items: [
+      { id: 'flash-sales', label: 'Flash Sale', icon: <Zap size={18} />, path: '/admin/flash-sales', active: hasAccess('/admin/dashboard') },
       { id: 'coupons', label: 'Mã giảm giá', icon: <Ticket size={18} />, path: '/admin/coupons', active: hasAccess('/admin/coupons') },
       { id: 'banners', label: 'Quản lý Banner', icon: <ImageIcon size={18} />, path: '/admin/banners', active: hasAccess('/admin/banners') },
       { id: 'news', label: 'Tin tức', icon: <FileText size={18} />, path: '/admin/news', active: hasAccess('/admin/dashboard') },

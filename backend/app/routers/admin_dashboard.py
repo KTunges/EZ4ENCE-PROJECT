@@ -138,6 +138,54 @@ def get_dashboard_stats(period: str = "week", db: Session = Depends(get_db)):
         order_by(ProductSKU.stock_quantity.asc()).limit(5).all()
     low_stock_items = [{"product_name": p, "sku_code": sc, "stock": st} for p, sc, st in low_stock_db]
 
+    # 10. Average Order Value
+    aov = total_revenue / total_orders if total_orders > 0 else 0
+
+    # 11. New Customers in period
+    today = datetime.now().date()
+    if period == "year":
+        start_date = today.replace(day=1) - timedelta(days=365)
+    elif period == "month":
+        start_date = today - timedelta(days=29)
+    else:
+        start_date = today - timedelta(days=6)
+        
+    new_customers = db.query(User).filter(
+        User.role == 'USER',
+        func.date(User.created_at) >= start_date
+    ).count()
+
+    # 12. Recent Reviews
+    from app.models.review import Review
+    recent_reviews_db = db.query(Review, User.full_name, Product.name).\
+        join(User, Review.user_id == User.id).\
+        join(ProductSKU, Review.sku_id == ProductSKU.id).\
+        join(Product, ProductSKU.product_id == Product.id).\
+        order_by(Review.created_at.desc()).limit(5).all()
+        
+    recent_reviews = []
+    for r, u_name, p_name in recent_reviews_db:
+        recent_reviews.append({
+            "id": r.id,
+            "user_name": u_name,
+            "product_name": p_name,
+            "rating": r.rating,
+            "comment": r.comment,
+            "created_at": r.created_at.isoformat()
+        })
+
+    # 13. Sales by Category
+    from app.models.category import Category
+    sales_by_category_db = db.query(Category.name, func.sum(OrderItem.price_at_purchase * OrderItem.quantity)).\
+        join(Product, Category.id == Product.category_id).\
+        join(ProductSKU, Product.id == ProductSKU.product_id).\
+        join(OrderItem, ProductSKU.id == OrderItem.sku_id).\
+        join(Order, OrderItem.order_id == Order.id).\
+        filter(Order.status == 'DELIVERED', func.date(Order.created_at) >= start_date).\
+        group_by(Category.name).all()
+        
+    sales_by_category = [{"name": cat_name, "value": float(sales or 0)} for cat_name, sales in sales_by_category_db]
+
     return {
         "totalRevenue": total_revenue,
         "totalOrders": total_orders,
@@ -147,5 +195,9 @@ def get_dashboard_stats(period: str = "week", db: Session = Depends(get_db)):
         "recentOrders": latest_orders,
         "orderStatusDistribution": order_status_distribution,
         "topProducts": top_products,
-        "lowStockItems": low_stock_items
+        "lowStockItems": low_stock_items,
+        "averageOrderValue": aov,
+        "newCustomers": new_customers,
+        "recentReviews": recent_reviews,
+        "salesByCategory": sales_by_category
     }

@@ -14,6 +14,7 @@ from app.models.inventory import Supplier, StockReceipt, StockReceiptItem
 from app.models.news import News
 from app.models.chat import ChatSession, ChatMessage
 from app.models.notification import Notification, NotificationType
+from app.models.flash_sale import FlashSale, FlashSaleItem
 
 __all__ = [
     "Base",
@@ -30,5 +31,6 @@ __all__ = [
     "CompatibilityOverride",
     "News",
     "ChatSession", "ChatMessage",
-    "Notification", "NotificationType"
+    "Notification", "NotificationType",
+    "FlashSale", "FlashSaleItem"
 ]

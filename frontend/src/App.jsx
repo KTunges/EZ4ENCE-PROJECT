@@ -45,6 +45,7 @@ const AdminInventory = lazy(() => import('./pages/admin/AdminInventory'));
 const AdminReceipts = lazy(() => import('./pages/admin/AdminReceipts'));
 const AdminStaffs = lazy(() => import('./pages/admin/AdminStaffs'));
 const AdminNews = lazy(() => import('./pages/admin/AdminNews'));
+const AdminFlashSales = lazy(() => import('./pages/admin/AdminFlashSales'));
 const AdminMailchimp = lazy(() => import('./pages/admin/AdminMailchimp'));
 const AdminChat = lazy(() => import('./pages/admin/AdminChat'));
 
@@ -117,6 +118,7 @@ function App() {
                         <Route path="chat" element={<AdminChat />} />
                         <Route path="news" element={<AdminNews />} />
                         <Route path="suppliers" element={<AdminSuppliers />} />
+                        <Route path="flash-sales" element={<AdminFlashSales />} />
                         <Route path="inventory" element={<AdminInventory />} />
                         <Route path="receipts" element={<AdminReceipts />} />
                         {/* Các route tương lai sẽ thêm vào đây */}

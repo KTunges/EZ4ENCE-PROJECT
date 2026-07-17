@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 
-const ProductCard = React.memo(({ product, index = 0 }) => {
+const ProductCard = React.memo(({ product, index = 0, compact = false }) => {
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   
@@ -71,15 +71,15 @@ const ProductCard = React.memo(({ product, index = 0 }) => {
       </Link>
 
       {/* Info */}
-      <div className="product-card-info">
-        {product.brand && <span className="product-card-brand">{product.brand}</span>}
+      <div className="product-card-info" style={compact ? { padding: '12px 12px 16px', display: 'flex', flexDirection: 'column', flex: 1 } : {}}>
+        {!compact && product.brand && <span className="product-card-brand">{product.brand}</span>}
 
-        <Link to={`/products/${product.slug}`} className="product-card-name">
+        <Link to={`/products/${product.slug}`} className="product-card-name" style={compact ? { WebkitLineClamp: 2, marginBottom: '8px', minHeight: '2.8em' } : {}}>
           {product.name}
         </Link>
 
         {/* Specs Pills */}
-        {product.specs && product.specs.length > 0 && (
+        {!compact && product.specs && product.specs.length > 0 && (
           <div className="product-card-specs">
             {product.specs.slice(0, 2).map((spec, idx) => (
               <span key={idx} className="spec-pill" style={{ display: 'inline-block', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{spec}</span>
@@ -88,25 +88,27 @@ const ProductCard = React.memo(({ product, index = 0 }) => {
         )}
 
         {/* Rating */}
-        <div className="product-card-rating">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <Star
-              key={star}
-              size={13}
-              fill={star <= (product.rating || 0) ? 'var(--cyan)' : 'none'}
-              stroke={star <= (product.rating || 0) ? 'var(--cyan)' : 'var(--text-dim)'}
-            />
-          ))}
-          {product.reviewCount > 0 && (
-            <span className="rating-count">({product.reviewCount})</span>
-          )}
-          {product.soldCount > 0 && (
-            <span className="rating-count" style={{ marginLeft: '6px', paddingLeft: '6px', borderLeft: '1px solid var(--border)' }}>Đã bán {product.soldCount}</span>
-          )}
-        </div>
+        {!compact && (
+          <div className="product-card-rating">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                size={13}
+                fill={star <= (product.rating || 0) ? 'var(--cyan)' : 'none'}
+                stroke={star <= (product.rating || 0) ? 'var(--cyan)' : 'var(--text-dim)'}
+              />
+            ))}
+            {product.reviewCount > 0 && (
+              <span className="rating-count">({product.reviewCount})</span>
+            )}
+            {product.soldCount > 0 && (
+              <span className="rating-count" style={{ marginLeft: '6px', paddingLeft: '6px', borderLeft: '1px solid var(--border)' }}>Đã bán {product.soldCount}</span>
+            )}
+          </div>
+        )}
 
         {/* Price & Stock */}
-        <div className="product-card-price-row" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+        <div className="product-card-price-row" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginTop: 'auto' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: '8px' }}>
             <span className="product-card-price">{formatPrice(product.price)}</span>
             {product.originalPrice && product.originalPrice > product.price && (

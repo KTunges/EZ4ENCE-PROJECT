@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import MarqueeBanner from '../../components/ui/MarqueeBanner';
 import ProductCard from '../../components/ui/ProductCard';
 import ProductSkeleton from '../../components/ui/ProductSkeleton';
+import FlashSaleBlock from '../../components/ui/FlashSaleBlock';
 import { mapProduct } from '../../utils/productMapper';
 import CyberBackground from '../../components/ui/CyberBackground';
 import FullWidthBanner from '../../components/ui/FullWidthBanner';
@@ -78,6 +79,7 @@ const features = [
 
 export default function Home() {
   const [bestSellers, setBestSellers] = useState([]);
+  const [newProducts, setNewProducts] = useState([]);
   const [newsList, setNewsList] = useState([]);
 
   useEffect(() => {
@@ -90,6 +92,13 @@ export default function Home() {
       .then(res => res.json().then(d => d.data || d))
       .then(data => {
         setBestSellers(data.map(mapProduct));
+      })
+      .catch(console.error);
+
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/products?sort=newest&limit=10`)
+      .then(res => res.json().then(d => d.data || d))
+      .then(data => {
+        setNewProducts(data.map(mapProduct));
       })
       .catch(console.error);
   }, []);
@@ -211,6 +220,37 @@ export default function Home() {
         fallbackTitle="SETUP MƠ ƯỚC"
         fallbackDesc="Trải nghiệm không gian giải trí đỉnh cao với các thiết bị Gaming Gear xịn xò nhất từ EZ4GEAR."
       />
+
+      {/* ── FLASH SALE ── */}
+      <section className="container relative z-10" style={{ padding: '0 28px 40px' }}>
+        <FlashSaleBlock />
+      </section>
+
+      {/* ── NEW PRODUCTS ── */}
+      <section className="container relative z-10" style={{ padding: '0 28px 100px' }}>
+        <div
+          className="section-header"
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '40px', gap: '8px' }}
+        >
+          <span className="section-tag">// MỚI RA MẮT</span>
+          <h2 className="section-title glitch-text" data-text="Sản Phẩm Mới">Sản Phẩm Mới</h2>
+          <p className="section-desc">Những siêu phẩm công nghệ vừa cập bến EZ4ENCE.</p>
+        </div>
+        <div className="products-grid">
+          {newProducts.length === 0
+            ? Array.from({ length: 5 }).map((_, i) => (
+                <div key={`skeleton-${i}`} style={{ display: 'flex' }}>
+                  <ProductSkeleton index={i} />
+                </div>
+              ))
+            : newProducts.map((item, index) => (
+                <div key={item.id} style={{ display: 'flex' }}>
+                  <ProductCard product={item} index={index} />
+                </div>
+              ))
+          }
+        </div>
+      </section>
 
       {/* ── FEATURED PRODUCTS placeholder ── */}
       <section className="container relative z-10" style={{ padding: '0 28px 100px' }}>

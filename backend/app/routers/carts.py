@@ -22,7 +22,7 @@ def get_or_create_cart(db: Session, user_id: str) -> Cart:
 
 @router.get("", response_model=CartResponse)
 def get_cart(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    cart = get_or_create_cart(db, current_user.id)
+    cart = get_or_create_cart(db, str(current_user.id))
     
     # Tính tổng
     total_amount = 0
@@ -36,8 +36,25 @@ def get_cart(db: Session = Depends(get_db), current_user: User = Depends(get_cur
         sku = item.sku
         product = sku.product
         
-        # Determine price
-        current_price = sku.price
+        # Determine price (check flash sale first, then promotional, then regular)
+        from app.models.flash_sale import FlashSale, FlashSaleItem
+        from datetime import datetime
+        
+        now = datetime.now()
+        active_flash_sale_item = db.query(FlashSaleItem).join(FlashSale).filter(
+            FlashSale.is_active == True,
+            FlashSale.start_time <= now,
+            FlashSale.end_time > now,
+            FlashSaleItem.product_sku_id == sku.id,
+            FlashSaleItem.sold < FlashSaleItem.quantity
+        ).first()
+
+        if active_flash_sale_item:
+            current_price = active_flash_sale_item.flash_price
+        elif sku.promotional_price and sku.promotional_price < sku.price:
+            current_price = sku.promotional_price
+        else:
+            current_price = sku.price
         
         total_amount += current_price * item.quantity
         total_items += item.quantity
@@ -55,7 +72,8 @@ def get_cart(db: Session = Depends(get_db), current_user: User = Depends(get_cur
             "product_name": product.name,
             "product_slug": product.slug,
             "sku_code": sku.sku_code,
-            "price": sku.price,
+            "price": current_price,
+            "original_price": sku.price,
             "promotional_price": sku.promotional_price,
             "stock_quantity": sku.stock_quantity,
             "image_url": img_url
@@ -73,7 +91,7 @@ def get_cart(db: Session = Depends(get_db), current_user: User = Depends(get_cur
 
 @router.post("/items")
 def add_item_to_cart(req: CartItemAddRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    cart = get_or_create_cart(db, current_user.id)
+    cart = get_or_create_cart(db, str(current_user.id))
     
     # Kiểm tra tồn tại sku
     sku = db.query(ProductSKU).filter(ProductSKU.id == req.sku_id).first()
@@ -105,7 +123,7 @@ def add_item_to_cart(req: CartItemAddRequest, db: Session = Depends(get_db), cur
 
 @router.put("/items/{item_id}")
 def update_cart_item(item_id: str, req: CartItemUpdateRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    cart = get_or_create_cart(db, current_user.id)
+    cart = get_or_create_cart(db, str(current_user.id))
     item = db.query(CartItem).filter(CartItem.id == item_id, CartItem.cart_id == cart.id).first()
     
     if not item:
@@ -124,7 +142,7 @@ def update_cart_item(item_id: str, req: CartItemUpdateRequest, db: Session = Dep
 
 @router.delete("/items/{item_id}")
 def remove_cart_item(item_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    cart = get_or_create_cart(db, current_user.id)
+    cart = get_or_create_cart(db, str(current_user.id))
     item = db.query(CartItem).filter(CartItem.id == item_id, CartItem.cart_id == cart.id).first()
     
     if not item:

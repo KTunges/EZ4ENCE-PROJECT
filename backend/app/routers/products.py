@@ -41,7 +41,7 @@ def upload_product_image(product_id: str, file: UploadFile = File(...), db: Sess
     return {"message": "Image uploaded successfully", "url": image_url, "image_id": new_image.id}
 
 import time as _time
-_bulk_products_cache = {"data": None, "timestamp": 0}
+_bulk_products_cache: dict = {"data": None, "timestamp": 0}
 _CACHE_TTL = 300
 
 def invalidate_public_products_cache():
@@ -190,4 +190,26 @@ def get_product_detail(slug: str, db: Session = Depends(get_db)):
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
         
+    # Check if there are active flash sales for any of this product's SKUs
+    from app.models.flash_sale import FlashSale, FlashSaleItem
+    from datetime import datetime
+    
+    now = datetime.now()
+    sku_ids = [sku.id for sku in product.skus]
+    
+    if sku_ids:
+        active_flash_sales = db.query(FlashSaleItem).join(FlashSale).filter(
+            FlashSale.is_active == True,
+            FlashSale.start_time <= now,
+            FlashSale.end_time > now,
+            FlashSaleItem.product_sku_id.in_(sku_ids),
+            FlashSaleItem.sold < FlashSaleItem.quantity
+        ).all()
+        
+        # Override promotional price dynamically
+        flash_sale_map = {item.product_sku_id: item.flash_price for item in active_flash_sales}
+        for sku in product.skus:
+            if sku.id in flash_sale_map:
+                sku.promotional_price = flash_sale_map[sku.id]
+                
     return product

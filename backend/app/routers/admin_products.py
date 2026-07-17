@@ -23,7 +23,7 @@ router = APIRouter(prefix="/admin/products", tags=["Admin Products"])
 
 # Simple in-memory cache for product list
 import time as _time
-_products_cache = {"data": None, "timestamp": 0}
+_products_cache: dict = {"data": None, "timestamp": 0}
 _CACHE_TTL = 30  # seconds
 
 
@@ -115,6 +115,50 @@ def get_admin_products_list(
         _products_cache["data"] = result
         _products_cache["timestamp"] = now
 
+    return result
+
+
+@router.get("/search-skus")
+def search_products_with_skus(
+    search: str = "",
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin)
+):
+    """
+    Tìm sản phẩm kèm danh sách SKU đầy đủ (id, sku_code, price, stock).
+    Dùng cho Flash Sale picker.
+    """
+    from sqlalchemy.orm import joinedload
+    
+    query = db.query(Product).options(
+        joinedload(Product.skus),
+        joinedload(Product.images)
+    )
+    
+    if search:
+        query = query.filter(Product.name.ilike(f"%{search}%"))
+    
+    products = query.order_by(Product.created_at.desc()).limit(30).all()
+    
+    result = []
+    for p in products:
+        skus_data = []
+        for sku in p.skus:
+            skus_data.append({
+                "id": sku.id,
+                "sku_code": sku.sku_code,
+                "price": float(sku.price),
+                "promotional_price": float(sku.promotional_price) if sku.promotional_price else None,
+                "stock_quantity": sku.stock_quantity
+            })
+        
+        result.append({
+            "id": p.id,
+            "name": p.name,
+            "image_url": p.images[0].url if p.images else "",
+            "skus": skus_data
+        })
+    
     return result
 
 

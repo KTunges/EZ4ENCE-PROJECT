@@ -3,7 +3,7 @@ import axios from 'axios';
 const VITE_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const API_URL = VITE_API_URL.endsWith('/api') ? VITE_API_URL : `${VITE_API_URL}/api`;
 
-const adminApi = axios.create({
+export const adminApi = axios.create({
   baseURL: API_URL,
 });
 

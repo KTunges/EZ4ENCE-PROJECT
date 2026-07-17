@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { DollarSign, Users, ShoppingCart, Package, ArrowUpRight, ArrowDownRight, ChevronDown } from 'lucide-react';
+import { DollarSign, Users, ShoppingCart, Package, ArrowUpRight, ArrowDownRight, ChevronDown, Star, MessageSquare, Tag } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, PieChart, Pie, Cell } from 'recharts';
 import { getDashboardStats } from '../../services/adminApi';
 import { downloadReport } from '../../utils/exportUtils';
@@ -15,7 +15,11 @@ export default function Dashboard() {
     recentOrders: [],
     orderStatusDistribution: [],
     topProducts: [],
-    lowStockItems: []
+    lowStockItems: [],
+    averageOrderValue: 0,
+    newCustomers: 0,
+    recentReviews: [],
+    salesByCategory: []
   });
 
   const [loading, setLoading] = useState(true);
@@ -50,10 +54,10 @@ export default function Dashboard() {
   };
 
   const stats = [
-    { title: 'Tổng doanh thu', value: formatCurrency(dashboardData.totalRevenue), trend: '+12.5%', isPositive: true, icon: <DollarSign size={24} /> },
-    { title: 'Tổng đơn hàng', value: dashboardData.totalOrders.toString(), trend: '+5.2%', isPositive: true, icon: <ShoppingCart size={24} /> },
-    { title: 'Khách hàng', value: dashboardData.totalCustomers?.toString() || '0', trend: '+1.4%', isPositive: true, icon: <Users size={24} /> },
-    { title: 'Sản phẩm', value: dashboardData.activeProducts.toString(), trend: '+0.0%', isPositive: true, icon: <Package size={24} /> }
+    { title: 'Tổng doanh thu', value: formatCurrency(dashboardData.totalRevenue), trend: 'Doanh thu thuần', isPositive: true, icon: <DollarSign size={24} /> },
+    { title: 'Giá trị TB/Đơn', value: formatCurrency(dashboardData.averageOrderValue || 0), trend: 'Giá trị trung bình', isPositive: true, icon: <ShoppingCart size={24} /> },
+    { title: 'Đơn hàng', value: dashboardData.totalOrders.toString(), trend: 'Tổng số đơn', isPositive: true, icon: <Package size={24} /> },
+    { title: 'Khách hàng mới', value: `+${dashboardData.newCustomers || 0}`, trend: `Tổng: ${dashboardData.totalCustomers}`, isPositive: true, icon: <Users size={24} /> }
   ];
 
   if (loading) {
@@ -290,6 +294,78 @@ export default function Dashboard() {
                     Còn {item.stock}
                   </div>
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Row 4: Sales by Category & Recent Reviews */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
+        <div className="glass" style={{ padding: '24px', borderRadius: '12px', minHeight: '300px', display: 'flex', flexDirection: 'column' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Tag size={20} className="text-cyan" /> Doanh thu theo danh mục
+          </h2>
+          <div style={{ width: '100%', height: '220px' }}>
+            {dashboardData.salesByCategory && dashboardData.salesByCategory.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={dashboardData.salesByCategory}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                    nameKey="name"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    labelLine={{ stroke: 'var(--text-muted)', strokeWidth: 1 }}
+                  >
+                    {dashboardData.salesByCategory.map((entry, index) => {
+                      const COLORS = ['#38bdf8', '#a855f7', '#f43f5e', '#facc15', '#22c55e', '#64748b'];
+                      return <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />;
+                    })}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value) => formatCurrency(value)}
+                    contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', border: '1px solid var(--border)', borderRadius: '8px' }}
+                    itemStyle={{ color: '#fff' }}
+                    labelStyle={{ color: '#fff', fontWeight: 'bold' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Không có dữ liệu</div>
+            )}
+          </div>
+        </div>
+
+        <div className="glass" style={{ padding: '24px', borderRadius: '12px', minHeight: '300px' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <MessageSquare size={20} className="text-cyan" /> Đánh giá gần đây
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {(!dashboardData.recentReviews || dashboardData.recentReviews.length === 0) ? (
+              <div style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '20px 0' }}>Chưa có đánh giá nào</div>
+            ) : dashboardData.recentReviews.map((review, idx) => (
+              <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '6px', paddingBottom: '12px', borderBottom: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '13px' }}>{review.user_name}</div>
+                  <div style={{ display: 'flex', gap: '2px', color: '#fbbf24' }}>
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={12} fill={i < review.rating ? 'currentColor' : 'none'} stroke={i < review.rating ? 'currentColor' : 'var(--text-muted)'} />
+                    ))}
+                  </div>
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  Sản phẩm: {review.product_name}
+                </div>
+                {review.comment && (
+                  <div style={{ fontSize: '13px', fontStyle: 'italic', background: 'rgba(255,255,255,0.05)', padding: '8px', borderRadius: '6px', marginTop: '4px' }}>
+                    "{review.comment}"
+                  </div>
+                )}
               </div>
             ))}
           </div>

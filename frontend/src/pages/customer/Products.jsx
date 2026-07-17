@@ -4,7 +4,9 @@ import { SlidersHorizontal, Grid3X3, List, ChevronLeft, ChevronRight, X, Filter 
 import { motion, AnimatePresence } from 'framer-motion';
 import CyberBackground from '../../components/ui/CyberBackground';
 import ProductCard from '../../components/ui/ProductCard';
+import PageSkeleton from '../../components/ui/PageSkeleton';
 import ProductSkeleton from '../../components/ui/ProductSkeleton';
+import FlashSaleBlock from '../../components/ui/FlashSaleBlock';
 import { mapProduct } from '../../utils/productMapper';
 import CustomSelect from '../../components/ui/CustomSelect';
 import CategorySidebar from '../../components/layout/CategorySidebar';
@@ -370,30 +372,13 @@ const paginatedProducts = productsList;
           {/* ── PROMO & HOT BLOCKS ── */}
           {showDashboard && (
             <div className="products-dashboard-blocks" style={{ marginBottom: '40px' }}>
-              <section className="home-section">
-                <div className="section-header">
-                  <div className="section-header-left">
-                    <span className="section-tag">// FLASH SALE</span>
-                    <h2 className="section-title glitch-text" data-text="Sản Phẩm Khuyến Mãi" style={{ fontSize: '24px' }}>Sản Phẩm Khuyến Mãi</h2>
-                  </div>
-                </div>
-                <div className="products-grid-container grid-view" style={{ gap: '16px' }}>
-                  {promoProducts.length === 0
-                    ? Array.from({ length: 4 }).map((_, i) => (
-                        <ProductSkeleton key={`promo-sk-${i}`} index={i} />
-                      ))
-                    : promoProducts.map((item, index) => (
-                        <ProductCard key={`promo-${item.id}`} product={item} index={index} />
-                      ))
-                  }
-                </div>
-              </section>
+              <FlashSaleBlock />
 
               <section className="home-section" style={{ marginTop: '40px' }}>
                 <div className="section-header">
                   <div className="section-header-left">
                     <span className="section-tag">// TRENDING</span>
-                    <h2 className="section-title glitch-text" data-text="Sản Phẩm HOT" style={{ fontSize: '24px' }}>Sản Phẩm HOT</h2>
+                    <h2 className="section-title glitch-text" data-text="Sản Phẩm Bán Chạy" style={{ fontSize: '24px' }}>Sản Phẩm Bán Chạy</h2>
                   </div>
                 </div>
                 <div className="products-grid-container grid-view" style={{ gap: '16px' }}>
