@@ -29,22 +29,26 @@ class Product(Base):
 
     @property
     def review_count(self) -> int:
-        count = 0
-        for sku in self.skus:
-            count += len(sku.reviews)
-        return count
+        try:
+            count = 0
+            for sku in self.skus:
+                count += len(sku.reviews)
+            return count
+        except Exception:
+            return 0
 
     @property
     def rating(self) -> float:
-        total_rating = 0
-        count = 0
-        for sku in self.skus:
-            for review in sku.reviews:
-                total_rating += review.rating
-                count += 1
-        
-        # Mặc định 5.0 sao nếu chưa có đánh giá
-        return round(total_rating / count, 1) if count > 0 else 5.0
+        try:
+            total_rating = 0
+            count = 0
+            for sku in self.skus:
+                for review in sku.reviews:
+                    total_rating += review.rating
+                    count += 1
+            return round(total_rating / count, 1) if count > 0 else 5.0
+        except Exception:
+            return 5.0
 
 
 class ProductSKU(Base):

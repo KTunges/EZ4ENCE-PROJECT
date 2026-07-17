@@ -128,12 +128,12 @@ def get_products(
             for skw in spec_keywords:
                 query = query.filter(cast(Product.specifications[key], String).ilike(f"%{skw}%"))
 
-    # Tối ưu truy vấn
+    # Tối ưu truy vấn — KHÔNG load reviews ở trang list (chỉ load ở trang chi tiết)
     query = query.options(
         joinedload(Product.category),
         joinedload(Product.brand),
         selectinload(Product.images),
-        selectinload(Product.skus).selectinload(ProductSKU.reviews)
+        selectinload(Product.skus)
     )
     
     # Sorting

@@ -134,7 +134,7 @@ const PRICE_RANGES = [
   { value: '20000000-999999999', label: 'Trên 20 triệu' },
 ];
 
-const ITEMS_PER_PAGE = 24;
+const ITEMS_PER_PAGE = 12;
 
 const getRequiredCategorySlug = (selectedCategory, activeSubMenu) => {
   if (!activeSubMenu || !activeSubMenu.includes(': ')) return null;

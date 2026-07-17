@@ -27,7 +27,14 @@ class ProductSKUBase(BaseModel):
     stock_quantity: int = 0
     attributes: Dict[str, Any] = {}
 
+class ProductSKUListResponse(ProductSKUBase):
+    """SKU nhẹ cho trang danh sách — KHÔNG kèm reviews/images"""
+    id: str
+    
+    model_config = ConfigDict(from_attributes=True)
+
 class ProductSKUResponse(ProductSKUBase):
+    """SKU đầy đủ cho trang chi tiết — có reviews + images"""
     id: str
     images: List[SkuImageResponse] = []
     reviews: List[CustomerReviewResponse] = []
@@ -45,22 +52,31 @@ class ProductBase(BaseModel):
     is_published: bool = True
 
 class ProductListResponse(ProductBase):
+    """Schema nhẹ cho trang danh sách — SKU không kèm reviews"""
     id: str
     created_at: datetime
     # Computed fields
     rating: float
     review_count: int
     sold_count: int
-    # Trả về kèm một ảnh đại diện (ảnh chính) và giá min/max của các SKU nếu cần ở list
+    # Trả về kèm ảnh đại diện và SKU nhẹ (không reviews)
     images: List[ProductImageResponse] = []
     category: Optional[CategoryResponse] = None
     brand: Optional[BrandResponse] = None
-    skus: List[ProductSKUResponse] = []
+    skus: List[ProductSKUListResponse] = []
     
     model_config = ConfigDict(from_attributes=True)
 
-class ProductDetailResponse(ProductListResponse):
-    # Chi tiết sẽ bao gồm danh sách biến thể SKU
+class ProductDetailResponse(ProductBase):
+    """Schema đầy đủ cho trang chi tiết — SKU kèm reviews + images"""
+    id: str
+    created_at: datetime
+    rating: float
+    review_count: int
+    sold_count: int
+    images: List[ProductImageResponse] = []
+    category: Optional[CategoryResponse] = None
+    brand: Optional[BrandResponse] = None
     skus: List[ProductSKUResponse] = []
     
     model_config = ConfigDict(from_attributes=True)
