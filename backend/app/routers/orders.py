@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.order import Order, OrderItem, OrderStatus, PaymentStatus, PaymentMethod
-from app.models.product import ProductSKU
+from app.models.product import Product, ProductSKU
 from app.models.cart import Cart, CartItem
 from app.models.user import User
 from app.models.address import Address
