@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, CreditCard, User, Package, Printer, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import { getAdminOrderById, updateOrderStatus } from '../../services/adminApi';
+import { useToast } from '../../context/ToastContext';
 
 export default function AdminOrderDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -44,10 +46,10 @@ export default function AdminOrderDetails() {
         updatedPayment = newStatus === 'DELIVERED' ? 'PAID' : 'UNPAID';
       }
       setOrder(prev => ({ ...prev, status: newStatus, payment_status: updatedPayment }));
-      alert(`Đã cập nhật trạng thái đơn hàng thành công`);
+      addToast(`Đã cập nhật trạng thái đơn hàng thành công`, 'success');
     } catch (error) {
       console.error("Lỗi cập nhật trạng thái:", error);
-      alert("Cập nhật trạng thái thất bại");
+      addToast("Cập nhật trạng thái thất bại", 'error');
     }
   };
 
