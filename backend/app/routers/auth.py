@@ -49,6 +49,22 @@ def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
         raise HTTPException(status_code=403, detail="Not authorized. Admin access required.")
     return current_user
 
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="api/auth/login-form", auto_error=False)
+
+def get_current_user_optional(token: str = Depends(oauth2_scheme_optional), db: Session = Depends(get_db)):
+    """Trả về user nếu có token hợp lệ, trả None nếu không có token."""
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(token, settings.JWT_SECRET, algorithms=["HS256"])
+        user_id = payload.get("sub")
+        if user_id is None:
+            return None
+        user = db.query(User).filter(User.id == user_id).first()
+        return user
+    except jwt.InvalidTokenError:
+        return None
+
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(user_in: UserCreate, db: Session = Depends(get_db)):
     # Kiểm tra username tồn tại

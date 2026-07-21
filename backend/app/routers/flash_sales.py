@@ -21,12 +21,14 @@ def get_active_flash_sales(db: Session = Depends(get_db)):
     Only returns flash sales that end in the future.
     """
     now = datetime.now()
-    from sqlalchemy.orm import joinedload
+    from sqlalchemy.orm import joinedload, selectinload
     sales = db.query(FlashSale).options(
-        joinedload(FlashSale.items)
-        .joinedload(FlashSaleItem.sku)
-        .joinedload(ProductSKU.product)
-        .joinedload(Product.images)
+        selectinload(FlashSale.items).joinedload(FlashSaleItem.sku).joinedload(ProductSKU.product).options(
+            joinedload(Product.category),
+            joinedload(Product.brand),
+            selectinload(Product.images),
+            selectinload(Product.skus).selectinload(ProductSKU.reviews)
+        )
     ).filter(
         FlashSale.is_active == True,
         FlashSale.end_time > now

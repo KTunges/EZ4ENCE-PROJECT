@@ -25,8 +25,13 @@ class Promotion(Base):
     code = Column(String, unique=True, index=True, nullable=False)
     discount_percent = Column(Float, nullable=True)
     discount_amount = Column(Float, nullable=True)
+    max_discount_amount = Column(Float, nullable=True)  # Giảm tối đa (VD: giảm 10% nhưng tối đa 10.000đ)
     min_order_value = Column(Float, default=0, nullable=False)
-    expiration_date = Column(DateTime(timezone=True), nullable=True)
+    usage_limit = Column(Integer, nullable=True)  # Giới hạn tổng lượt sử dụng (null = không giới hạn)
+    usage_count = Column(Integer, default=0, nullable=False)  # Số lần đã sử dụng
+    usage_limit_per_user = Column(Integer, default=1, nullable=False)  # Mỗi user dùng tối đa bao nhiêu lần
+    start_date = Column(DateTime(timezone=True), nullable=True)  # Ngày bắt đầu áp dụng
+    expiration_date = Column(DateTime(timezone=True), nullable=True)  # Ngày hết hạn
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)

@@ -80,7 +80,11 @@ def create_promotion(promo_in: PromotionCreate, db: Session = Depends(get_db)):
         code=promo_in.code,
         discount_percent=promo_in.discount_percent,
         discount_amount=promo_in.discount_amount,
+        max_discount_amount=promo_in.max_discount_amount,
         min_order_value=promo_in.min_order_value,
+        usage_limit=promo_in.usage_limit,
+        usage_limit_per_user=promo_in.usage_limit_per_user,
+        start_date=promo_in.start_date,
         expiration_date=promo_in.expiration_date,
         is_active=promo_in.is_active
     )

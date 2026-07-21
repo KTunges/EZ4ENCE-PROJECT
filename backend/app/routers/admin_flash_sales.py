@@ -18,7 +18,16 @@ router = APIRouter(
 
 @router.get("", response_model=List[FlashSaleResponse])
 def get_admin_flash_sales(db: Session = Depends(get_db)):
-    sales = db.query(FlashSale).order_by(FlashSale.start_time.desc()).all()
+    from sqlalchemy.orm import joinedload, selectinload
+    from app.models.product import Product, ProductSKU
+    sales = db.query(FlashSale).options(
+        selectinload(FlashSale.items).joinedload(FlashSaleItem.sku).joinedload(ProductSKU.product).options(
+            joinedload(Product.category),
+            joinedload(Product.brand),
+            selectinload(Product.images),
+            selectinload(Product.skus).selectinload(ProductSKU.reviews)
+        )
+    ).order_by(FlashSale.start_time.desc()).all()
     return sales
 
 @router.post("", response_model=FlashSaleResponse, status_code=status.HTTP_201_CREATED)

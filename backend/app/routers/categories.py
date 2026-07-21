@@ -38,7 +38,8 @@ def get_categories(db: Session = Depends(get_db)):
     if _categories_cache["data"] is not None and now - _categories_cache["timestamp"] < _CACHE_TTL:
         return _categories_cache["data"]
 
-    categories = db.query(Category).all()
+    from sqlalchemy.orm import selectinload
+    categories = db.query(Category).options(selectinload(Category.products)).all()
     # Build hierarchical tree
     tree = build_tree(categories, parent_id=None)
     

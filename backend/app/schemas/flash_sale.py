@@ -1,9 +1,9 @@
 from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from datetime import datetime
-from app.schemas.product import ProductSKUResponse, ProductListResponse
+from app.schemas.product import ProductSKUListResponse, ProductListResponse
 
-class FlashSaleSkuResponse(ProductSKUResponse):
+class FlashSaleSkuResponse(ProductSKUListResponse):
     product: Optional[ProductListResponse] = None
     model_config = ConfigDict(from_attributes=True)
 

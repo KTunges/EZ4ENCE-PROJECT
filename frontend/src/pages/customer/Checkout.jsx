@@ -182,9 +182,12 @@ export default function Checkout() {
     setPromoLoading(true);
     setPromoError('');
     try {
+      const token = localStorage.getItem('token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/promotions/apply`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ code: promoCode.trim().toUpperCase(), order_value: subtotal })
       });
       const data = await res.json();
@@ -208,9 +211,12 @@ export default function Checkout() {
       const applyInitialPromo = async () => {
         setPromoLoading(true);
         try {
+          const token = localStorage.getItem('token');
+          const headers = { 'Content-Type': 'application/json' };
+          if (token) headers['Authorization'] = `Bearer ${token}`;
           const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/promotions/apply`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify({ code: initPromo.toUpperCase(), order_value: subtotal })
           });
           const data = await res.json();

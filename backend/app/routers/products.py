@@ -128,12 +128,12 @@ def get_products(
             for skw in spec_keywords:
                 query = query.filter(cast(Product.specifications[key], String).ilike(f"%{skw}%"))
 
-    # Tối ưu truy vấn — KHÔNG load reviews ở trang list (chỉ load ở trang chi tiết)
+    # Tối ưu truy vấn — load reviews bằng selectinload để tránh N+1 khi gọi property rating
     query = query.options(
         joinedload(Product.category),
         joinedload(Product.brand),
         selectinload(Product.images),
-        selectinload(Product.skus)
+        selectinload(Product.skus).selectinload(ProductSKU.reviews)
     )
     
     # Sorting
@@ -157,6 +157,31 @@ def get_products(
     skip_calc = skip if skip > 0 else (page - 1) * limit if page > 0 else 0
     products = query.offset(skip_calc).limit(limit).all()
     
+    # Đồng bộ giá Flash Sale (Override promotional_price)
+    from app.models.flash_sale import FlashSale, FlashSaleItem
+    from datetime import datetime
+    
+    now = datetime.now()
+    sku_ids = []
+    for p in products:
+        sku_ids.extend([sku.id for sku in p.skus])
+        
+    if sku_ids:
+        active_flash_sales = db.query(FlashSaleItem).join(FlashSale).filter(
+            FlashSale.is_active == True,
+            FlashSale.start_time <= now,
+            FlashSale.end_time > now,
+            FlashSaleItem.product_sku_id.in_(sku_ids),
+            FlashSaleItem.sold < FlashSaleItem.quantity
+        ).all()
+        
+        if active_flash_sales:
+            flash_sale_map = {item.product_sku_id: item.flash_price for item in active_flash_sales}
+            for p in products:
+                for sku in p.skus:
+                    if sku.id in flash_sale_map:
+                        sku.promotional_price = flash_sale_map[sku.id]
+
     result = {
         "data": products,
         "total": total,
