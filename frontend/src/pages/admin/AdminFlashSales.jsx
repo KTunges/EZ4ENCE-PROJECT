@@ -104,7 +104,7 @@ export default function AdminFlashSales() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Xóa chiến dịch này?')) return;
+    if (!await window.customConfirm('Xóa chiến dịch này?')) return;
     try {
       await adminApi.delete(`/admin/flash-sales/${id}`);
       addToast('Đã xóa chiến dịch', 'success');

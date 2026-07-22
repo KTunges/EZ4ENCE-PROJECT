@@ -152,7 +152,7 @@ export default function AdminReceipts() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.items.length === 0) {
-      alert("Vui lòng thêm ít nhất 1 sản phẩm vào phiếu");
+      window.toast.error("Vui lòng thêm ít nhất 1 sản phẩm vào phiếu");
       return;
     }
     try {
@@ -160,7 +160,7 @@ export default function AdminReceipts() {
       setShowModal(false);
       fetchReceipts();
     } catch (error) {
-      alert("Lỗi khi lưu phiếu (Kiểm tra xem số lượng tồn kho có đủ xuất không)");
+      window.toast.error("Lỗi khi lưu phiếu (Kiểm tra xem số lượng tồn kho có đủ xuất không)");
       console.error(error);
     }
   };
@@ -245,7 +245,7 @@ export default function AdminReceipts() {
                   <td style={{ padding: '16px 12px' }}>{r.created_by}</td>
                   <td style={{ padding: '16px 12px' }}>{new Date(r.created_at).toLocaleString('vi-VN')}</td>
                   <td style={{ padding: '16px 12px', textAlign: 'right' }}>
-                    <button title="Xuất file Excel (TT133)" onClick={async () => { try { const blob = await exportReceiptExcel(r.id); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${r.receipt_code}.xlsx`; a.click(); window.URL.revokeObjectURL(url); } catch (e) { alert('Lỗi xuất file Excel'); console.error(e); } }} style={{ background: 'rgba(76, 175, 80, 0.1)', border: '1px solid #4caf50', color: '#4caf50', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                    <button title="Xuất file Excel (TT133)" onClick={async () => { try { const blob = await exportReceiptExcel(r.id); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${r.receipt_code}.xlsx`; a.click(); window.URL.revokeObjectURL(url); } catch (e) { window.toast.error('Lỗi xuất file Excel'); console.error(e); } }} style={{ background: 'rgba(76, 175, 80, 0.1)', border: '1px solid #4caf50', color: '#4caf50', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 'bold' }}>
                       <Download size={14} /> Excel
                     </button>
                   </td>

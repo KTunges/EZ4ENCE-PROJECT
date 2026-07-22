@@ -106,7 +106,7 @@ export default function AddressBook() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Bạn có chắc muốn xoá địa chỉ này?")) return;
+    if (!await window.customConfirm("Bạn có chắc muốn xoá địa chỉ này?")) return;
     try {
       await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/addresses/${id}`, {
         method: 'DELETE',
@@ -133,7 +133,7 @@ export default function AddressBook() {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!provinceName || !districtName || !wardName) {
-      alert("Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện, Phường/Xã");
+      window.toast.error("Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện, Phường/Xã");
       return;
     }
 
@@ -178,7 +178,7 @@ export default function AddressBook() {
             errorMsg = d.detail;
           }
         }
-        alert(errorMsg);
+        window.toast.info(errorMsg);
       }
     } catch (err) {
       console.error(err);

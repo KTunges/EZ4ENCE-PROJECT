@@ -65,14 +65,14 @@ export default function AdminStock() {
   const handleSave = async (e) => {
     e.preventDefault();
     if (formData.items.length === 0) {
-      alert('Vui lòng thêm ít nhất một sản phẩm vào phiếu!');
+      window.toast.error('Vui lòng thêm ít nhất một sản phẩm vào phiếu!');
       return;
     }
     // Validation
     for (let item of formData.items) {
-      if (!item.sku_id) return alert('Vui lòng chọn sản phẩm!');
-      if (item.quantity <= 0) return alert('Số lượng phải lớn hơn 0');
-      if (item.unit_price < 0) return alert('Đơn giá không hợp lệ');
+      if (!item.sku_id) return window.toast.error('Vui lòng chọn sản phẩm!');
+      if (item.quantity <= 0) return window.toast.info('Số lượng phải lớn hơn 0');
+      if (item.unit_price < 0) return window.toast.error('Đơn giá không hợp lệ');
     }
 
     try {
@@ -84,7 +84,7 @@ export default function AdminStock() {
       setShowModal(false);
       fetchReceipts();
     } catch (error) {
-      alert(error.response?.data?.detail || 'Lưu phiếu thất bại.');
+      window.toast.error(error.response?.data?.detail || 'Lưu phiếu thất bại.');
     } finally {
       setIsSubmitting(false);
     }

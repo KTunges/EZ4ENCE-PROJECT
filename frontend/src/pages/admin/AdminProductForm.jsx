@@ -318,7 +318,7 @@ export default function AdminProductForm() {
       setFormData(prev => ({ ...prev, imageUrl: url }));
     } catch (error) {
       console.error("Lỗi upload ảnh:", error);
-      alert("Không thể tải ảnh lên. Vui lòng kiểm tra cấu hình Cloudinary trên Backend.");
+      window.toast.error("Không thể tải ảnh lên. Vui lòng kiểm tra cấu hình Cloudinary trên Backend.");
     } finally {
       setIsUploading(false);
     }
@@ -342,7 +342,7 @@ export default function AdminProductForm() {
       }));
     } catch (error) {
       console.error("Lỗi upload ảnh phụ:", error);
-      alert("Không thể tải ảnh lên.");
+      window.toast.error("Không thể tải ảnh lên.");
     } finally {
       setIsUploadingAdditional(false);
     }
@@ -365,19 +365,19 @@ export default function AdminProductForm() {
     const salePriceVal = formData.salePrice ? parseFloat(formData.salePrice) : null;
     
     if (isNaN(priceVal) || priceVal <= 0) {
-      alert('Giá bán phải lớn hơn 0!');
+      window.toast.info('Giá bán phải lớn hơn 0!');
       return;
     }
     if (!isNaN(stockVal) && stockVal < 0) {
-      alert('Số lượng tồn kho không được âm!');
+      window.toast.error('Số lượng tồn kho không được âm!');
       return;
     }
     if (salePriceVal !== null && salePriceVal < 0) {
-      alert('Giá khuyến mãi không được âm!');
+      window.toast.error('Giá khuyến mãi không được âm!');
       return;
     }
     if (salePriceVal !== null && salePriceVal >= priceVal) {
-      alert('Giá khuyến mãi phải nhỏ hơn giá gốc!');
+      window.toast.info('Giá khuyến mãi phải nhỏ hơn giá gốc!');
       return;
     }
     
@@ -402,12 +402,12 @@ export default function AdminProductForm() {
         await updateProduct(id, payload);
       } else {
         await createProduct(payload);
-        alert('Thêm sản phẩm thành công!');
+        window.toast.success('Thêm sản phẩm thành công!');
       }
       navigate('/admin/products');
     } catch (error) {
       console.error('Lỗi khi lưu sản phẩm', error);
-      alert('Có lỗi xảy ra khi lưu. Vui lòng kiểm tra console.');
+      window.toast.error('Có lỗi xảy ra khi lưu. Vui lòng kiểm tra console.');
     } finally {
       setIsLoading(false);
     }

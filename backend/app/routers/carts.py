@@ -29,28 +29,35 @@ def get_cart(db: Session = Depends(get_db), current_user: User = Depends(get_cur
     total_items = 0
     
     # Nạp dữ liệu items
-    items = db.query(CartItem).options(joinedload(CartItem.sku)).filter(CartItem.cart_id == cart.id).all()
+    items = db.query(CartItem).options(
+        joinedload(CartItem.sku).joinedload(ProductSKU.product).joinedload(Product.images),
+        joinedload(CartItem.sku).joinedload(ProductSKU.images)
+    ).filter(CartItem.cart_id == cart.id).all()
+    
+    # Pre-fetch flash sales for all SKUs in cart
+    from app.models.flash_sale import FlashSale, FlashSaleItem
+    from app.models.product import Product
+    from datetime import datetime
+    now = datetime.now()
+    sku_ids = [item.sku_id for item in items]
+    active_flash_sales = {}
+    if sku_ids:
+        flash_sales = db.query(FlashSaleItem).join(FlashSale).filter(
+            FlashSale.is_active == True,
+            FlashSale.start_time <= now,
+            FlashSale.end_time > now,
+            FlashSaleItem.product_sku_id.in_(sku_ids),
+            FlashSaleItem.sold < FlashSaleItem.quantity
+        ).all()
+        active_flash_sales = {fs.product_sku_id: fs.flash_price for fs in flash_sales}
     
     response_items = []
     for item in items:
         sku = item.sku
         product = sku.product
         
-        # Determine price (check flash sale first, then promotional, then regular)
-        from app.models.flash_sale import FlashSale, FlashSaleItem
-        from datetime import datetime
-        
-        now = datetime.now()
-        active_flash_sale_item = db.query(FlashSaleItem).join(FlashSale).filter(
-            FlashSale.is_active == True,
-            FlashSale.start_time <= now,
-            FlashSale.end_time > now,
-            FlashSaleItem.product_sku_id == sku.id,
-            FlashSaleItem.sold < FlashSaleItem.quantity
-        ).first()
-
-        if active_flash_sale_item:
-            current_price = active_flash_sale_item.flash_price
+        if sku.id in active_flash_sales:
+            current_price = active_flash_sales[sku.id]
         elif sku.promotional_price and sku.promotional_price < sku.price:
             current_price = sku.promotional_price
         else:

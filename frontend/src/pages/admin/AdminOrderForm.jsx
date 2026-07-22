@@ -103,7 +103,7 @@ const AdminOrderForm = () => {
   const handleCreateCustomer = async (e) => {
     e.preventDefault();
     if (!newCustomerData.email || !newCustomerData.full_name || !newCustomerData.phone) {
-      alert("Vui lòng điền đủ thông tin!");
+      window.toast.error("Vui lòng điền đủ thông tin!");
       return;
     }
     setIsCreatingCustomer(true);
@@ -115,7 +115,7 @@ const AdminOrderForm = () => {
       setNewCustomerData({ full_name: '', email: '', phone: '' });
     } catch (err) {
       console.error(err);
-      alert("Lỗi khi thêm khách hàng: " + (err.response?.data?.detail || err.message));
+      window.toast.error("Lỗi khi thêm khách hàng: " + (err.response?.data?.detail || err.message));
     } finally {
       setIsCreatingCustomer(false);
     }
@@ -130,11 +130,11 @@ const AdminOrderForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedUser) {
-      alert("Vui lòng chọn khách hàng!");
+      window.toast.error("Vui lòng chọn khách hàng!");
       return;
     }
     if (cartItems.length === 0) {
-      alert("Vui lòng chọn ít nhất 1 sản phẩm!");
+      window.toast.error("Vui lòng chọn ít nhất 1 sản phẩm!");
       return;
     }
 
@@ -161,11 +161,11 @@ const AdminOrderForm = () => {
       };
 
       await createAdminOrder(payload);
-      alert("Tạo đơn hàng thành công!");
+      window.toast.success("Tạo đơn hàng thành công!");
       navigate('/admin/orders');
     } catch (error) {
       console.error(error);
-      alert("Có lỗi xảy ra: " + (error.response?.data?.detail || error.message));
+      window.toast.error("Có lỗi xảy ra: " + (error.response?.data?.detail || error.message));
     } finally {
       setLoading(false);
     }

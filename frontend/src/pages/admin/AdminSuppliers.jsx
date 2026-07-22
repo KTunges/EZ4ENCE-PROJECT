@@ -52,12 +52,12 @@ export default function AdminSuppliers() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa nhà cung cấp này?")) {
+    if (await window.customConfirm("Bạn có chắc chắn muốn xóa nhà cung cấp này?")) {
       try {
         await deleteSupplier(id);
         fetchSuppliers();
       } catch (error) {
-        alert("Lỗi khi xóa nhà cung cấp");
+        window.toast.error("Lỗi khi xóa nhà cung cấp");
       }
     }
   };
@@ -73,7 +73,7 @@ export default function AdminSuppliers() {
       setShowModal(false);
       fetchSuppliers();
     } catch (error) {
-      alert("Lỗi khi lưu nhà cung cấp");
+      window.toast.error("Lỗi khi lưu nhà cung cấp");
     }
   };
 
@@ -89,7 +89,7 @@ export default function AdminSuppliers() {
         <h1 className="text-2xl font-bold">Nhà cung cấp</h1>
         <div style={{ display: 'flex', gap: '12px' }}>
           {suppliers.length === 0 && (
-            <button onClick={async () => { try { const res = await seedSuppliers(); alert(res.message); fetchSuppliers(); } catch (e) { alert('Lỗi tạo dữ liệu mẫu'); } }} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--bg-card)', color: 'var(--cyan)', borderRadius: '8px', fontWeight: 'bold', border: '1px solid var(--cyan)', cursor: 'pointer' }}>
+            <button onClick={async () => { try { const res = await seedSuppliers(); window.toast.info(res.message); fetchSuppliers(); } catch (e) { window.toast.error('Lỗi tạo dữ liệu mẫu'); } }} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--bg-card)', color: 'var(--cyan)', borderRadius: '8px', fontWeight: 'bold', border: '1px solid var(--cyan)', cursor: 'pointer' }}>
               Tạo dữ liệu mẫu
             </button>
           )}

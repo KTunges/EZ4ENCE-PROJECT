@@ -50,12 +50,12 @@ export default function AdminOrders() {
   }, []);
 
   const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa đơn hàng này? Việc này không thể hoàn tác.")) {
+    if (await window.customConfirm("Bạn có chắc chắn muốn xóa đơn hàng này? Việc này không thể hoàn tác.")) {
       try {
         await deleteOrder(id);
         fetchOrders();
       } catch (error) {
-        alert("Lỗi khi xóa đơn hàng!");
+        window.toast.error("Lỗi khi xóa đơn hàng!");
         console.error(error);
       }
     }

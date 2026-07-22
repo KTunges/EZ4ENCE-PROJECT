@@ -22,7 +22,8 @@ def get_wishlist(
     items = db.query(WishlistItem).filter(
         WishlistItem.user_id == current_user.id
     ).options(
-        joinedload(WishlistItem.sku).joinedload(ProductSKU.product).joinedload(Product.images)
+        joinedload(WishlistItem.sku).joinedload(ProductSKU.product).joinedload(Product.images),
+        joinedload(WishlistItem.sku).joinedload(ProductSKU.images)
     ).all()
     
     return items

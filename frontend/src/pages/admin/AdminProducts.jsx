@@ -43,13 +43,13 @@ export default function AdminProducts() {
   });
 
   const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
+    if (await window.customConfirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
       try {
         await deleteProduct(id);
         loadProducts();
       } catch (error) {
         console.error("Lỗi khi xóa:", error);
-        alert("Có lỗi xảy ra khi xóa");
+        window.toast.error("Có lỗi xảy ra khi xóa");
       }
     }
   };

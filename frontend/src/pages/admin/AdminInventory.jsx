@@ -47,8 +47,8 @@ export default function AdminInventory() {
 
   const submitReceipt = async (e) => {
     e.preventDefault();
-    if (receiptModal.quantity <= 0) return alert("Số lượng phải lớn hơn 0");
-    if (receiptModal.type === 'IN' && !receiptModal.supplier_id) return alert("Vui lòng chọn nhà cung cấp");
+    if (receiptModal.quantity <= 0) return window.toast.info("Số lượng phải lớn hơn 0");
+    if (receiptModal.type === 'IN' && !receiptModal.supplier_id) return window.toast.error("Vui lòng chọn nhà cung cấp");
 
     try {
       const payload = {
@@ -64,9 +64,9 @@ export default function AdminInventory() {
       await createStockReceipt(payload);
       setReceiptModal({ ...receiptModal, show: false });
       fetchSkus(); // refresh inventory
-      alert(`Đã ${receiptModal.type === 'IN' ? 'nhập' : 'xuất'} kho thành công!`);
+      window.toast.success(`Đã ${receiptModal.type === 'IN' ? 'nhập' : 'xuất'} kho thành công!`);
     } catch (error) {
-      alert("Lỗi khi xử lý phiếu (Kiểm tra lại số lượng tồn kho nếu xuất)");
+      window.toast.error("Lỗi khi xử lý phiếu (Kiểm tra lại số lượng tồn kho nếu xuất)");
       console.error(error);
     }
   };

@@ -52,12 +52,12 @@ export default function AdminStaffs() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Bạn có chắc muốn xóa tài khoản nhân viên này vĩnh viễn?')) {
+    if (await window.customConfirm('Bạn có chắc muốn xóa tài khoản nhân viên này vĩnh viễn?')) {
       try {
         await adminApi.deleteStaff(id);
         fetchStaffs();
       } catch (error) {
-        alert(error.response?.data?.detail || 'Lỗi khi xóa nhân viên');
+        window.toast.error(error.response?.data?.detail || 'Lỗi khi xóa nhân viên');
       }
     }
   };
@@ -65,10 +65,10 @@ export default function AdminStaffs() {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!editingId && !formData.password) {
-      return alert('Vui lòng nhập mật khẩu cho tài khoản mới');
+      return window.toast.error('Vui lòng nhập mật khẩu cho tài khoản mới');
     }
     if (!formData.fullName || !formData.email) {
-      return alert('Vui lòng điền đủ thông tin');
+      return window.toast.error('Vui lòng điền đủ thông tin');
     }
 
     try {
@@ -88,7 +88,7 @@ export default function AdminStaffs() {
       setShowModal(false);
       fetchStaffs();
     } catch (error) {
-      alert(error.response?.data?.detail || 'Lưu tài khoản thất bại.');
+      window.toast.error(error.response?.data?.detail || 'Lưu tài khoản thất bại.');
     } finally {
       setIsSubmitting(false);
     }

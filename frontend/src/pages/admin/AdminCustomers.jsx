@@ -36,7 +36,7 @@ export default function AdminCustomers() {
 
   const handleToggleActive = async (id, currentStatus) => {
     const action = currentStatus ? "Khóa" : "Mở khóa";
-    if (window.confirm(`Bạn có chắc chắn muốn ${action} tài khoản này?`)) {
+    if (await window.customConfirm(`Bạn có chắc chắn muốn ${action} tài khoản này?`)) {
       try {
         await toggleCustomerActive(id);
         fetchCustomers();
@@ -44,7 +44,7 @@ export default function AdminCustomers() {
            setSelectedCustomer({...selectedCustomer, is_active: !currentStatus});
         }
       } catch (error) {
-        alert("Có lỗi xảy ra khi thực hiện thao tác!");
+        window.toast.error("Có lỗi xảy ra khi thực hiện thao tác!");
         console.error(error);
       }
     }
@@ -56,7 +56,7 @@ export default function AdminCustomers() {
       const data = await getCustomerDetails(id);
       setSelectedCustomer(data);
     } catch (error) {
-      alert("Lỗi khi tải chi tiết khách hàng!");
+      window.toast.error("Lỗi khi tải chi tiết khách hàng!");
       console.error(error);
     } finally {
       setDetailsLoading(false);

@@ -162,7 +162,7 @@ export default function ProductDetail() {
   const handleImageChange = (e) => {
       const files = Array.from(e.target.files);
       if (files.length > 5) {
-          alert('Chỉ được phép chọn tối đa 5 ảnh!');
+          window.toast.info('Chỉ được phép chọn tối đa 5 ảnh!');
           return;
       }
       setReviewImages(files);
@@ -216,7 +216,7 @@ export default function ProductDetail() {
 
   const handleLikeReview = async (reviewId) => {
       if (!token) {
-          alert('Vui lòng đăng nhập để đánh giá hữu ích!');
+          window.toast.error('Vui lòng đăng nhập để đánh giá hữu ích!');
           return;
       }
       try {
@@ -273,7 +273,7 @@ export default function ProductDetail() {
   const handleBuyNow = () => {
     if (!currentSku) return;
     if (currentSku.stock === 0) {
-      alert('Sản phẩm tạm hết hàng!');
+      window.toast.error('Sản phẩm tạm hết hàng!');
       return;
     }
     // Navigate to checkout with specific item state

@@ -16,7 +16,7 @@ export default function AdminReviews() {
       const data = await getAdminReviews();
       setReviews(data);
     } catch (error) {
-      alert('Lỗi khi tải danh sách đánh giá');
+      window.toast.error('Lỗi khi tải danh sách đánh giá');
     } finally {
       setLoading(false);
     }
@@ -26,25 +26,25 @@ export default function AdminReviews() {
     try {
       const updated = await toggleHideReview(id, !currentStatus);
       setReviews(prev => prev.map(r => r.id === id ? updated : r));
-      alert(updated.is_hidden ? 'Đã ẩn đánh giá' : 'Đã hiển thị đánh giá');
+      window.toast.info(updated.is_hidden ? 'Đã ẩn đánh giá' : 'Đã hiển thị đánh giá');
     } catch (err) {
-      alert('Lỗi khi ẩn/hiện đánh giá');
+      window.toast.error('Lỗi khi ẩn/hiện đánh giá');
     }
   };
 
   const handleReplySubmit = async (id) => {
     const text = replyText[id];
     if (!text?.trim()) {
-      alert('Vui lòng nhập nội dung phản hồi');
+      window.toast.error('Vui lòng nhập nội dung phản hồi');
       return;
     }
     try {
       const updated = await replyToReview(id, text);
       setReviews(prev => prev.map(r => r.id === id ? updated : r));
-      alert('Đã gửi phản hồi');
+      window.toast.info('Đã gửi phản hồi');
       setReplyText(prev => ({ ...prev, [id]: '' }));
     } catch (err) {
-      alert('Lỗi khi gửi phản hồi');
+      window.toast.error('Lỗi khi gửi phản hồi');
     }
   };
 

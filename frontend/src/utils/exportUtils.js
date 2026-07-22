@@ -34,7 +34,7 @@ export const downloadReport = async (url, token, defaultFilename) => {
     return true;
   } catch (error) {
     console.error("Failed to download report:", error);
-    alert("Có lỗi xảy ra khi tải báo cáo: " + error.message);
+    window.toast.error("Có lỗi xảy ra khi tải báo cáo: " + error.message);
     throw error;
   }
 };

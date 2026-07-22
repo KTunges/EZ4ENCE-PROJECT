@@ -59,7 +59,7 @@ export default function Profile() {
   const handleReviewImageChange = (e) => {
       const files = Array.from(e.target.files);
       if (files.length > 5) {
-          alert('Chỉ được phép chọn tối đa 5 ảnh!');
+          window.toast.info('Chỉ được phép chọn tối đa 5 ảnh!');
           return;
       }
       setReviewImages(files);
@@ -184,17 +184,17 @@ export default function Profile() {
 
     // Check size < 5MB
     if (file.size > 5 * 1024 * 1024) {
-      alert("Kích thước ảnh quá lớn. Vui lòng chọn ảnh dưới 5MB.");
+      window.toast.error("Kích thước ảnh quá lớn. Vui lòng chọn ảnh dưới 5MB.");
       return;
     }
 
     try {
       setIsUploadingAvatar(true);
       await updateAvatar(file);
-      alert("Đổi ảnh đại diện thành công!");
+      window.toast.success("Đổi ảnh đại diện thành công!");
     } catch (err) {
       console.error(err);
-      alert("Lỗi: " + err.message);
+      window.toast.error("Lỗi: " + err.message);
     } finally {
       setIsUploadingAvatar(false);
     }

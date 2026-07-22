@@ -42,7 +42,7 @@ export default function AdminCoupons() {
   const handleCreate = async (e) => {
     e.preventDefault();
     if (!formData.discount_percent && !formData.discount_amount) {
-      alert('Vui lòng nhập phần trăm giảm HOẶC số tiền giảm!');
+      window.toast.error('Vui lòng nhập phần trăm giảm HOẶC số tiền giảm!');
       return;
     }
     
@@ -70,7 +70,7 @@ export default function AdminCoupons() {
       fetchCoupons();
     } catch (error) {
       console.error('Lỗi tạo mã giảm giá:', error);
-      alert(error.response?.data?.detail || 'Tạo mã giảm giá thất bại.');
+      window.toast.error(error.response?.data?.detail || 'Tạo mã giảm giá thất bại.');
     } finally {
       setIsSubmitting(false);
     }
@@ -86,7 +86,7 @@ export default function AdminCoupons() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Bạn có chắc chắn muốn xóa mã giảm giá này?')) return;
+    if (!await window.customConfirm('Bạn có chắc chắn muốn xóa mã giảm giá này?')) return;
     try {
       await deletePromotion(id);
       fetchCoupons();

@@ -212,7 +212,7 @@ export default function AdminChat() {
 
   const resolveSession = async () => {
     if (!selectedSession) return;
-    if (!window.confirm("Bạn có chắc muốn kết thúc cuộc trò chuyện này?")) return;
+    if (!await window.customConfirm("Bạn có chắc muốn kết thúc cuộc trò chuyện này?")) return;
     
     try {
       await fetch(`${VITE_API_URL}/api/chat/sessions/${selectedSession.id}/resolve`, { method: 'PUT' });

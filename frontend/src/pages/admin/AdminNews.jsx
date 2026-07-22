@@ -92,17 +92,17 @@ export default function AdminNews() {
       closeModal();
       fetchNews();
     } catch (error) {
-      alert(error.response?.data?.detail || 'Thao tác thất bại');
+      window.toast.error(error.response?.data?.detail || 'Thao tác thất bại');
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Bạn có chắc muốn xóa tin bài này?')) {
+    if (await window.customConfirm('Bạn có chắc muốn xóa tin bài này?')) {
       try {
         await deleteNews(id);
         fetchNews();
       } catch (error) {
-        alert('Xóa thất bại');
+        window.toast.error('Xóa thất bại');
       }
     }
   };
@@ -112,7 +112,7 @@ export default function AdminNews() {
       await updateNews(item.id, { is_active: !item.is_active });
       fetchNews();
     } catch (error) {
-      alert('Cập nhật trạng thái thất bại');
+      window.toast.error('Cập nhật trạng thái thất bại');
     }
   };
 

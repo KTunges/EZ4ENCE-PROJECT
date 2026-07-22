@@ -56,12 +56,12 @@ export default function AdminBrands() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa thương hiệu này?")) {
+    if (await window.customConfirm("Bạn có chắc chắn muốn xóa thương hiệu này?")) {
       try {
         await deleteBrand(id);
         fetchBrands();
       } catch (error) {
-        alert("Có lỗi xảy ra khi xóa thương hiệu!");
+        window.toast.error("Có lỗi xảy ra khi xóa thương hiệu!");
         console.error(error);
       }
     }
@@ -88,7 +88,7 @@ export default function AdminBrands() {
       setIsModalOpen(false);
       fetchBrands();
     } catch (error) {
-      alert("Lưu thất bại. Có thể slug bị trùng!");
+      window.toast.error("Lưu thất bại. Có thể slug bị trùng!");
       console.error(error);
     } finally {
       setIsSubmitting(false);

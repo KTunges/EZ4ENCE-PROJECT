@@ -208,7 +208,7 @@ export default function Checkout() {
   const handleSpecificCheckout = async (method) => {
     if (selectedAddressId === 'new') {
       if (!fullName || !phone || !provinceName || !districtName || !wardName || !addressLine) {
-        alert('Vui lòng điền đầy đủ thông tin giao hàng!');
+        window.toast.error('Vui lòng điền đầy đủ thông tin giao hàng!');
         return;
       }
     }
@@ -300,7 +300,7 @@ export default function Checkout() {
         if (payData.payment_url) {
           window.location.href = payData.payment_url;
         } else {
-          alert("Không thể tạo URL thanh toán VNPAY.");
+          window.toast.error("Không thể tạo URL thanh toán VNPAY.");
         }
         return;
       } else if (method === 'momo') {
@@ -316,7 +316,7 @@ export default function Checkout() {
         if (payData.payment_url) {
           window.location.href = payData.payment_url;
         } else {
-          alert("Không thể tạo URL thanh toán Momo.");
+          window.toast.error("Không thể tạo URL thanh toán Momo.");
         }
         return;
       }
@@ -325,7 +325,7 @@ export default function Checkout() {
       navigate('/checkout/success', { state: { method: method, total: orderData.total_amount, orderId: orderData.id } });
     } catch (err) {
       console.error("Checkout error", err);
-      alert("Lỗi thanh toán: " + err.message);
+      window.toast.error("Lỗi thanh toán: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -624,7 +624,7 @@ export default function Checkout() {
                           createOrder={async () => {
                             if (selectedAddressId === 'new') {
                               if (!fullName || !phone || !provinceName || !districtName || !wardName || !addressLine) {
-                                alert('Vui lòng điền đầy đủ thông tin giao hàng trước khi thanh toán PayPal!');
+                                window.toast.error('Vui lòng điền đầy đủ thông tin giao hàng trước khi thanh toán PayPal!');
                                 return null;
                               }
                             }
@@ -689,7 +689,7 @@ export default function Checkout() {
                               }
                             } catch (error) {
                               console.error("Create order failed", error);
-                              alert("Không thể tạo đơn hàng PayPal. " + error.message);
+                              window.toast.error("Không thể tạo đơn hàng PayPal. " + error.message);
                             }
                           }}
                           onApprove={async (data, actions) => {
@@ -711,7 +711,7 @@ export default function Checkout() {
                               }
                             } catch (error) {
                               console.error("Capture order failed", error);
-                              alert("Thanh toán thất bại. " + error.message);
+                              window.toast.error("Thanh toán thất bại. " + error.message);
                             }
                           }}
                         />

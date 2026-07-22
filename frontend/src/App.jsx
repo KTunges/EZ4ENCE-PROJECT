@@ -2,6 +2,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ToastProvider } from './context/ToastContext';
+import { ConfirmProvider } from './context/ConfirmContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { useEffect, lazy, Suspense } from 'react';
 import PageSkeleton from './components/ui/PageSkeleton';
@@ -67,6 +68,7 @@ function App() {
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <ThemeProvider>
         <ToastProvider>
+          <ConfirmProvider>
           <AuthProvider>
             <CartProvider>
               <WishlistProvider>
@@ -129,6 +131,7 @@ function App() {
               </WishlistProvider>
             </CartProvider>
           </AuthProvider>
+                  </ConfirmProvider>
         </ToastProvider>
       </ThemeProvider>
     </GoogleOAuthProvider>

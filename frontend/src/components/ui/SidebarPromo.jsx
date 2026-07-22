@@ -87,7 +87,7 @@ export default function SidebarPromo() {
           </h3>
           <p className="promo-desc">Giảm ngay 20% cho đơn hàng từ 2 Triệu</p>
           
-          <div className="promo-code-box" onClick={() => alert('Đã copy mã: EZ4GEAR20')}>
+          <div className="promo-code-box" onClick={() => window.toast.info('Đã copy mã: EZ4GEAR20')}>
             <div style={{ fontSize: '11px', color: '#888', marginBottom: '2px' }}>Nhập mã khi thanh toán</div>
             <div className="promo-code-text">EZ4GEAR20</div>
           </div>

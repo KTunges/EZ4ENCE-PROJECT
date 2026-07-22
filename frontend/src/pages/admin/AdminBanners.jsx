@@ -44,7 +44,7 @@ export default function AdminBanners() {
   const handleCreate = async (e) => {
     e.preventDefault();
     if (!imageFile) {
-      alert('Vui lòng chọn hình ảnh banner!');
+      window.toast.error('Vui lòng chọn hình ảnh banner!');
       return;
     }
 
@@ -66,7 +66,7 @@ export default function AdminBanners() {
       fetchBanners();
     } catch (error) {
       console.error('Lỗi tạo banner:', error);
-      alert('Tạo banner thất bại.');
+      window.toast.error('Tạo banner thất bại.');
     } finally {
       setIsSubmitting(false);
     }
@@ -82,7 +82,7 @@ export default function AdminBanners() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Bạn có chắc chắn muốn xóa banner này?')) return;
+    if (!await window.customConfirm('Bạn có chắc chắn muốn xóa banner này?')) return;
     try {
       await deleteBanner(id);
       fetchBanners();

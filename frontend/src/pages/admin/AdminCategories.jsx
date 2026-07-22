@@ -56,12 +56,12 @@ export default function AdminCategories() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa danh mục này?")) {
+    if (await window.customConfirm("Bạn có chắc chắn muốn xóa danh mục này?")) {
       try {
         await deleteCategory(id);
         fetchCategories();
       } catch (error) {
-        alert("Có lỗi xảy ra khi xóa danh mục!");
+        window.toast.error("Có lỗi xảy ra khi xóa danh mục!");
         console.error(error);
       }
     }
@@ -88,7 +88,7 @@ export default function AdminCategories() {
       setIsModalOpen(false);
       fetchCategories();
     } catch (error) {
-      alert("Lưu thất bại. Có thể slug bị trùng!");
+      window.toast.error("Lưu thất bại. Có thể slug bị trùng!");
       console.error(error);
     } finally {
       setIsSubmitting(false);

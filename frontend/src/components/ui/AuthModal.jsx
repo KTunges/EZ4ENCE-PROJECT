@@ -357,7 +357,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                       <div className="auth-field">
                           <div className="auth-field-header">
                           <label>Mật khẩu</label>
-                          <button type="button" className="auth-forgot-link" onClick={() => alert('Coming Soon')}>Quên mật khẩu?</button>
+                          <button type="button" className="auth-forgot-link" onClick={() => window.toast.info('Coming Soon')}>Quên mật khẩu?</button>
                           </div>
                           <div className="auth-input-wrapper">
                           <Lock size={18} className="auth-input-icon" />

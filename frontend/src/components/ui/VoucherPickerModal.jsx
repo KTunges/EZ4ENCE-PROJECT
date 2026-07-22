@@ -58,19 +58,19 @@ export default function VoucherPickerModal({ isOpen, onClose, onApply, subtotal 
           setVouchers(prev => [found, ...prev]);
         } else {
           const data = await res.json();
-          alert(data.detail || 'Mã giảm giá không tồn tại, hết hạn hoặc bạn đã hết lượt sử dụng.');
+          window.toast.error(data.detail || 'Mã giảm giá không tồn tại, hết hạn hoặc bạn đã hết lượt sử dụng.');
           return;
         }
       } catch (error) {
         console.error('Lỗi kiểm tra mã:', error);
-        alert('Lỗi khi kiểm tra mã giảm giá.');
+        window.toast.error('Lỗi khi kiểm tra mã giảm giá.');
         return;
       }
     }
     
     if (found) {
       if (found.min_order_value && subtotal < found.min_order_value) {
-        alert(`Đơn hàng chưa đạt tối thiểu ${new Intl.NumberFormat('vi-VN').format(found.min_order_value)}đ để dùng mã này.`);
+        window.toast.error(`Đơn hàng chưa đạt tối thiểu ${new Intl.NumberFormat('vi-VN').format(found.min_order_value)}đ để dùng mã này.`);
         return;
       }
       

@@ -24,13 +24,13 @@ export default function AdminMailchimp() {
   }, []);
 
   const handleManualSync = async () => {
-    if (window.confirm('Bạn có chắc muốn đồng bộ lại toàn bộ danh sách khách hàng sang Mailchimp? Tiến trình này sẽ chạy ngầm và có thể mất vài phút.')) {
+    if (await window.customConfirm('Bạn có chắc muốn đồng bộ lại toàn bộ danh sách khách hàng sang Mailchimp? Tiến trình này sẽ chạy ngầm và có thể mất vài phút.')) {
       try {
         setSyncing(true);
         const res = await adminApi.post('/admin/mailchimp/sync');
-        alert(res.data.message || 'Đã bắt đầu đồng bộ.');
+        window.toast.info(res.data.message || 'Đã bắt đầu đồng bộ.');
       } catch (error) {
-        alert(error.response?.data?.detail || 'Lỗi khi kích hoạt đồng bộ.');
+        window.toast.error(error.response?.data?.detail || 'Lỗi khi kích hoạt đồng bộ.');
       } finally {
         setTimeout(() => setSyncing(false), 2000); // UI feedback
       }
