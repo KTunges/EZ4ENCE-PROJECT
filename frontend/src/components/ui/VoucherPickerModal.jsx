@@ -48,10 +48,16 @@ export default function VoucherPickerModal({ isOpen, onClose, onApply, subtotal 
     if (!found) {
       try {
         const headers = {};
+        let url = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/promotions/code/${code}`;
+        let method = 'GET';
+        
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
+          url = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/promotions/save/${code}`;
+          method = 'POST';
         }
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/promotions/code/${code}`, { headers });
+        
+        const res = await fetch(url, { method, headers });
         if (res.ok) {
           found = await res.json();
           // Thêm vào danh sách hiển thị
@@ -69,6 +75,7 @@ export default function VoucherPickerModal({ isOpen, onClose, onApply, subtotal 
     }
     
     if (found) {
+
       if (found.min_order_value && subtotal < found.min_order_value) {
         window.toast.error(`Đơn hàng chưa đạt tối thiểu ${new Intl.NumberFormat('vi-VN').format(found.min_order_value)}đ để dùng mã này.`);
         return;

@@ -9,9 +9,15 @@ from app.schemas.review import AdminReviewResponse, ReviewReplyRequest, ReviewTo
 
 router = APIRouter(prefix="/admin/reviews", tags=["Admin Reviews"])
 
+from sqlalchemy.orm import joinedload
+from app.models.product import ProductSKU
+
 @router.get("", response_model=List[AdminReviewResponse])
 def get_all_reviews(db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
-    reviews = db.query(Review).order_by(Review.created_at.desc()).all()
+    reviews = db.query(Review).options(
+        joinedload(Review.user),
+        joinedload(Review.sku).joinedload(ProductSKU.product)
+    ).order_by(Review.created_at.desc()).all()
     
     # Enrich with additional data
     result = []

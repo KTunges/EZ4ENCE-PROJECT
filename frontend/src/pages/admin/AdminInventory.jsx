@@ -41,7 +41,7 @@ export default function AdminInventory() {
 
   const openReceipt = (sku, type) => {
     setReceiptModal({
-      show: true, type, sku, quantity: 1, unit_price: type === 'OUT' ? sku.price : 0, supplier_id: '', note: ''
+      show: true, type, sku, quantity: 1, unit_price: sku.price, supplier_id: '', note: ''
     });
   };
 

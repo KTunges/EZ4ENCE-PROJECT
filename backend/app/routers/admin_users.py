@@ -15,7 +15,18 @@ def get_users(db: Session = Depends(get_db), admin: User = Depends(get_current_a
     Lấy danh sách tất cả tài khoản khách hàng (Role = USER).
     Tính toán thêm tổng số đơn hàng và tổng chi tiêu.
     """
-    users = db.query(User).filter(User.role == Role.USER).all()
+    users = db.query(User).filter(User.role == Role.USER).order_by(User.created_at.desc()).all()
+    
+    from sqlalchemy import func
+    from app.models.order import Order
+    
+    order_stats = db.query(
+        Order.user_id,
+        func.count(Order.id).label('total_orders'),
+        func.sum(Order.total_amount).label('total_spent')
+    ).group_by(Order.user_id).all()
+    
+    stats_map = {stat.user_id: {'total_orders': stat.total_orders, 'total_spent': stat.total_spent} for stat in order_stats}
     
     result = []
     for user in users:
@@ -33,8 +44,8 @@ def get_users(db: Session = Depends(get_db), admin: User = Depends(get_current_a
             "provider": user.provider,
             "avatar": user.avatar,
             "username": user.username,
-            "total_orders": len(user.orders) if user.orders else 0,
-            "total_spent": sum([order.total_amount for order in user.orders]) if user.orders else 0
+            "total_orders": stats_map.get(user.id, {}).get('total_orders', 0),
+            "total_spent": stats_map.get(user.id, {}).get('total_spent', 0) or 0
         }
         result.append(user_dict)
         

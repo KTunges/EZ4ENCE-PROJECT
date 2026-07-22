@@ -140,8 +140,8 @@ export default function AdminSuppliers() {
                   <td style={{ padding: '16px 12px', color: 'var(--cyan)' }}>{s.email || '-'}</td>
                   <td style={{ padding: '16px 12px' }}>
                     {s.is_active ? 
-                      <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(76, 175, 80, 0.2)', color: '#4caf50', fontSize: '12px' }}>Hoạt động</span> :
-                      <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(244, 67, 54, 0.2)', color: '#f44336', fontSize: '12px' }}>Ngừng</span>
+                      <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(76, 175, 80, 0.2)', color: '#4caf50', fontSize: '12px', whiteSpace: 'nowrap' }}>Hoạt động</span> :
+                      <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(244, 67, 54, 0.2)', color: '#f44336', fontSize: '12px', whiteSpace: 'nowrap' }}>Ngừng</span>
                     }
                   </td>
                   <td style={{ padding: '16px 12px', textAlign: 'right' }}>

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
 from app.models.cart import Cart, CartItem
-from app.models.product import ProductSKU
+from app.models.product import Product, ProductSKU
 from app.models.user import User
 from app.routers.auth import get_current_user
 from app.schemas.cart import CartResponse, CartItemAddRequest, CartItemUpdateRequest
@@ -36,7 +36,6 @@ def get_cart(db: Session = Depends(get_db), current_user: User = Depends(get_cur
     
     # Pre-fetch flash sales for all SKUs in cart
     from app.models.flash_sale import FlashSale, FlashSaleItem
-    from app.models.product import Product
     from datetime import datetime
     now = datetime.now()
     sku_ids = [item.sku_id for item in items]

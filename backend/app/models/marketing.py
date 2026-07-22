@@ -41,3 +41,10 @@ class Promotion(Base):
     # Relationships
     orders = relationship("Order", foreign_keys="[Order.promotion_id]", back_populates="promotion")
 
+
+class UserSavedPromotion(Base):
+    __tablename__ = "user_saved_promotions"
+
+    user_id = Column(String, index=True, primary_key=True)
+    promotion_id = Column(String, index=True, primary_key=True)
+    saved_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

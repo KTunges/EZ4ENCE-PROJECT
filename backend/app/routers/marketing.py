@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from typing import List
 
 from app.database import get_db
-from app.models.marketing import Banner
-from app.schemas.marketing import BannerResponse
+from app.models.marketing import Banner, Promotion, UserSavedPromotion
+from app.schemas.marketing import BannerResponse, PromotionResponse
 from datetime import datetime, timezone
 
 router = APIRouter(tags=["Marketing"])
@@ -30,11 +30,11 @@ def get_active_banners(position: str = None, db: Session = Depends(get_db)):
         
     return query.all()
 
-from app.models.marketing import Promotion
+from app.models.marketing import Promotion, UserSavedPromotion
 from app.models.order import Order
 from app.schemas.marketing import PromotionApplyRequest, PromotionApplyResponse
 from fastapi import HTTPException
-from app.routers.auth import get_current_user_optional
+from app.routers.auth import get_current_user_optional, get_current_user
 
 @router.post("/promotions/apply", response_model=PromotionApplyResponse)
 def apply_promotion(req: PromotionApplyRequest, db: Session = Depends(get_db), current_user=Depends(get_current_user_optional)):
@@ -108,10 +108,18 @@ def get_available_promotions(db: Session = Depends(get_db), current_user=Depends
     Loại bỏ những mã mà user đã dùng hết lượt.
     """
     now = datetime.now(timezone.utc)
-    query = db.query(Promotion).filter(
-        Promotion.is_active == True,
-        Promotion.is_public == True
-    )
+    
+    if current_user:
+        saved_promo_ids = db.query(UserSavedPromotion.promotion_id).filter(UserSavedPromotion.user_id == current_user.id)
+        query = db.query(Promotion).filter(
+            Promotion.is_active == True,
+            or_(Promotion.is_public == True, Promotion.id.in_(saved_promo_ids))
+        )
+    else:
+        query = db.query(Promotion).filter(
+            Promotion.is_active == True,
+            Promotion.is_public == True
+        )
     
     # Lọc mã còn hạn
     query = query.filter(
@@ -129,27 +137,14 @@ def get_available_promotions(db: Session = Depends(get_db), current_user=Depends
     
     # Nếu có user đăng nhập, lọc bỏ những mã đã đạt giới hạn sử dụng per-user
     if current_user and promotions:
-        promo_ids = [p.id for p in promotions]
-        
-        user_promo_counts = dict(
-            db.query(Order.promotion_id, func.count(Order.id))
-            .filter(Order.user_id == current_user.id, Order.promotion_id.in_(promo_ids))
-            .group_by(Order.promotion_id)
-            .all()
-        )
-        
-        user_shipping_promo_counts = dict(
-            db.query(Order.shipping_promotion_id, func.count(Order.id))
-            .filter(Order.user_id == current_user.id, Order.shipping_promotion_id.in_(promo_ids))
-            .group_by(Order.shipping_promotion_id)
-            .all()
-        )
-        
         valid_promos = []
         for p in promotions:
             if p.usage_limit_per_user:
-                total_user_usage = user_promo_counts.get(p.id, 0) + user_shipping_promo_counts.get(p.id, 0)
-                if total_user_usage < p.usage_limit_per_user:
+                total_used = db.query(func.count(Order.id)).filter(
+                    Order.user_id == current_user.id,
+                    or_(Order.promotion_id == p.id, Order.shipping_promotion_id == p.id)
+                ).scalar() or 0
+                if total_used < p.usage_limit_per_user:
                     valid_promos.append(p)
             else:
                 valid_promos.append(p)
@@ -157,6 +152,51 @@ def get_available_promotions(db: Session = Depends(get_db), current_user=Depends
         return valid_promos
 
     return promotions
+
+@router.post("/promotions/save/{code}", response_model=PromotionResponse)
+def save_promotion(code: str, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    """
+    Lưu một mã giảm giá vào ví voucher của người dùng
+    """
+    now = datetime.now(timezone.utc)
+    p = db.query(Promotion).filter(
+        Promotion.code == code.upper(),
+        Promotion.is_active == True
+    ).first()
+    
+    if not p:
+        raise HTTPException(status_code=404, detail="Mã giảm giá không tồn tại")
+        
+    if p.start_date and p.start_date > now:
+        raise HTTPException(status_code=400, detail="Mã giảm giá chưa đến thời gian áp dụng")
+        
+    if p.expiration_date and p.expiration_date < now:
+        raise HTTPException(status_code=400, detail="Mã giảm giá đã hết hạn")
+        
+    if p.usage_limit and p.usage_count >= p.usage_limit:
+        raise HTTPException(status_code=400, detail="Mã giảm giá đã hết lượt sử dụng")
+        
+    # Check limit per user
+    if p.usage_limit_per_user:
+        total_used = db.query(func.count(Order.id)).filter(
+            Order.user_id == current_user.id,
+            or_(Order.promotion_id == p.id, Order.shipping_promotion_id == p.id)
+        ).scalar() or 0
+        if total_used >= p.usage_limit_per_user:
+            raise HTTPException(status_code=400, detail="Bạn đã hết lượt sử dụng mã này")
+            
+    # Check if already saved
+    saved = db.query(UserSavedPromotion).filter(
+        UserSavedPromotion.user_id == current_user.id,
+        UserSavedPromotion.promotion_id == p.id
+    ).first()
+    
+    if not saved:
+        new_saved = UserSavedPromotion(user_id=current_user.id, promotion_id=p.id)
+        db.add(new_saved)
+        db.commit()
+        
+    return p
 
 @router.get("/promotions/code/{code}", response_model=PromotionResponse)
 def get_promotion_by_code(code: str, db: Session = Depends(get_db), current_user=Depends(get_current_user_optional)):
