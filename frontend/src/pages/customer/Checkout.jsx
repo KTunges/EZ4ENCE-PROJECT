@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft, Truck, Zap, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, Truck, Zap, ShieldCheck, Ticket } from 'lucide-react';
 import CustomSelect from '../../components/ui/CustomSelect';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import useVietnamProvinces from '../../hooks/useVietnamProvinces';
+import VoucherPickerModal from '../../components/ui/VoucherPickerModal';
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -35,12 +36,9 @@ export default function Checkout() {
   const [loading, setLoading] = useState(false);
   const [saveAddress, setSaveAddress] = useState(true);
 
-  // Thêm state cho mã giảm giá
-  const [promoCode, setPromoCode] = useState(location.state?.initialPromoCode || '');
-  const [appliedPromo, setAppliedPromo] = useState(null);
-  const [promoError, setPromoError] = useState('');
-  const [promoLoading, setPromoLoading] = useState(false);
-  const hasAppliedInitialPromo = useRef(false);
+  const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
+  const [selectedProductPromo, setSelectedProductPromo] = useState(location.state?.initialProductPromo || null);
+  const [selectedShippingPromo, setSelectedShippingPromo] = useState(location.state?.initialShippingPromo || null);
 
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState('new');
@@ -166,74 +164,46 @@ export default function Checkout() {
     : items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   
   const selectedShipping = shippingOptions.find(o => o.id === selectedShippingId);
-  const rawShippingFee = selectedShipping ? selectedShipping.fee : 0;
-  const isFreeshipEligible = subtotal >= 2000000;
-  const shippingFee = isFreeshipEligible ? 0 : rawShippingFee;
+  const shippingFee = selectedShipping ? selectedShipping.fee : 0;
   
-  const discountAmount = appliedPromo ? appliedPromo.final_discount : 0;
-  const total = subtotal + shippingFee - discountAmount;
+  // Calculate product discount
+  let productDiscount = 0;
+  if (selectedProductPromo) {
+    if (selectedProductPromo.discount_percent) {
+      productDiscount = subtotal * (selectedProductPromo.discount_percent / 100);
+      if (selectedProductPromo.max_discount_amount && productDiscount > selectedProductPromo.max_discount_amount) {
+        productDiscount = selectedProductPromo.max_discount_amount;
+      }
+    } else {
+      productDiscount = selectedProductPromo.discount_amount || 0;
+    }
+    if (productDiscount > subtotal) productDiscount = subtotal;
+  }
+
+  // Calculate shipping discount
+  let shippingDiscount = 0;
+  if (selectedShippingPromo) {
+    if (selectedShippingPromo.discount_percent) {
+      shippingDiscount = shippingFee * (selectedShippingPromo.discount_percent / 100);
+      if (selectedShippingPromo.max_discount_amount && shippingDiscount > selectedShippingPromo.max_discount_amount) {
+        shippingDiscount = selectedShippingPromo.max_discount_amount;
+      }
+    } else {
+      shippingDiscount = selectedShippingPromo.discount_amount || 0;
+    }
+    if (shippingDiscount > shippingFee) shippingDiscount = shippingFee;
+  }
+  
+  const total = subtotal + shippingFee - productDiscount - shippingDiscount;
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
 
-  const handleApplyPromo = async () => {
-    if (!promoCode.trim()) return;
-    setPromoLoading(true);
-    setPromoError('');
-    try {
-      const token = localStorage.getItem('token');
-      const headers = { 'Content-Type': 'application/json' };
-      if (token) headers['Authorization'] = `Bearer ${token}`;
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/promotions/apply`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ code: promoCode.trim().toUpperCase(), order_value: subtotal })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setAppliedPromo(data);
-      } else {
-        setPromoError(data.detail || 'Mã giảm giá không hợp lệ');
-        setAppliedPromo(null);
-      }
-    } catch (err) {
-      setPromoError('Lỗi kết nối. Vui lòng thử lại sau.');
-    } finally {
-      setPromoLoading(false);
-    }
+  const handleApplyVouchers = ({ productPromo, shippingPromo }) => {
+    setSelectedProductPromo(productPromo);
+    setSelectedShippingPromo(shippingPromo);
   };
-
-  useEffect(() => {
-    const initPromo = location.state?.initialPromoCode;
-    if (initPromo && subtotal > 0 && !hasAppliedInitialPromo.current) {
-      hasAppliedInitialPromo.current = true;
-      const applyInitialPromo = async () => {
-        setPromoLoading(true);
-        try {
-          const token = localStorage.getItem('token');
-          const headers = { 'Content-Type': 'application/json' };
-          if (token) headers['Authorization'] = `Bearer ${token}`;
-          const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/promotions/apply`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({ code: initPromo.toUpperCase(), order_value: subtotal })
-          });
-          const data = await res.json();
-          if (res.ok) {
-            setAppliedPromo(data);
-          } else {
-            setPromoError(data.detail || 'Mã giảm giá không hợp lệ');
-          }
-        } catch (err) {
-          setPromoError('Lỗi kết nối.');
-        } finally {
-          setPromoLoading(false);
-        }
-      };
-      applyInitialPromo();
-    }
-  }, [subtotal, location.state]);
 
   const handleSpecificCheckout = async (method) => {
     if (selectedAddressId === 'new') {
@@ -249,9 +219,10 @@ export default function Checkout() {
         address_id: selectedAddressId,
         payment_method: method.toUpperCase(),
         shipping_fee: shippingFee,
-        shipping_provider: selectedShipping ? selectedShipping.id : null,
-        note: note,
-        promotion_id: appliedPromo ? appliedPromo.id : null,
+        shipping_provider: selectedShipping ? selectedShipping.provider : null,
+        note: note || undefined,
+        promotion_id: selectedProductPromo ? selectedProductPromo.id : undefined,
+        shipping_promotion_id: selectedShippingPromo ? selectedShippingPromo.id : undefined,
         selected_cart_item_ids: selectedItems.length > 0 ? selectedItems : null
       } : {
         full_name: fullName,
@@ -265,9 +236,10 @@ export default function Checkout() {
         ward_code: wardId,
         payment_method: method.toUpperCase(),
         shipping_fee: shippingFee,
-        shipping_provider: selectedShipping ? selectedShipping.id : null,
-        note: note,
-        promotion_id: appliedPromo ? appliedPromo.id : null,
+        shipping_provider: selectedShipping ? selectedShipping.provider : null,
+        note: note || undefined,
+        promotion_id: selectedProductPromo ? selectedProductPromo.id : undefined,
+        shipping_promotion_id: selectedShippingPromo ? selectedShippingPromo.id : undefined,
         selected_cart_item_ids: selectedItems.length > 0 ? selectedItems : null
       };
       
@@ -500,14 +472,7 @@ export default function Checkout() {
                           <p>Dự kiến giao: <strong className="text-white">{option.estimated_delivery}</strong></p>
                         </div>
                         <div className="option-price" style={{ color: selectedShippingId === option.id ? '#00d2ff' : 'var(--text-muted)' }}>
-                          {isFreeshipEligible ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                              <span style={{ textDecoration: 'line-through', color: 'var(--text-dim)', fontSize: '12px' }}>{formatPrice(option.fee)}</span>
-                              <span style={{ color: '#00d2ff', fontWeight: 'bold' }}>0 đ</span>
-                            </div>
-                          ) : (
-                            formatPrice(option.fee)
-                          )}
+                          {formatPrice(option.fee)}
                         </div>
                       </div>
                     </label>
@@ -515,9 +480,6 @@ export default function Checkout() {
                 </div>
               )}
             </div>
-
-
-
           </div>
 
           {/* Right Column: Order Summary */}
@@ -542,37 +504,19 @@ export default function Checkout() {
 
                 <div className="summary-divider"></div>
 
-                {/* Promo Code Input */}
-                <div className="mb-4 mt-4">
-                  <div className="flex gap-2">
-                    <input 
-                      type="text" 
-                      className="checkout-input flex-1 uppercase" 
-                      placeholder="Mã giảm giá (VD: EZ4GEAR)" 
-                      value={promoCode}
-                      onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                      disabled={promoLoading || appliedPromo}
-                    />
-                    {appliedPromo ? (
-                      <button 
-                        className="btn btn-outline border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-                        onClick={() => { setAppliedPromo(null); setPromoCode(''); }}
-                      >
-                        Hủy
-                      </button>
-                    ) : (
-                      <button 
-                        className="btn btn-primary"
-                        onClick={handleApplyPromo}
-                        disabled={promoLoading || !promoCode.trim()}
-                      >
-                        {promoLoading ? 'Đang kiểm tra...' : 'Áp dụng'}
-                      </button>
-                    )}
+                {/* Promo Code Button */}
+                <button 
+                  className="voucher-select-btn"
+                  onClick={() => setIsVoucherModalOpen(true)}
+                >
+                  <div className="btn-left">
+                    <Ticket size={20} />
+                    <span>{selectedProductPromo || selectedShippingPromo ? 'Đổi Mã Giảm Giá' : 'Chọn Mã Giảm Giá'}</span>
                   </div>
-                  {promoError && <p className="text-red-400 text-sm mt-2">{promoError}</p>}
-                  {appliedPromo && <p className="text-green-400 text-sm mt-2">{appliedPromo.message}</p>}
-                </div>
+                  <div className="btn-right">
+                    {[selectedProductPromo, selectedShippingPromo].filter(Boolean).length} mã đang chọn &gt;
+                  </div>
+                </button>
                 
                 <div className="summary-row">
                   <span>Tạm tính:</span>
@@ -582,14 +526,21 @@ export default function Checkout() {
                 <div className="summary-row">
                   <span>Phí giao hàng:</span>
                   <span className="text-cyan">
-                    {shippingFee === 0 ? (shippingOptions.length === 0 ? '--' : 'Miễn phí') : formatPrice(shippingFee)}
+                    {shippingOptions.length === 0 ? '--' : formatPrice(shippingFee)}
                   </span>
                 </div>
 
-                {appliedPromo && (
+                {selectedProductPromo && (
                   <div className="summary-row text-green-400">
-                    <span>Giảm giá ({appliedPromo.code}):</span>
-                    <span>-{formatPrice(appliedPromo.final_discount)}</span>
+                    <span>Giảm SP ({selectedProductPromo.code}):</span>
+                    <span>-{formatPrice(productDiscount)}</span>
+                  </div>
+                )}
+
+                {selectedShippingPromo && (
+                  <div className="summary-row text-blue-400">
+                    <span>Giảm Ship ({selectedShippingPromo.code}):</span>
+                    <span>-{formatPrice(shippingDiscount)}</span>
                   </div>
                 )}
   
@@ -668,98 +619,103 @@ export default function Checkout() {
 
                     <div className="w-full mb-4">
                       <PayPalScriptProvider options={{ "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID || "test", currency: "USD" }}>
-                    <PayPalButtons
-                      style={{ layout: "vertical", color: "blue", shape: "rect", label: "pay" }}
-                      createOrder={async () => {
-                        if (selectedAddressId === 'new') {
-                          if (!fullName || !phone || !provinceName || !districtName || !wardName || !addressLine) {
-                            alert('Vui lòng điền đầy đủ thông tin giao hàng trước khi thanh toán PayPal!');
-                            return null;
-                          }
-                        }
-                        try {
-                          const payload = selectedAddressId !== 'new' ? {
-                            address_id: selectedAddressId,
-                            payment_method: "PAYPAL",
-                            shipping_fee: shippingFee,
-                            shipping_provider: selectedShipping ? selectedShipping.id : null,
-                            note: note,
-                            selected_cart_item_ids: selectedItems.length > 0 ? selectedItems : null
-                          } : {
-                            full_name: fullName, phone, address_line: addressLine, 
-                            ward: wardName, district: districtName, city: provinceName,
-                            province_id: provinceId, district_id: districtId, ward_code: wardId,
-                            payment_method: "PAYPAL", 
-                            shipping_fee: shippingFee,
-                            shipping_provider: selectedShipping ? selectedShipping.id : null,
-                            note: note,
-                            selected_cart_item_ids: selectedItems.length > 0 ? selectedItems : null
-                          };
+                        <PayPalButtons
+                          style={{ layout: "vertical", color: "blue", shape: "rect", label: "pay" }}
+                          createOrder={async () => {
+                            if (selectedAddressId === 'new') {
+                              if (!fullName || !phone || !provinceName || !districtName || !wardName || !addressLine) {
+                                alert('Vui lòng điền đầy đủ thông tin giao hàng trước khi thanh toán PayPal!');
+                                return null;
+                              }
+                            }
+                            try {
+                              const payload = selectedAddressId !== 'new' ? {
+                                address_id: selectedAddressId,
+                                payment_method: "PAYPAL",
+                                shipping_fee: shippingFee,
+                                shipping_provider: selectedShipping ? selectedShipping.provider : null,
+                                note: note || undefined,
+                                promotion_id: selectedProductPromo ? selectedProductPromo.id : undefined,
+                                shipping_promotion_id: selectedShippingPromo ? selectedShippingPromo.id : undefined,
+                                selected_cart_item_ids: selectedItems.length > 0 ? selectedItems : null
+                              } : {
+                                full_name: fullName, phone, address_line: addressLine, 
+                                ward: wardName, district: districtName, city: provinceName,
+                                province_id: provinceId, district_id: districtId, ward_code: wardId,
+                                payment_method: "PAYPAL", 
+                                shipping_fee: shippingFee,
+                                shipping_provider: selectedShipping ? selectedShipping.provider : null,
+                                note: note || undefined,
+                                promotion_id: selectedProductPromo ? selectedProductPromo.id : undefined,
+                                shipping_promotion_id: selectedShippingPromo ? selectedShippingPromo.id : undefined,
+                                selected_cart_item_ids: selectedItems.length > 0 ? selectedItems : null
+                              };
 
-                          // Tạo đơn EZ4GEAR
-                          const orderRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/orders`, {
-                            method: "POST",
-                            headers: { 
-                              "Content-Type": "application/json",
-                              "Authorization": `Bearer ${token}`
-                            },
-                            body: JSON.stringify(payload),
-                          });
-                          const orderData = await orderRes.json();
-                          if (!orderRes.ok) throw new Error(orderData.detail || 'Lỗi tạo đơn');
-                          
-                          currentOrderIdRef.current = orderData.id;
-                          orderTotalRef.current = orderData.total_amount;
+                              // Tạo đơn EZ4GEAR
+                              const orderRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/orders`, {
+                                method: "POST",
+                                headers: { 
+                                  "Content-Type": "application/json",
+                                  "Authorization": `Bearer ${token}`
+                                },
+                                body: JSON.stringify(payload),
+                              });
+                              const orderData = await orderRes.json();
+                              if (!orderRes.ok) throw new Error(orderData.detail || 'Lỗi tạo đơn');
+                              
+                              // Use refs to store order state
+                              // Note: Assuming these refs exist in the component
+                              // currentOrderIdRef.current = orderData.id;
+                              // orderTotalRef.current = orderData.total_amount;
 
-                          // Xoá giỏ
-                          if (selectedItems.length > 0 && selectedItems.length < (cart?.items?.length || 0)) {
-                            fetchCart();
-                          } else {
-                            clearCartState();
-                          }
-                          // Gọi PayPal backend proxy
-                          const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/payment/paypal/create-order`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                            body: JSON.stringify({ order_id: orderData.id }),
-                          });
-                          const ppData = await response.json();
-                          if (ppData.paypal_order_id) {
-                            // Lưu db_order_id vào biến tạm để dùng khi capture
-                            window.__ez4gear_db_order_id = ppData.db_order_id || orderData.id;
-                            return ppData.paypal_order_id;
-                          } else {
-                            throw new Error("Không thể khởi tạo PayPal Order");
-                          }
-                        } catch (error) {
-                          console.error("Create order failed", error);
-                          alert("Không thể tạo đơn hàng PayPal. " + error.message);
-                        }
-                      }}
-                      onApprove={async (data, actions) => {
-                        try {
-                          const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/payment/paypal/capture-order`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                            body: JSON.stringify({ 
-                              paypal_order_id: data.orderID,
-                              db_order_id: currentOrderIdRef.current
-                            }),
-                          });
-                          const orderData = await response.json();
-                          
-                          if (orderData.success) {
-                            navigate('/checkout/success', { state: { method: 'paypal', total: orderTotalRef.current, orderId: currentOrderIdRef.current } });
-                          } else {
-                            throw new Error("Capture failed");
-                          }
-                        } catch (error) {
-                          console.error("Capture order failed", error);
-                          alert("Thanh toán thất bại. " + error.message);
-                        }
-                      }}
-                    />
-                    </PayPalScriptProvider>
+                              // Xoá giỏ
+                              if (selectedItems.length > 0 && selectedItems.length < (cart?.items?.length || 0)) {
+                                fetchCart();
+                              } else {
+                                clearCartState();
+                              }
+                              // Gọi PayPal backend proxy
+                              const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/payment/paypal/create-order`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                                body: JSON.stringify({ order_id: orderData.id }),
+                              });
+                              const ppData = await response.json();
+                              if (ppData.paypal_order_id) {
+                                window.__ez4gear_db_order_id = ppData.db_order_id || orderData.id;
+                                return ppData.paypal_order_id;
+                              } else {
+                                throw new Error("Không thể khởi tạo PayPal Order");
+                              }
+                            } catch (error) {
+                              console.error("Create order failed", error);
+                              alert("Không thể tạo đơn hàng PayPal. " + error.message);
+                            }
+                          }}
+                          onApprove={async (data, actions) => {
+                            try {
+                              const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/payment/paypal/capture-order`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                                body: JSON.stringify({ 
+                                  paypal_order_id: data.orderID,
+                                  db_order_id: window.__ez4gear_db_order_id
+                                }),
+                              });
+                              const orderData = await response.json();
+                              
+                              if (orderData.success) {
+                                navigate('/checkout/success', { state: { method: 'paypal', total: orderData.total, orderId: window.__ez4gear_db_order_id } });
+                              } else {
+                                throw new Error("Capture failed");
+                              }
+                            } catch (error) {
+                              console.error("Capture order failed", error);
+                              alert("Thanh toán thất bại. " + error.message);
+                            }
+                          }}
+                        />
+                      </PayPalScriptProvider>
                     </div>
 
                     <div className="relative flex items-center py-2 mb-4 mt-4">
@@ -797,8 +753,14 @@ export default function Checkout() {
               </div>
             </div>
           </div>
-
         </div>
+
+        <VoucherPickerModal 
+          isOpen={isVoucherModalOpen}
+          onClose={() => setIsVoucherModalOpen(false)}
+          onApply={handleApplyVouchers}
+          subtotal={subtotal}
+        />
       </div>
     </div>
   );

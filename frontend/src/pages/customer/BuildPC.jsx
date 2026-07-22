@@ -192,25 +192,25 @@ export default function BuildPC() {
     addToast(`Đã áp dụng ${applied} gợi ý AI vào cấu hình!`, 'success');
   };
 
-  // Keywords theo từng slot — chỉ dùng tên sản phẩm, không phụ thuộc vào category DB
-  const SLOT_KEYWORDS = {
-    'CPU':       ['cpu', 'core i', 'core ultra', 'ryzen', 'intel core', 'amd ryzen'],
-    'Mainboard': ['mainboard', 'bo mạch', 'z790', 'z690', 'z590', 'b760', 'b660', 'h610', 'x670', 'b650', 'b550', 'h570'],
-    'RAM':       ['ram', 'ddr4', 'ddr5', 'dimm'],
-    'VGA':       ['rtx', 'gtx', 'radeon', 'rx 7', 'rx 6', 'rx 5', 'rx 4', 'arc a', 'geforce'],
-    'SSD':       ['ssd', 'nvme', 'm.2', 'hdd', 'ổ cứng', 'kingston', 'samsung 9', 'wd black', 'seagate'],
-    'Nguồn':   ['nguồn', 'psu', 'power supply', 'rm', 'cx', 'tx', 'hx', 'corsair rm', 'cooler master mwe', 'seasonic'],
-    'Case':      ['case', 'vỏ máy', 'lian li', 'nzxt h', 'corsair 4', '5000d', 'fractal', 'phanteks'],
-    'Tản nhiệt': ['tản nhiệt', 'cooler', 'kraken', 'nh-d', 'aio', 'liquid', 'noctua', 'be quiet', 'dark rock'],
+  // Phân loại triệt để dựa trên Danh Mục Sản Phẩm (Category) từ Database
+  const SLOT_CATEGORIES = {
+    'CPU':       ['cpu', 'vi xử lý'],
+    'Mainboard': ['mainboard', 'bo mạch chủ'],
+    'RAM':       ['ram', 'bộ nhớ trong'],
+    'VGA':       ['vga', 'card màn hình'],
+    'SSD':       ['ssd', 'hdd', 'ổ cứng'],
+    'Nguồn':     ['psu', 'nguồn'],
+    'Case':      ['case', 'vỏ máy'],
+    'Tản nhiệt': ['tản nhiệt'],
   };
 
   // Lấy danh sách brand thực tế từ products đang hiển thị
   const modalBrands = useMemo(() => {
     if (!activeModalSlot) return [];
-    const keywords = SLOT_KEYWORDS[activeModalSlot] || [];
+    const catKeywords = SLOT_CATEGORIES[activeModalSlot] || [];
     const filtered = productsList.filter(p => {
-      const text = p.name.toLowerCase();
-      return keywords.some(kw => text.includes(kw.toLowerCase()));
+      const cat = p.rawCategory.toLowerCase();
+      return catKeywords.some(kw => cat.includes(kw));
     });
     const brands = [...new Set(filtered.map(p => p.brand).filter(Boolean))].sort();
     return brands;
@@ -224,15 +224,15 @@ export default function BuildPC() {
     setCurrentPage(1);
   };
 
-  // Filter products for modal — dùng keyword matching trên tên sản phẩm
+  // Filter products for modal — lọc triệt để bằng Category
   const allFilteredProducts = useMemo(() => {
     if (!activeModalSlot) return [];
-    const keywords = SLOT_KEYWORDS[activeModalSlot] || [];
+    const catKeywords = SLOT_CATEGORIES[activeModalSlot] || [];
 
     let products = productsList.filter(p => {
-      const text = p.name.toLowerCase();
-      // Match nếu tên sản phẩm chứa ít nhất 1 keyword của slot
-      return keywords.some(kw => text.includes(kw.toLowerCase()));
+      const cat = p.rawCategory.toLowerCase();
+      // Match chuẩn xác thông qua tên danh mục (rawCategory)
+      return catKeywords.some(kw => cat.includes(kw));
     });
 
     // Lọc theo brand

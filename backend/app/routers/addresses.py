@@ -13,7 +13,7 @@ router = APIRouter(prefix="/addresses", tags=["addresses"])
 
 @router.get("", response_model=List[AddressResponse])
 def get_addresses(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return db.query(Address).filter(Address.user_id == current_user.id).order_by(Address.created_at.desc()).all()
+    return db.query(Address).filter(Address.user_id == current_user.id, Address.is_deleted == False).order_by(Address.created_at.desc()).all()
 
 @router.post("", response_model=AddressResponse)
 def create_address(req: AddressCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -64,19 +64,20 @@ def update_address(address_id: str, req: AddressUpdate, db: Session = Depends(ge
 
 @router.delete("/{address_id}")
 def delete_address(address_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    address = db.query(Address).filter(Address.id == address_id, Address.user_id == current_user.id).first()
+    address = db.query(Address).filter(Address.id == address_id, Address.user_id == current_user.id, Address.is_deleted == False).first()
     if not address:
         raise HTTPException(status_code=404, detail="Không tìm thấy địa chỉ")
     
-    db.delete(address)
-    db.commit()
+    address.is_deleted = True
     
     # Nếu xóa địa chỉ default, chọn address đầu tiên làm default mới nếu còn
     if address.is_default:
-        first = db.query(Address).filter(Address.user_id == current_user.id).first()
+        address.is_default = False
+        first = db.query(Address).filter(Address.user_id == current_user.id, Address.is_deleted == False).first()
         if first:
             first.is_default = True
-            db.commit()
+            
+    db.commit()
             
     return {"message": "Đã xóa địa chỉ thành công"}
 

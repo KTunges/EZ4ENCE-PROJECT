@@ -78,6 +78,7 @@ def create_promotion(promo_in: PromotionCreate, db: Session = Depends(get_db)):
     new_promo = Promotion(
         id=str(uuid.uuid4()),
         code=promo_in.code,
+        type=promo_in.type,
         discount_percent=promo_in.discount_percent,
         discount_amount=promo_in.discount_amount,
         max_discount_amount=promo_in.max_discount_amount,

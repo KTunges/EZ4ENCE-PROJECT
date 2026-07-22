@@ -6,21 +6,22 @@ import { useAuth } from '../../context/AuthContext';
 import ProductCard from '../../components/ui/ProductCard';
 import AuthModal from '../../components/ui/AuthModal';
 import PageSkeleton from '../../components/ui/PageSkeleton';
+import VoucherPickerModal from '../../components/ui/VoucherPickerModal';
 
 export default function Cart() {
   const { cart, updateQuantity, removeItem, loading } = useCart();
   const { user, token } = useAuth();
   const navigate = useNavigate();
-  const [promoCode, setPromoCode] = useState('');
-  const [appliedPromo, setAppliedPromo] = useState(null);
-  const [promoError, setPromoError] = useState('');
-  const [promoLoading, setPromoLoading] = useState(false);
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const [showAuth, setShowAuth] = useState(false);
   const [shippingFee, setShippingFee] = useState(0);
   const [shippingCalculated, setShippingCalculated] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [hasInitializedSelection, setHasInitializedSelection] = useState(false);
+  
+  const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
+  const [selectedProductPromo, setSelectedProductPromo] = useState(null);
+  const [selectedShippingPromo, setSelectedShippingPromo] = useState(null);
 
   useEffect(() => {
     if (cart?.items && !hasInitializedSelection) {
@@ -92,34 +93,26 @@ export default function Cart() {
   const activeItems = items.filter(item => selectedItems.includes(item.id));
   const subtotal = activeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const totalQuantity = activeItems.reduce((sum, item) => sum + item.quantity, 0);
-  const isFreeshipEligible = subtotal >= 2000000;
-  const finalShippingFee = isFreeshipEligible ? 0 : (shippingCalculated ? shippingFee : 0);
-  
-  const discountAmount = appliedPromo ? appliedPromo.final_discount : 0;
-  const total = subtotal + finalShippingFee - discountAmount;
-
-  const handleApplyPromo = async () => {
-    if (!promoCode.trim()) return;
-    setPromoLoading(true);
-    setPromoError('');
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/promotions/apply`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: promoCode.trim().toUpperCase(), order_value: subtotal })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setAppliedPromo(data);
-      } else {
-        setPromoError(data.detail || 'Mã giảm giá không hợp lệ');
-        setAppliedPromo(null);
+  const finalShippingFee = shippingCalculated ? shippingFee : 0;
+  // Calculate product discount
+  let productDiscount = 0;
+  if (selectedProductPromo) {
+    if (selectedProductPromo.discount_percent) {
+      productDiscount = subtotal * (selectedProductPromo.discount_percent / 100);
+      if (selectedProductPromo.max_discount_amount && productDiscount > selectedProductPromo.max_discount_amount) {
+        productDiscount = selectedProductPromo.max_discount_amount;
       }
-    } catch (err) {
-      setPromoError('Lỗi kết nối. Vui lòng thử lại sau.');
-    } finally {
-      setPromoLoading(false);
+    } else {
+      productDiscount = selectedProductPromo.discount_amount || 0;
     }
+    if (productDiscount > subtotal) productDiscount = subtotal;
+  }
+
+  const total = subtotal + finalShippingFee - productDiscount;
+
+  const handleApplyVouchers = ({ productPromo, shippingPromo }) => {
+    setSelectedProductPromo(productPromo);
+    setSelectedShippingPromo(shippingPromo);
   };
 
   useEffect(() => {
@@ -291,40 +284,38 @@ export default function Cart() {
                 <div className="summary-row">
                   <span>Phí giao hàng:</span>
                   <span className="text-cyan">
-                    {activeItems.length === 0 ? '0 ₫' : (isFreeshipEligible ? 'Miễn phí' : (shippingCalculated ? formatPrice(shippingFee) : 'Tính khi thanh toán'))}
+                    {activeItems.length === 0 ? '0 ₫' : (shippingCalculated ? formatPrice(shippingFee) : 'Tính khi thanh toán')}
                   </span>
                 </div>
 
                 <div className="summary-divider"></div>
 
-                <div className="promo-code-container">
-                  <div className="promo-input-wrapper">
-                    <Tag size={18} className="promo-icon" />
-                    <input 
-                      type="text" 
-                      placeholder="Nhập mã giảm giá" 
-                      value={promoCode}
-                      onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                      disabled={promoLoading || appliedPromo}
-                    />
+                <button 
+                  className="voucher-select-btn"
+                  onClick={() => setIsVoucherModalOpen(true)}
+                >
+                  <div className="btn-left">
+                    <Tag size={18} />
+                    <span>{selectedProductPromo || selectedShippingPromo ? 'Đổi Mã Giảm Giá' : 'Chọn Mã Giảm Giá'}</span>
                   </div>
-                  {appliedPromo ? (
-                    <button className="btn btn-outline promo-btn" onClick={() => { setAppliedPromo(null); setPromoCode(''); }} style={{ borderColor: '#ef4444', color: '#ef4444' }}>HỦY</button>
-                  ) : (
-                    <button className="btn btn-outline promo-btn" onClick={handleApplyPromo} disabled={promoLoading || !promoCode.trim()}>
-                      {promoLoading ? '...' : 'ÁP DỤNG'}
-                    </button>
-                  )}
-                </div>
-                {promoError && <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '8px', marginBottom: 0 }}>{promoError}</p>}
-                {appliedPromo && <p style={{ color: '#22c55e', fontSize: '13px', marginTop: '8px', marginBottom: 0 }}>{appliedPromo.message}</p>}
+                  <div className="btn-right">
+                    {[selectedProductPromo, selectedShippingPromo].filter(Boolean).length} mã đang chọn &gt;
+                  </div>
+                </button>
 
                 <div className="summary-divider"></div>
 
-                {appliedPromo && (
-                  <div className="summary-row" style={{ color: '#22c55e' }}>
-                    <span>Giảm giá ({appliedPromo.code}):</span>
-                    <span>-{formatPrice(appliedPromo.final_discount)}</span>
+                {selectedProductPromo && (
+                  <div className="summary-row text-green-400">
+                    <span>Giảm SP ({selectedProductPromo.code}):</span>
+                    <span>-{formatPrice(productDiscount)}</span>
+                  </div>
+                )}
+                
+                {selectedShippingPromo && (
+                  <div className="summary-row text-blue-400">
+                    <span>Mã Ship ({selectedShippingPromo.code}):</span>
+                    <span>Sẽ áp dụng khi thanh toán</span>
                   </div>
                 )}
 
@@ -337,7 +328,8 @@ export default function Cart() {
                 <Link 
                   to="/checkout" 
                   state={{ 
-                    initialPromoCode: appliedPromo?.code || (promoCode && !promoError ? promoCode : ''),
+                    initialProductPromo: selectedProductPromo,
+                    initialShippingPromo: selectedShippingPromo,
                     selectedItems: selectedItems
                   }} 
                   className={`btn btn-primary btn-checkout ${selectedItems.length === 0 ? 'disabled' : ''}`}
@@ -362,6 +354,13 @@ export default function Cart() {
 
           </div>
         )}
+        
+        <VoucherPickerModal 
+          isOpen={isVoucherModalOpen}
+          onClose={() => setIsVoucherModalOpen(false)}
+          onApply={handleApplyVouchers}
+          subtotal={subtotal}
+        />
 
         {/* Recommended Products (show regardless of empty state but styled distinctly) */}
         {recommendedProducts.length > 0 && (

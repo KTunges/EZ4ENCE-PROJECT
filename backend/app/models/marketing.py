@@ -23,6 +23,8 @@ class Promotion(Base):
 
     id = Column(String, primary_key=True, index=True)
     code = Column(String, unique=True, index=True, nullable=False)
+    type = Column(String, default="product", nullable=False) # 'product' | 'shipping'
+    is_public = Column(Boolean, default=True, nullable=False) # Hiện ở pop-up hay không
     discount_percent = Column(Float, nullable=True)
     discount_amount = Column(Float, nullable=True)
     max_discount_amount = Column(Float, nullable=True)  # Giảm tối đa (VD: giảm 10% nhưng tối đa 10.000đ)
@@ -37,5 +39,5 @@ class Promotion(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
-    orders = relationship("Order", back_populates="promotion")
+    orders = relationship("Order", foreign_keys="[Order.promotion_id]", back_populates="promotion")
 

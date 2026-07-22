@@ -31,7 +31,8 @@ class Order(Base):
     id = Column(String, primary_key=True, index=True)
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
     address_id = Column(String, ForeignKey("addresses.id"), nullable=False)
-    promotion_id = Column(String, ForeignKey("promotions.id"), nullable=True) # Áp dụng mã giảm giá
+    promotion_id = Column(String, ForeignKey("promotions.id"), nullable=True) # Áp dụng mã giảm giá sản phẩm
+    shipping_promotion_id = Column(String, ForeignKey("promotions.id"), nullable=True) # Áp dụng mã giảm phí vận chuyển
     status = Column(Enum(OrderStatus), default=OrderStatus.PENDING, nullable=False)
     payment_method = Column(Enum(PaymentMethod), default=PaymentMethod.COD, nullable=False)
     payment_status = Column(Enum(PaymentStatus), default=PaymentStatus.UNPAID, nullable=False)
@@ -39,7 +40,8 @@ class Order(Base):
     total_amount = Column(Float, nullable=False)
     shipping_fee = Column(Float, default=0, nullable=False)
     shipping_provider = Column(String, nullable=True)
-    discount_amount = Column(Float, default=0, nullable=False) # Tiền được giảm
+    discount_amount = Column(Float, default=0, nullable=False) # Tiền được giảm sản phẩm
+    shipping_discount = Column(Float, default=0, nullable=False) # Tiền được giảm phí ship
     note = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
@@ -48,7 +50,8 @@ class Order(Base):
     user = relationship("User", back_populates="orders")
     shipping_address = relationship("Address", back_populates="orders")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
-    promotion = relationship("Promotion", back_populates="orders")
+    promotion = relationship("Promotion", foreign_keys=[promotion_id], back_populates="orders")
+    shipping_promotion = relationship("Promotion", foreign_keys=[shipping_promotion_id])
     status_history = relationship("OrderStatusHistory", back_populates="order", cascade="all, delete-orphan", order_by="OrderStatusHistory.created_at.asc()")
 
 class OrderStatusHistory(Base):

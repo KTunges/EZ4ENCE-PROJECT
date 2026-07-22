@@ -24,10 +24,12 @@ class BannerResponse(BannerBase):
 class PromotionApplyRequest(BaseModel):
     code: str
     order_value: float
+    shipping_fee: float = 0
 
 class PromotionApplyResponse(BaseModel):
     id: str
     code: str
+    type: str
     discount_amount: float
     discount_percent: Optional[float] = None
     max_discount_amount: Optional[float] = None
@@ -36,6 +38,7 @@ class PromotionApplyResponse(BaseModel):
 
 class PromotionBase(BaseModel):
     code: str
+    type: str = "product"
     discount_percent: Optional[float] = None
     discount_amount: Optional[float] = None
     max_discount_amount: Optional[float] = None
@@ -45,6 +48,7 @@ class PromotionBase(BaseModel):
     start_date: Optional[datetime] = None
     expiration_date: Optional[datetime] = None
     is_active: bool = True
+    is_public: bool = True
 
 class PromotionCreate(PromotionBase):
     pass

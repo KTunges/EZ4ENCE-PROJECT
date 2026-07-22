@@ -153,11 +153,11 @@ def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db:
     shipping_fee = req.shipping_fee or 0
     discount_amount = 0
     
-    # Calculate Promotion
+    # Calculate Product Promotion
     if req.promotion_id:
         from app.models.marketing import Promotion
         from datetime import datetime, timezone
-        promotion = db.query(Promotion).filter(Promotion.id == req.promotion_id, Promotion.is_active == True).first()
+        promotion = db.query(Promotion).filter(Promotion.id == req.promotion_id, Promotion.is_active == True, Promotion.type == 'product').first()
         if promotion:
             now = datetime.now(timezone.utc)
             is_valid = True
@@ -184,18 +184,50 @@ def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db:
             if is_valid and subtotal >= promotion.min_order_value:
                 if promotion.discount_percent:
                     discount_amount = subtotal * (promotion.discount_percent / 100)
-                    # Áp dụng giới hạn giảm tối đa
                     if promotion.max_discount_amount and discount_amount > promotion.max_discount_amount:
                         discount_amount = promotion.max_discount_amount
                 elif promotion.discount_amount:
                     discount_amount = promotion.discount_amount
                 if discount_amount > subtotal:
                     discount_amount = subtotal
-                    
-                # Tăng số lượt đã sử dụng
                 promotion.usage_count += 1
                         
-    final_total = total_amount - discount_amount
+    # Calculate Shipping Promotion
+    shipping_discount = 0
+    if req.shipping_promotion_id:
+        from app.models.marketing import Promotion
+        from datetime import datetime, timezone
+        shipping_promo = db.query(Promotion).filter(Promotion.id == req.shipping_promotion_id, Promotion.is_active == True, Promotion.type == 'shipping').first()
+        if shipping_promo:
+            now = datetime.now(timezone.utc)
+            is_valid = True
+            
+            if shipping_promo.start_date and shipping_promo.start_date > now:
+                is_valid = False
+            if shipping_promo.expiration_date and shipping_promo.expiration_date < now:
+                is_valid = False
+            if shipping_promo.usage_limit is not None and shipping_promo.usage_count >= shipping_promo.usage_limit:
+                is_valid = False
+            if shipping_promo.usage_limit_per_user:
+                user_usage = db.query(Order).filter(
+                    Order.shipping_promotion_id == shipping_promo.id,
+                    Order.user_id == current_user.id
+                ).count()
+                if user_usage >= shipping_promo.usage_limit_per_user:
+                    is_valid = False
+            
+            if is_valid and subtotal >= shipping_promo.min_order_value:
+                if shipping_promo.discount_percent:
+                    shipping_discount = shipping_fee * (shipping_promo.discount_percent / 100)
+                    if shipping_promo.max_discount_amount and shipping_discount > shipping_promo.max_discount_amount:
+                        shipping_discount = shipping_promo.max_discount_amount
+                elif shipping_promo.discount_amount:
+                    shipping_discount = shipping_promo.discount_amount
+                if shipping_discount > shipping_fee:
+                    shipping_discount = shipping_fee
+                shipping_promo.usage_count += 1
+
+    final_total = total_amount - discount_amount - shipping_discount
     
     # 4. Create Order
     # Tự động sinh mã giao dịch cho COD
@@ -208,6 +240,7 @@ def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db:
         user_id=current_user.id,
         address_id=address_id_to_use,
         promotion_id=req.promotion_id,
+        shipping_promotion_id=req.shipping_promotion_id,
         status=OrderStatus.PENDING,
         payment_method=req.payment_method,
         payment_status=PaymentStatus.UNPAID,
@@ -216,6 +249,7 @@ def create_order(req: OrderCreateRequest, background_tasks: BackgroundTasks, db:
         shipping_fee=shipping_fee,
         shipping_provider=req.shipping_provider,
         discount_amount=discount_amount,
+        shipping_discount=shipping_discount,
         note=req.note
     )
     db.add(new_order)
@@ -296,7 +330,9 @@ from sqlalchemy.orm import selectinload, joinedload
 def get_user_orders(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     orders = db.query(Order).filter(Order.user_id == current_user.id).options(
         selectinload(Order.items).joinedload(OrderItem.sku).joinedload(ProductSKU.product).selectinload(Product.images),
-        selectinload(Order.items).joinedload(OrderItem.sku).selectinload(ProductSKU.images)
+        selectinload(Order.items).joinedload(OrderItem.sku).selectinload(ProductSKU.images),
+        selectinload(Order.shipping_address),
+        selectinload(Order.status_history)
     ).order_by(Order.created_at.desc()).all()
     
     # add image_url to items

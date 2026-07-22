@@ -47,6 +47,7 @@ class OrderCreateRequest(BaseModel):
     shipping_provider: Optional[str] = None # vd: ghn_standard, ghtk_fast
     note: Optional[str] = None
     promotion_id: Optional[str] = None
+    shipping_promotion_id: Optional[str] = None
 
 from app.schemas.address import AddressResponse
 
@@ -70,6 +71,7 @@ class OrderResponse(BaseModel):
     total_amount: float
     shipping_fee: float
     discount_amount: float
+    shipping_discount: float = 0
     note: Optional[str] = None
     created_at: datetime
     updated_at: datetime

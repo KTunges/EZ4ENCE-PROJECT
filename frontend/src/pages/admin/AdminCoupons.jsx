@@ -10,6 +10,7 @@ export default function AdminCoupons() {
   
   const [formData, setFormData] = useState({
     code: '',
+    type: 'product',
     discount_percent: '',
     discount_amount: '',
     max_discount_amount: '',
@@ -18,7 +19,8 @@ export default function AdminCoupons() {
     usage_limit_per_user: 1,
     start_date: '',
     expiration_date: '',
-    is_active: true
+    is_active: true,
+    is_public: true
   });
 
   const fetchCoupons = async () => {
@@ -48,6 +50,7 @@ export default function AdminCoupons() {
       setIsSubmitting(true);
       const payload = {
         code: formData.code.toUpperCase().replace(/\s+/g, ''),
+        type: formData.type,
         discount_percent: formData.discount_percent ? parseFloat(formData.discount_percent) : null,
         discount_amount: formData.discount_amount ? parseFloat(formData.discount_amount) : null,
         max_discount_amount: formData.max_discount_amount ? parseFloat(formData.max_discount_amount) : null,
@@ -56,13 +59,14 @@ export default function AdminCoupons() {
         usage_limit_per_user: parseInt(formData.usage_limit_per_user || 1),
         start_date: formData.start_date ? new Date(formData.start_date).toISOString() : null,
         expiration_date: formData.expiration_date ? new Date(formData.expiration_date).toISOString() : null,
-        is_active: formData.is_active
+        is_active: formData.is_active,
+        is_public: formData.is_public
       };
 
       await createPromotion(payload);
       
       setShowModal(false);
-      setFormData({ code: '', discount_percent: '', discount_amount: '', max_discount_amount: '', min_order_value: 0, usage_limit: '', usage_limit_per_user: 1, start_date: '', expiration_date: '', is_active: true });
+      setFormData({ code: '', type: 'product', discount_percent: '', discount_amount: '', max_discount_amount: '', min_order_value: 0, usage_limit: '', usage_limit_per_user: 1, start_date: '', expiration_date: '', is_active: true, is_public: true });
       fetchCoupons();
     } catch (error) {
       console.error('Lỗi tạo mã giảm giá:', error);
@@ -142,6 +146,7 @@ export default function AdminCoupons() {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: 'var(--glass-bg)', borderBottom: '1px solid var(--border)' }}>
+              <th style={{ padding: '16px', textAlign: 'left', color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase' }}>Loại</th>
               <th style={{ padding: '16px', textAlign: 'left', color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase' }}>Mã CODE</th>
               <th style={{ padding: '16px', textAlign: 'left', color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase' }}>Mức Giảm</th>
               <th style={{ padding: '16px', textAlign: 'left', color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase' }}>Đơn Tối Thiểu</th>
@@ -161,6 +166,13 @@ export default function AdminCoupons() {
                 const status = getPromoStatus(coupon);
                 return (
                   <tr key={coupon.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '16px' }}>
+                      {coupon.type === 'shipping' ? (
+                        <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', fontSize: '12px', fontWeight: 'bold' }}>🚚 Vận chuyển</span>
+                      ) : (
+                        <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(234, 179, 8, 0.1)', color: '#eab308', fontSize: '12px', fontWeight: 'bold' }}>🏷️ Sản phẩm</span>
+                      )}
+                    </td>
                     <td style={{ padding: '16px' }}>
                       <div style={{ 
                         display: 'inline-block', background: 'rgba(234, 179, 8, 0.1)', border: '1px dashed #eab308',
@@ -235,6 +247,19 @@ export default function AdminCoupons() {
             </div>
             <form onSubmit={handleCreate} style={{ padding: '20px' }}>
               
+              {/* Loại Mã */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>Loại mã giảm giá *</label>
+                <select 
+                  value={formData.type} 
+                  onChange={e => setFormData({...formData, type: e.target.value})}
+                  style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontWeight: 'bold' }}
+                >
+                  <option value="product">🏷️ Giảm giá Sản Phẩm</option>
+                  <option value="shipping">🚚 Giảm Phí Vận Chuyển</option>
+                </select>
+              </div>
+
               {/* Mã CODE */}
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>Mã CODE *</label>
@@ -361,6 +386,20 @@ export default function AdminCoupons() {
                   />
                   <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>Để trống = không hết hạn</span>
                 </div>
+              </div>
+
+              {/* Trạng thái hiển thị */}
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={formData.is_public} 
+                    onChange={e => setFormData({...formData, is_public: e.target.checked})}
+                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                  />
+                  <span style={{ fontSize: '14px', fontWeight: 'bold' }}>Hiển thị công khai trong Pop-up chọn mã</span>
+                </label>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', display: 'block', marginLeft: '26px' }}>Nếu tắt, khách hàng phải tự nhập mã thủ công mới dùng được (Mã ẩn).</span>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>

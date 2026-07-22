@@ -127,6 +127,38 @@ const CATEGORY_SLUG_MAP = {
   'Console': ['console'],
 };
 
+// Ánh xạ ngược: từ slug → tên hiển thị (dùng cho banner link_url)
+const SLUG_TO_DISPLAY_NAME = {};
+Object.entries(CATEGORY_SLUG_MAP).forEach(([displayName, slugs]) => {
+  // Chỉ map cho các danh mục chính trong CATEGORIES (không map backward-compat)
+  if (CATEGORIES.includes(displayName)) {
+    slugs.forEach(slug => {
+      // Nếu slug chưa được map hoặc danh mục hiện tại là cha (chứa nhiều slug)
+      if (!SLUG_TO_DISPLAY_NAME[slug]) {
+        SLUG_TO_DISPLAY_NAME[slug] = displayName;
+      }
+    });
+  }
+});
+
+// Hàm chuẩn hóa category từ URL → tên hiển thị trong CATEGORIES
+function normalizeCategory(urlValue) {
+  if (!urlValue || urlValue === 'Tất cả') return 'Tất cả';
+  // Nếu đã là tên hiển thị hợp lệ → trả về ngay
+  if (CATEGORIES.includes(urlValue) || CATEGORY_SLUG_MAP[urlValue]) return urlValue;
+  // Thử tra cứu ngược từ slug
+  const normalized = urlValue.toLowerCase().trim();
+  if (SLUG_TO_DISPLAY_NAME[normalized]) return SLUG_TO_DISPLAY_NAME[normalized];
+  // Thử tìm gần đúng (slug có thể chứa dấu hoặc viết khác)
+  for (const [displayName, slugs] of Object.entries(CATEGORY_SLUG_MAP)) {
+    if (slugs.some(s => s === normalized || normalized.includes(s) || s.includes(normalized))) {
+      return displayName;
+    }
+  }
+  // Không tìm thấy → trả về giá trị gốc để không mất thông tin
+  return urlValue;
+}
+
 const PRICE_RANGES = [
   { value: 'all', label: 'Tất cả mức giá' },
   { value: '0-2000000', label: 'Dưới 2 triệu' },
@@ -183,7 +215,7 @@ export default function Products() {
   const [hotProducts, setHotProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(urlSearch || '');
-  const [selectedCategory, setSelectedCategory] = useState(urlCategory || 'Tất cả');
+  const [selectedCategory, setSelectedCategory] = useState(normalizeCategory(urlCategory));
   const [selectedBrand, setSelectedBrand] = useState('Tất cả');
   const [selectedPrice, setSelectedPrice] = useState('all');
   const [sortBy, setSortBy] = useState('popular');
@@ -275,7 +307,7 @@ export default function Products() {
 
   useEffect(() => {
     if (urlCategory) {
-      setSelectedCategory(urlCategory);
+      setSelectedCategory(normalizeCategory(urlCategory));
       setActiveSpecsFilters({});
     } else {
       setSelectedCategory('Tất cả');

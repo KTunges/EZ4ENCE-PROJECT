@@ -57,9 +57,8 @@ export default function TopMarquee() {
             <span className="marquee-icon">🔥</span> FLASH SALE GIẢM GIÁ 50% TOÀN BỘ GAMING GEAR
           </span>
           <span className="marquee-item">
-            <span className="marquee-icon">⚡</span> FREESHIP ĐƠN HÀNG TỪ 2 TRIỆU ĐỒNG
-          </span>
-          <span className="marquee-item">
+            <span className="marquee-icon">⚡</span> SĂN MÃ GIẢM GIÁ LÊN ĐẾN 500K TẠI KHO VOUCHER
+            <span className="marquee-divider">|</span>
             <span className="marquee-icon">🎁</span> TẶNG KÈM CHUỘT LOGITECH KHI MUA LAPTOP GAMING
           </span>
           <span className="marquee-item">
