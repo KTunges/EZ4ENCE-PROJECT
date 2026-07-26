@@ -417,7 +417,7 @@ h1, h2, h3, h4, h5, h6 {
   flex-shrink: 0;
   position: sticky;
   top: 90px; /* offset from fixed header */
-  z-index: 99;
+  z-index: 105;
   /* height and overflow removed to prevent clipping of mega menu */
 }
 
@@ -4427,6 +4427,7 @@ textarea.checkout-input {
 /* ── MEGA MENU FLYOUT ── */
 .category-sidebar {
   position: relative;
+  z-index: 1000;
 }
 
 .category-item {
@@ -4444,7 +4445,7 @@ textarea.checkout-input {
   border: 1px solid var(--border);
   border-left: 2px solid var(--neon-accent);
   padding: 24px 30px;
-  z-index: 100;
+  z-index: 1000;
   display: none;
   opacity: 0;
   transform: translateX(10px);

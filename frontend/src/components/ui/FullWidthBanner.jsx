@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 
 export default function FullWidthBanner({ position, fallbackImage, fallbackTitle, fallbackDesc, height = "400px" }) {
   const [banner, setBanner] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Lấy banner động theo position
@@ -14,8 +15,18 @@ export default function FullWidthBanner({ position, fallbackImage, fallbackTitle
           setBanner(matchingBanner);
         }
       })
-      .catch(console.error);
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, [position]);
+
+  if (loading) {
+    return (
+      <section style={{ 
+        width: '100%', height, marginBottom: '100px', marginTop: '40px', 
+        background: 'var(--surface)', borderRadius: '16px', animation: 'pulse 2s infinite' 
+      }} />
+    );
+  }
 
   const bgImage = banner?.image_url || fallbackImage;
   const title = banner?.title || fallbackTitle;

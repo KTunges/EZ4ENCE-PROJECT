@@ -14,12 +14,14 @@ const MAIN_BANNERS = [
 export default function BentoBanners() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [banners, setBanners] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/marketing/banners`)
       .then(res => res.json())
       .then(data => setBanners(data))
-      .catch(console.error);
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
   // Phân loại banner
@@ -35,6 +37,20 @@ export default function BentoBanners() {
     }, 4000);
     return () => clearInterval(timer);
   }, [activeMainBanners.length]);
+
+  if (loading) {
+    return (
+      <div className="bento-wrapper" style={{ minHeight: '300px', animation: 'pulse 2s infinite' }}>
+        <div className="bento-grid">
+          <div className="bento-item bento-main" style={{ background: 'var(--surface)' }}></div>
+          <div className="bento-item bento-side" style={{ background: 'var(--surface)' }}></div>
+          <div className="bento-item bento-side" style={{ background: 'var(--surface)' }}></div>
+          <div className="bento-item bento-bottom" style={{ background: 'var(--surface)' }}></div>
+          <div className="bento-item bento-bottom" style={{ background: 'var(--surface)' }}></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
