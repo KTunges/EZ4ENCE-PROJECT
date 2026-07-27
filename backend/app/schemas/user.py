@@ -87,3 +87,16 @@ class TokenFacebook(BaseModel):
 class ProfileUpdate(BaseModel):
     fullName: str = Field(..., validation_alias=AliasChoices("fullName", "full_name"))
 
+# Schema cho Quên mật khẩu
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ForgotPasswordVerifyOTP(BaseModel):
+    email: EmailStr
+    otp: str
+
+class ForgotPasswordReset(BaseModel):
+    email: EmailStr
+    otp: str
+    new_password: str = Field(..., min_length=6)
+

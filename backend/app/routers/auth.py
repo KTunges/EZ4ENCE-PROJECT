@@ -8,7 +8,7 @@ from app.database import get_db
 from app.config import settings
 from app.core import security
 from app.models.user import User, Role
-from app.schemas.user import UserCreate, UserResponse, UserLogin, TokenResponse, TokenGoogle, ProfileUpdate, TokenFacebook, EmailOTPSend, EmailOTPVerify
+from app.schemas.user import UserCreate, UserResponse, UserLogin, TokenResponse, TokenGoogle, ProfileUpdate, TokenFacebook, EmailOTPSend, EmailOTPVerify, ForgotPasswordRequest, ForgotPasswordVerifyOTP, ForgotPasswordReset
 from app.schemas.admin_auth_schemas import AdminLoginStep1, AdminLoginStep2
 from app.services.mailchimp_service import sync_user_to_mailchimp
 import string
@@ -450,3 +450,123 @@ def upload_avatar(
         return current_user
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi khi tải ảnh lên Cloudinary: {str(e)}")
+
+# ====== QUÊN MẬT KHẨU ======
+forgot_password_otp_store = {}
+
+def send_forgot_password_otp_email_task(email: str, otp: str):
+    if settings.SMTP_EMAIL and settings.SMTP_PASSWORD:
+        try:
+            msg = MIMEMultipart()
+            msg['From'] = settings.SMTP_EMAIL
+            msg['To'] = email
+            msg['Subject'] = "EZ4GEAR - Đặt lại mật khẩu"
+            
+            html_body = f"""
+            <html>
+              <body style="font-family: Arial, sans-serif; background-color: #0f172a; padding: 40px 0; margin: 0; color: #f8fafc;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: #1e293b; border-radius: 12px; overflow: hidden; border: 1px solid #334155; box-shadow: 0 4px 15px rgba(0, 212, 255, 0.1);">
+                  <div style="background: linear-gradient(90deg, #dc2626 0%, #f59e0b 100%); padding: 24px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 28px; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">EZ4GEAR</h1>
+                    <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Đặt lại mật khẩu tài khoản</p>
+                  </div>
+                  <div style="padding: 32px; text-align: center;">
+                    <p style="font-size: 16px; color: #cbd5e1; margin-bottom: 24px; text-align: left;">Xin chào,</p>
+                    <p style="font-size: 16px; color: #cbd5e1; margin-bottom: 32px; text-align: left;">Bạn đang thực hiện <strong>Đặt lại mật khẩu</strong> tại EZ4GEAR. Dưới đây là mã xác thực OTP của bạn:</p>
+                    
+                    <div style="background-color: #0f172a; border: 2px dashed #f59e0b; border-radius: 8px; padding: 20px; margin-bottom: 32px; box-shadow: inset 0 0 10px rgba(245,158,11,0.1);">
+                      <span style="font-size: 36px; font-weight: bold; letter-spacing: 12px; color: #f59e0b; text-shadow: 0 0 8px rgba(245,158,11,0.5);">{otp}</span>
+                    </div>
+                    
+                    <p style="font-size: 14px; color: #94a3b8; text-align: left; margin-bottom: 8px;">* Mã có hiệu lực trong <strong>10 phút</strong>.</p>
+                    <p style="font-size: 14px; color: #94a3b8; text-align: left; margin-bottom: 8px;">* Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này.</p>
+                  </div>
+                  <div style="background-color: #0f172a; padding: 16px; text-align: center; border-top: 1px solid #334155;">
+                    <p style="font-size: 12px; color: #64748b; margin: 0;">&copy; 2026 EZ4GEAR. The Ultimate Gaming Gear.</p>
+                  </div>
+                </div>
+              </body>
+            </html>
+            """
+            msg.attach(MIMEText(html_body, 'html'))
+            
+            server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT, timeout=10)
+            server.starttls()
+            server.login(settings.SMTP_EMAIL, settings.SMTP_PASSWORD)
+            server.sendmail(settings.SMTP_EMAIL, email, msg.as_string())
+            server.quit()
+            print(f"Đã gửi OTP đặt lại mật khẩu cho {email}")
+        except Exception as e:
+            print(f"Lỗi khi gửi email đặt lại mật khẩu: {e}")
+
+@router.post("/forgot-password")
+def forgot_password(data: ForgotPasswordRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    """Gửi OTP đặt lại mật khẩu qua email"""
+    user = db.query(User).filter(User.email == data.email).first()
+    if not user:
+        # Không tiết lộ email có tồn tại hay không (bảo mật)
+        return {"message": "Nếu email tồn tại trong hệ thống, mã OTP sẽ được gửi đến email của bạn."}
+    
+    if user.provider != "LOCAL":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Tài khoản của bạn được đăng ký qua {user.provider}. Vui lòng đăng nhập bằng {user.provider}."
+        )
+    
+    otp = f"{random.randint(0, 999999):06d}"
+    forgot_password_otp_store[data.email] = {
+        "otp": otp,
+        "created_at": __import__('time').time()
+    }
+    print(f"\n=========================================")
+    print(f"MÃ OTP ĐẶT LẠI MẬT KHẨU CHO {data.email} LÀ: {otp}")
+    print(f"=========================================\n")
+    
+    background_tasks.add_task(send_forgot_password_otp_email_task, data.email, otp)
+    
+    return {"message": "Nếu email tồn tại trong hệ thống, mã OTP sẽ được gửi đến email của bạn."}
+
+@router.post("/forgot-password/verify")
+def forgot_password_verify(data: ForgotPasswordVerifyOTP, db: Session = Depends(get_db)):
+    """Xác thực OTP đặt lại mật khẩu"""
+    stored = forgot_password_otp_store.get(data.email)
+    if not stored:
+        raise HTTPException(status_code=400, detail="Mã OTP không hợp lệ hoặc đã hết hạn")
+    
+    # Kiểm tra OTP hết hạn (10 phút)
+    import time
+    if time.time() - stored["created_at"] > 600:
+        del forgot_password_otp_store[data.email]
+        raise HTTPException(status_code=400, detail="Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.")
+    
+    if stored["otp"] != data.otp:
+        raise HTTPException(status_code=400, detail="Mã OTP không chính xác")
+    
+    return {"message": "Xác thực OTP thành công", "verified": True}
+
+@router.post("/forgot-password/reset")
+def forgot_password_reset(data: ForgotPasswordReset, db: Session = Depends(get_db)):
+    """Đặt lại mật khẩu mới sau khi xác thực OTP"""
+    stored = forgot_password_otp_store.get(data.email)
+    if not stored:
+        raise HTTPException(status_code=400, detail="Phiên đặt lại mật khẩu không hợp lệ")
+    
+    import time
+    if time.time() - stored["created_at"] > 600:
+        del forgot_password_otp_store[data.email]
+        raise HTTPException(status_code=400, detail="Phiên đặt lại mật khẩu đã hết hạn")
+    
+    if stored["otp"] != data.otp:
+        raise HTTPException(status_code=400, detail="Mã OTP không chính xác")
+    
+    user = db.query(User).filter(User.email == data.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Không tìm thấy tài khoản")
+    
+    user.password = security.hash_password(data.new_password)
+    db.commit()
+    
+    # Xóa OTP đã sử dụng
+    del forgot_password_otp_store[data.email]
+    
+    return {"message": "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập với mật khẩu mới."}

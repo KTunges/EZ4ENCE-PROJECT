@@ -26,6 +26,7 @@ const BuildPC = lazy(() => import('./pages/customer/BuildPC'));
 const NewsDetails = lazy(() => import('./pages/customer/NewsDetails'));
 const PolicyPage = lazy(() => import('./pages/customer/PolicyPage'));
 const NotFound = lazy(() => import('./pages/customer/NotFound'));
+const ForgotPassword = lazy(() => import('./pages/customer/ForgotPassword'));
 import AdminRoute from './components/auth/AdminRoute';
 import AdminLayout from './components/layout/AdminLayout';
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
@@ -95,6 +96,7 @@ function App() {
                       </Route>
                       <Route path="/login" element={<Login />} />
                       <Route path="/register" element={<Register />} />
+                      <Route path="/forgot-password" element={<ForgotPassword />} />
                       <Route path="/ez4-portal-auth" element={<AdminLogin />} />
                       <Route path="/admin" element={
                         <AdminRoute>
