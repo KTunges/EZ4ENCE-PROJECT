@@ -42,12 +42,15 @@ def get_paypal_access_token():
     }
     data = {"grant_type": "client_credentials"}
     
-    response = httpx.post(f"{base_url}/v1/oauth2/token", headers=headers, data=data)
-    if response.status_code != 200:
-        logger.error(f"Failed to get PayPal token: {response.text}")
-        raise HTTPException(status_code=500, detail="Failed to authenticate with PayPal")
-        
-    return response.json()["access_token"]
+    try:
+        response = httpx.post(f"{base_url}/v1/oauth2/token", headers=headers, data=data, timeout=5.0)
+        if response.status_code != 200:
+            logger.error(f"Failed to get PayPal token: {response.text}")
+            raise HTTPException(status_code=500, detail="Failed to authenticate with PayPal")
+        return response.json()["access_token"]
+    except httpx.RequestError as e:
+        logger.error(f"PayPal Token Request Error: {e}")
+        raise HTTPException(status_code=500, detail="Lỗi kết nối mạng đến máy chủ PayPal.")
 
 @router.post("/paypal/create-order")
 def create_paypal_order(req: PayPalOrderRequest, db: Session = Depends(get_db)):
@@ -80,10 +83,14 @@ def create_paypal_order(req: PayPalOrderRequest, db: Session = Depends(get_db)):
         ]
     }
     
-    response = httpx.post(f"{base_url}/v2/checkout/orders", headers=headers, json=payload)
-    if response.status_code not in (200, 201):
-        logger.error(f"Failed to create PayPal order: {response.text}")
-        raise HTTPException(status_code=500, detail="Failed to create PayPal order")
+    try:
+        response = httpx.post(f"{base_url}/v2/checkout/orders", headers=headers, json=payload, timeout=5.0)
+        if response.status_code not in (200, 201):
+            logger.error(f"Failed to create PayPal order: {response.text}")
+            raise HTTPException(status_code=500, detail="Failed to create PayPal order")
+    except httpx.RequestError as e:
+        logger.error(f"PayPal Create Order Request Error: {e}")
+        raise HTTPException(status_code=500, detail="Lỗi kết nối mạng đến máy chủ PayPal khi tạo đơn.")
         
     data = response.json()
     # Trả về cả db_order_id để frontend gửi lại khi capture
@@ -99,7 +106,11 @@ def capture_paypal_order(req: PayPalCaptureRequest, background_tasks: Background
         "Content-Type": "application/json"
     }
     
-    response = httpx.post(f"{base_url}/v2/checkout/orders/{req.paypal_order_id}/capture", headers=headers)
+    try:
+        response = httpx.post(f"{base_url}/v2/checkout/orders/{req.paypal_order_id}/capture", headers=headers, timeout=10.0)
+    except httpx.RequestError as e:
+        logger.error(f"PayPal Capture Request Error: {e}")
+        raise HTTPException(status_code=500, detail="Lỗi kết nối mạng đến máy chủ PayPal khi xác nhận.")
     
     if response.status_code in (200, 201):
         data = response.json()

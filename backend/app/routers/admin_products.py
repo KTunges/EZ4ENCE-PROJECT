@@ -245,9 +245,12 @@ def create_product(
     # Find or create Brand
     brand_id = None
     if product_in.brand:
-        brand_slug = slugify(product_in.brand)
-        brand = db.query(Brand).filter(Brand.slug == brand_slug).first()
+        brand = db.query(Brand).filter(Brand.name == product_in.brand).first()
         if not brand:
+            brand_slug = slugify(product_in.brand)
+            brand = db.query(Brand).filter(Brand.slug == brand_slug).first()
+        if not brand:
+            brand_slug = slugify(product_in.brand)
             brand = Brand(id=str(uuid.uuid4()), name=product_in.brand, slug=brand_slug)
             db.add(brand)
             db.flush()

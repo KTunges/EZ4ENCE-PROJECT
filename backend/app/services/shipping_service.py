@@ -33,7 +33,7 @@ class ShippingService:
     @staticmethod
     def get_ghn_provinces():
         try:
-            res = requests.get(f"{GHN_API_URL}/province", headers=get_ghn_headers())
+            res = requests.get(f"{GHN_API_URL}/province", headers=get_ghn_headers(), timeout=3)
             data = res.json()
             if data.get("code") == 200:
                 # Trả về format chuẩn: id, name
@@ -46,7 +46,7 @@ class ShippingService:
     @staticmethod
     def get_ghn_districts(province_id: int):
         try:
-            res = requests.post(f"{GHN_API_URL}/district", headers=get_ghn_headers(), json={"province_id": province_id})
+            res = requests.post(f"{GHN_API_URL}/district", headers=get_ghn_headers(), json={"province_id": province_id}, timeout=3)
             data = res.json()
             if data.get("code") == 200:
                 return [{"id": d["DistrictID"], "name": d["DistrictName"]} for d in data.get("data", [])]
@@ -58,7 +58,7 @@ class ShippingService:
     @staticmethod
     def get_ghn_wards(district_id: int):
         try:
-            res = requests.post(f"{GHN_API_URL}/ward", headers=get_ghn_headers(), json={"district_id": district_id})
+            res = requests.post(f"{GHN_API_URL}/ward", headers=get_ghn_headers(), json={"district_id": district_id}, timeout=3)
             data = res.json()
             if data.get("code") == 200:
                 return [{"id": w["WardCode"], "name": w["WardName"]} for w in data.get("data", [])]
@@ -92,7 +92,7 @@ class ShippingService:
             headers = get_ghn_headers()
             headers["ShopId"] = str(GHN_SHOP_ID)
             
-            res = requests.post(GHN_FEE_URL, headers=headers, json=payload, timeout=5)
+            res = requests.post(GHN_FEE_URL, headers=headers, json=payload, timeout=3)
             data = res.json()
             
             if data.get("code") == 200:
@@ -130,7 +130,7 @@ class ShippingService:
                     "weight": weight_grams or 1000,
                     "deliver_option": "none"
                 }
-                res = requests.get(GHTK_API_URL, headers=get_ghtk_headers(), params=ghtk_params, timeout=5)
+                res = requests.get(GHTK_API_URL, headers=get_ghtk_headers(), params=ghtk_params, timeout=3)
                 data = res.json()
                 if data.get("success"):
                     fee = data["fee"]["fee"]
