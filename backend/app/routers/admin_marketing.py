@@ -6,12 +6,12 @@ import uuid
 from app.database import get_db
 from app.models.marketing import Banner, Promotion
 from app.schemas.marketing import BannerResponse, BannerCreate, PromotionResponse, PromotionCreate
-from app.routers.auth import get_current_admin
+from app.routers.auth import get_current_admin, get_current_marketing
 
 router = APIRouter(
     prefix="/admin/marketing",
     tags=["Admin Marketing"],
-    dependencies=[Depends(get_current_admin)]
+    dependencies=[Depends(get_current_marketing)]
 )
 
 # =======================

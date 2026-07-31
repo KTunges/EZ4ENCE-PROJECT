@@ -1,205 +1,155 @@
-import { useState, useEffect } from 'react';
-import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, Eye, DownloadCloud, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Plus, Search, Filter, Edit, Trash2, Eye, DownloadCloud } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAdminProducts, deleteProduct } from '../../services/adminApi';
 import { downloadReport } from '../../utils/exportUtils';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AdminProducts() {
   const navigate = useNavigate();
+  const { adminUser } = useAuth();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // States for pagination and filtering
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [showExport, setShowExport] = useState(false);
+  
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const limit = 20;
 
-  const loadProducts = async () => {
+  // Optional: keep unique categories statically or fetch them if needed
+  // Since we don't have all products, we might need a separate API for categories, 
+  // but for simplicity we can fallback to just text input or let the user type, 
+  // or fetch categories. For now we will keep standard categories.
+  const uniqueCategories = [
+    ['ALL', 'Tất cả danh mục'],
+    ['bo-mach-chu', 'Mainboard'],
+    ['bo-vi-xu-ly', 'CPU'],
+    ['card-man-hinh', 'VGA'],
+    ['vo-may-tinh', 'Vỏ Case'],
+    ['nguon-may-tinh', 'Nguồn'],
+    ['tan-nhiet', 'Tản nhiệt'],
+    ['bo-nho-trong', 'RAM'],
+    ['o-cung-ssd', 'SSD'],
+    ['man-hinh', 'Màn hình'],
+    ['ban-phim', 'Bàn phím'],
+    ['chuot', 'Chuột'],
+    ['tai-nghe', 'Tai nghe']
+  ];
+
+  // Debounce search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setPage(1); // reset to page 1 on search
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  const loadProducts = useCallback(async () => {
     try {
-      const data = await getAdminProducts();
-      setProducts(data);
+      setLoading(true);
+      const data = await getAdminProducts({
+        page,
+        limit,
+        search: debouncedSearch || undefined,
+        category_id: categoryFilter !== 'ALL' ? categoryFilter : undefined,
+        status: statusFilter !== 'ALL' ? statusFilter : undefined
+      });
+      
+      // Assume API returns { data, total, page, limit, total_pages }
+      if (data && data.data) {
+        setProducts(data.data);
+        setTotalPages(data.total_pages);
+        setTotalItems(data.total);
+      } else {
+        // Fallback if backend hasn't fully updated yet
+        setProducts(Array.isArray(data) ? data : []);
+      }
     } catch (error) {
       console.error("Lỗi khi tải sản phẩm:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, limit, debouncedSearch, categoryFilter, statusFilter]);
 
   useEffect(() => {
     loadProducts();
-  }, []);
-
-  const uniqueCategories = Array.from(new Map(products.filter(p => p.category).map(p => [p.category.id, p.category.name])).entries());
-  const filteredProducts = products.filter(p => {
-    const matchSearch = searchQuery.trim() === '' || 
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      p.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (p.skus && p.skus.some(s => s.sku && s.sku.toLowerCase().includes(searchQuery.toLowerCase())));
-    const matchCategory = categoryFilter === 'ALL' || (p.category && p.category.id === categoryFilter);
-    const matchStatus = statusFilter === 'ALL' || 
-                        (statusFilter === 'VISIBLE' ? p.is_published === true : 
-                        (statusFilter === 'HIDDEN' ? p.is_published === false : true));
-    return matchSearch && matchCategory && matchStatus;
-  });
+  }, [loadProducts]);
 
   const handleDelete = async (id) => {
+    if (adminUser?.staff_role !== 'QUAN_TRI_VIEN') {
+      window.toast.error("Bạn không có quyền xóa sản phẩm");
+      return;
+    }
     if (await window.customConfirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
       try {
         await deleteProduct(id);
         loadProducts();
       } catch (error) {
-        console.error("Lỗi khi xóa:", error);
-        window.toast.error("Có lỗi xảy ra khi xóa");
+        window.toast.error(error.response?.data?.detail || "Lỗi khi xóa sản phẩm");
       }
     }
   };
 
-  const getStatusBadge = (is_published) => {
-    if (is_published) return <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(76, 175, 80, 0.2)', color: '#4caf50', fontSize: '12px', fontWeight: 'bold' }}>Đang bán</span>;
-    return <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(158, 158, 158, 0.2)', color: '#9e9e9e', fontSize: '12px', fontWeight: 'bold' }}>Đã ẩn</span>;
+  const getStatusBadge = (isPub) => {
+    if (isPub) return <span style={{ padding: '4px 10px', background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>Đang hiển thị</span>;
+    return <span style={{ padding: '4px 10px', background: 'rgba(100, 116, 139, 0.1)', color: 'var(--text-muted)', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>Đã ẩn</span>;
   };
 
+  // Permissions
+  const canEdit = adminUser?.staff_role === 'QUAN_TRI_VIEN' || adminUser?.staff_role === 'THU_KHO';
+  const canDelete = adminUser?.staff_role === 'QUAN_TRI_VIEN';
+
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 className="text-2xl font-bold">Danh sách Sản phẩm</h1>
+    <div style={{ padding: '0 0 40px 0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+        <div>
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ color: 'var(--cyan)' }}>Sản phẩm</span>
+          </h1>
+          <p style={{ color: 'var(--text-muted)', margin: 0 }}>Quản lý kho hàng, cập nhật giá và số lượng.</p>
+        </div>
         <div style={{ display: 'flex', gap: '12px' }}>
-          <div style={{ position: 'relative' }}>
-            <button 
-              onClick={() => setShowExport(!showExport)}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'transparent', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
-            >
-              <DownloadCloud size={18} /> Xuất dữ liệu <ChevronDown size={14} />
-            </button>
-            {showExport && (
-              <div className="glass" style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', borderRadius: '12px', padding: '8px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '160px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
-                <button 
-                  onClick={() => {
-                    const token = localStorage.getItem('admin_token');
-                    downloadReport(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/admin/reports/products/export?format=csv`, token, 'Products_Report.csv');
-                    setShowExport(false);
-                  }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', textAlign: 'left', background: 'transparent', border: 'none', color: 'var(--text)', cursor: 'pointer', borderRadius: '6px', fontWeight: '500', transition: 'background 0.2s' }}
-                  onMouseOver={(e) => e.target.style.background = 'rgba(128,128,128,0.15)'}
-                  onMouseOut={(e) => e.target.style.background = 'transparent'}
-                >
-                  <DownloadCloud size={16} /> Xuất File CSV
-                </button>
-                <button 
-                  onClick={() => {
-                    const token = localStorage.getItem('admin_token');
-                    downloadReport(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/admin/reports/products/export?format=xlsx`, token, 'Products_Report.xlsx');
-                    setShowExport(false);
-                  }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', textAlign: 'left', background: 'transparent', border: 'none', color: 'var(--text)', cursor: 'pointer', borderRadius: '6px', fontWeight: '500', transition: 'background 0.2s' }}
-                  onMouseOver={(e) => e.target.style.background = 'rgba(128,128,128,0.15)'}
-                  onMouseOut={(e) => e.target.style.background = 'transparent'}
-                >
-                  <DownloadCloud size={16} /> Xuất File Excel
-                </button>
-              </div>
-            )}
-          </div>
-          <button onClick={() => navigate('/admin/products/new')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'var(--cyan)', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', cursor: 'pointer' }}>
-            <Plus size={18} /> Thêm sản phẩm
+          <button onClick={() => downloadReport(products, 'Danh_sach_san_pham')} style={{ background: 'var(--bg-card)', color: 'var(--text)', border: '1px solid var(--border)', padding: '10px 16px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <DownloadCloud size={18} /> Xuất Excel
           </button>
+          
+          {canEdit && (
+            <button onClick={() => navigate('/admin/products/new')} style={{ background: 'var(--cyan)', color: 'black', border: 'none', padding: '10px 16px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 10px rgba(0, 210, 255, 0.3)' }}>
+              <Plus size={18} /> Thêm Sản Phẩm Mới
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="glass" style={{ borderRadius: '12px', padding: '20px' }}>
-        {/* Toolbar */}
-        <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
-          <div style={{ position: 'relative', flex: 1, zIndex: 10 }}>
-            <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+      <div style={{ background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+        <div style={{ padding: '20px', borderBottom: '1px solid var(--border)', display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ flex: '1', minWidth: '300px', position: 'relative' }}>
+            <Search size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
             <input 
               type="text" 
-              placeholder="Tìm theo tên sản phẩm, mã SKU..." 
+              placeholder="Tìm kiếm sản phẩm theo tên, mã SKU..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={(e) => { 
-                e.target.style.background = 'var(--bg-card-hover)'; 
-                e.target.style.borderColor = 'var(--cyan)'; 
-                e.target.style.boxShadow = '0 0 0 3px var(--cyan-dim)';
-                setShowSuggestions(true);
-              }}
-              onBlur={(e) => { 
-                e.target.style.background = 'var(--bg-card)'; 
-                e.target.style.borderColor = 'var(--border)'; 
-                e.target.style.boxShadow = 'none';
-                setTimeout(() => setShowSuggestions(false), 200);
-              }}
-              style={{ width: '100%', padding: '10px 12px 10px 40px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', outline: 'none', transition: 'all 0.2s' }}
+              style={{ width: '100%', padding: '12px 16px 12px 42px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', outline: 'none' }}
             />
-            {/* Suggestions Dropdown */}
-            {showSuggestions && searchQuery.trim().length >= 2 && filteredProducts.length > 0 && (
-              <div style={{
-                position: 'absolute',
-                top: '100%',
-                left: 0,
-                right: 0,
-                background: 'var(--bg-card)',
-                border: '1px solid var(--border)',
-                borderRadius: '8px',
-                marginTop: '8px',
-                padding: '8px 0',
-                zIndex: 9999,
-                boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
-                backdropFilter: 'blur(10px)',
-                maxHeight: '400px',
-                overflowY: 'auto'
-              }}>
-                {filteredProducts.slice(0, 5).map(p => {
-                  const primaryImage = p.images?.find(img => img.is_primary)?.url || p.images?.[0]?.url || '/images/placeholder.jpg';
-                  const price = p.skus && p.skus.length > 0 ? p.skus[0].price : 0;
-                  return (
-                  <div 
-                    key={p.id} 
-                    onClick={() => {
-                      navigate(`/admin/products/edit/${p.id}`);
-                      setShowSuggestions(false);
-                    }}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      padding: '8px 16px',
-                      color: 'var(--text)',
-                      textDecoration: 'none',
-                      transition: 'background 0.2s',
-                      cursor: 'pointer'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-hover)'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                  >
-                    <img src={primaryImage} alt={p.name} style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '6px', background: '#fff', flexShrink: 0 }} />
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0, flex: 1 }}>
-                      <div style={{ fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
-                      <div style={{ fontSize: '12px', color: 'var(--cyan)' }}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)}</div>
-                    </div>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(`/products/${p.slug}`, '_blank');
-                        setShowSuggestions(false);
-                      }}
-                      style={{ padding: '6px', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                      title="Xem trên Web"
-                    >
-                      <Eye size={16} />
-                    </button>
-                  </div>
-                )})}
-              </div>
-            )}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '6px', overflow: 'hidden' }}>
             <div style={{ padding: '0 12px', color: 'var(--text-muted)' }}><Filter size={18} /></div>
             <select 
               value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
+              onChange={(e) => {
+                setCategoryFilter(e.target.value);
+                setPage(1);
+              }}
               style={{ background: 'transparent', border: 'none', color: 'var(--text)', padding: '10px 16px 10px 4px', outline: 'none', cursor: 'pointer', appearance: 'none', maxWidth: '200px' }}
             >
-              <option value="ALL">Tất cả danh mục</option>
               {uniqueCategories.map(([id, name]) => (
                 <option key={id} value={id}>{name}</option>
               ))}
@@ -208,7 +158,10 @@ export default function AdminProducts() {
           <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '6px', overflow: 'hidden' }}>
             <select 
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(1);
+              }}
               style={{ background: 'transparent', border: 'none', color: 'var(--text)', padding: '10px 16px', outline: 'none', cursor: 'pointer', appearance: 'none' }}
             >
               <option value="ALL">Tất cả trạng thái</option>
@@ -234,12 +187,11 @@ export default function AdminProducts() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>Đang tải dữ liệu...</td></tr>
-              ) : filteredProducts.length === 0 ? (
-                <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>Chưa có sản phẩm nào</td></tr>
-              ) : filteredProducts.map((product) => {
+                <tr><td colSpan="7" style={{ textAlign: 'center', padding: '40px' }}><div className="spinner-border text-cyan"></div></td></tr>
+              ) : products.length === 0 ? (
+                <tr><td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>Chưa có sản phẩm nào</td></tr>
+              ) : products.map((product) => {
                 const primaryImage = product.images?.find(img => img.is_primary)?.url || product.images?.[0]?.url || 'https://via.placeholder.com/40/1a1a2e/00d2ff?text=No+Img';
-                // Lấy giá từ SKU đầu tiên
                 const price = product.skus && product.skus.length > 0 ? product.skus[0].price : 0;
                 const stock = product.skus ? product.skus.reduce((sum, sku) => sum + (sku.stock_quantity || 0), 0) : 0;
                 
@@ -267,16 +219,20 @@ export default function AdminProducts() {
                       <button onClick={() => window.open(`/products/${product.slug}`, '_blank')} style={{ padding: '6px', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }} title="Xem trên Web">
                         <Eye size={16} />
                       </button>
-                      <button 
-                        onClick={() => navigate(`/admin/products/edit/${product.id}`)}
-                        style={{ padding: '6px', background: 'rgba(0, 210, 255, 0.1)', border: 'none', color: 'var(--cyan)', borderRadius: '6px', cursor: 'pointer' }} 
-                        title="Chỉnh sửa"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button onClick={() => handleDelete(product.id)} style={{ padding: '6px', background: 'rgba(255, 23, 68, 0.1)', border: 'none', color: '#ff1744', borderRadius: '6px', cursor: 'pointer' }} title="Xóa">
-                        <Trash2 size={16} />
-                      </button>
+                      {canEdit && (
+                        <button 
+                          onClick={() => navigate(`/admin/products/edit/${product.id}`)}
+                          style={{ padding: '6px', background: 'rgba(0, 210, 255, 0.1)', border: 'none', color: 'var(--cyan)', borderRadius: '6px', cursor: 'pointer' }} 
+                          title="Chỉnh sửa"
+                        >
+                          <Edit size={16} />
+                        </button>
+                      )}
+                      {canDelete && (
+                        <button onClick={() => handleDelete(product.id)} style={{ padding: '6px', background: 'rgba(255, 23, 68, 0.1)', border: 'none', color: '#ff1744', borderRadius: '6px', cursor: 'pointer' }} title="Xóa">
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -286,13 +242,24 @@ export default function AdminProducts() {
         </div>
         
         {/* Pagination */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', color: 'var(--text-muted)', fontSize: '14px' }}>
-          <div>Hiển thị 1 - {Math.min(50, products.length)} của {products.length} sản phẩm</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px', color: 'var(--text-muted)', fontSize: '14px', borderTop: '1px solid var(--border)' }}>
+          <div>Hiển thị trang {page} / {totalPages || 1} (Tổng {totalItems} sản phẩm)</div>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button style={{ padding: '6px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '4px', color: 'var(--text)', cursor: 'pointer' }}>Trước</button>
-            <button style={{ padding: '6px 12px', background: 'var(--cyan)', border: 'none', borderRadius: '4px', color: 'black', fontWeight: 'bold', cursor: 'pointer' }}>1</button>
-            <button style={{ padding: '6px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '4px', color: 'var(--text)', cursor: 'pointer' }}>2</button>
-            <button style={{ padding: '6px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '4px', color: 'var(--text)', cursor: 'pointer' }}>Sau</button>
+            <button 
+              disabled={page <= 1}
+              onClick={() => setPage(p => p - 1)}
+              style={{ padding: '6px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '4px', color: page <= 1 ? 'var(--border)' : 'var(--text)', cursor: page <= 1 ? 'not-allowed' : 'pointer' }}
+            >
+              Trước
+            </button>
+            <button style={{ padding: '6px 12px', background: 'var(--cyan)', border: 'none', borderRadius: '4px', color: 'black', fontWeight: 'bold' }}>{page}</button>
+            <button 
+              disabled={page >= totalPages}
+              onClick={() => setPage(p => p + 1)}
+              style={{ padding: '6px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '4px', color: page >= totalPages ? 'var(--border)' : 'var(--text)', cursor: page >= totalPages ? 'not-allowed' : 'pointer' }}
+            >
+              Sau
+            </button>
           </div>
         </div>
       </div>

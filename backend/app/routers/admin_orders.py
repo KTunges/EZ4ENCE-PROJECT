@@ -7,7 +7,7 @@ from app.database import get_db
 from app.models.order import Order, OrderStatus, OrderStatusHistory, PaymentStatus, OrderItem
 from app.models.user import User, Role
 from app.models.product import ProductSKU, Product
-from app.routers.auth import get_current_user, get_current_admin
+from app.routers.auth import get_current_user, get_current_admin, get_current_sales
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/admin/orders", tags=["Admin Orders"])
@@ -19,7 +19,7 @@ class OrderStatusUpdate(BaseModel):
 @router.get("", response_model=list)
 def get_all_orders(
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin),
+    admin: User = Depends(get_current_sales),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100)
 ):
@@ -42,7 +42,7 @@ def get_all_orders(
 def get_order_detail(
     order_id: str,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_sales)
 ):
     from app.models.product import Product
     order = db.query(Order).filter(Order.id == order_id).options(
@@ -64,7 +64,7 @@ def update_order_status(
     status_update: OrderStatusUpdate,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_sales)
 ):
     order = db.query(Order).options(joinedload(Order.items).joinedload(OrderItem.sku)).filter(Order.id == order_id).first()
     if not order:
@@ -148,7 +148,7 @@ def update_payment_status(
     order_id: str,
     req: PaymentStatusUpdate,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_sales)
 ):
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
@@ -176,7 +176,7 @@ def update_payment_status(
 def delete_order(
     order_id: str,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_sales)
 ):
     """
     Xóa đơn hàng (Thực tế nên dùng cờ is_deleted hoặc soft delete, nhưng ở đây xóa cứng)
@@ -196,7 +196,7 @@ from app.models.address import Address
 def create_manual_order(
     req: AdminOrderCreateRequest,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_sales)
 ):
     # Check User
     user = db.query(User).filter(User.id == req.user_id).first()

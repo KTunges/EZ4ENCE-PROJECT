@@ -12,7 +12,7 @@ from app.models.product import Product, ProductSKU, ProductImage
 from app.models.category import Category
 from app.models.brand import Brand
 from app.models.user import User, Role
-from app.routers.auth import get_current_user, get_current_admin
+from app.routers.auth import get_current_user, get_current_admin, get_current_inventory
 from app.routers.products import invalidate_public_products_cache
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
@@ -35,22 +35,18 @@ def _invalidate_products_cache():
 
 @router.get("/list")
 def get_admin_products_list(
+    page: int = 1,
+    limit: int = 20,
     search: Optional[str] = None,
+    category_id: Optional[str] = None,
+    status: Optional[str] = None,
     nocache: Optional[bool] = None,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_inventory)
 ):
     """
-    API siêu nhẹ cho bảng danh sách sản phẩm admin.
-    Có cache 30s để tránh round-trip đến Supabase mỗi lần load.
+    API siêu nhẹ cho bảng danh sách sản phẩm admin, nay đã có phân trang.
     """
-    now = _time.time()
-
-    # Return cache if fresh and no search filter
-    if (not search and not nocache
-            and _products_cache["data"] is not None
-            and now - _products_cache["timestamp"] < _CACHE_TTL):
-        return _products_cache["data"]
 
     # Subquery lấy giá và tồn kho từ SKU
     sku_sub = db.query(
@@ -90,9 +86,19 @@ def get_admin_products_list(
     ).outerjoin(img_sub, Product.id == img_sub.c.product_id)
 
     if search:
-        query = query.filter(Product.name.ilike(f"%{search}%"))
+        query = query.filter(Product.name.ilike(f"%{search}%") | Product.slug.ilike(f"%{search}%"))
+        
+    if category_id and category_id != 'ALL':
+        query = query.filter(Product.category_id == category_id)
+        
+    if status and status != 'ALL':
+        is_pub = True if status == 'VISIBLE' else False
+        query = query.filter(Product.is_published == is_pub)
 
-    rows = query.order_by(Product.created_at.desc()).all()
+    total = query.count()
+    
+    skip = (page - 1) * limit if page > 0 else 0
+    rows = query.order_by(Product.created_at.desc()).offset(skip).limit(limit).all()
 
     result = [
         {
@@ -110,19 +116,21 @@ def get_admin_products_list(
         for r in rows
     ]
 
-    # Cache result (only for non-search queries)
-    if not search:
-        _products_cache["data"] = result
-        _products_cache["timestamp"] = now
-
-    return result
+    import math
+    return {
+        "data": result,
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "total_pages": math.ceil(total / limit) if limit > 0 else 0
+    }
 
 
 @router.get("/search-skus")
 def search_products_with_skus(
     search: str = "",
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_inventory)
 ):
     """
     Tìm sản phẩm kèm danh sách SKU đầy đủ (id, sku_code, price, stock).
@@ -203,7 +211,7 @@ class ProductCreateUpdate(BaseModel):
 @router.post("/upload-image")
 def upload_admin_image(
     file: UploadFile = File(...),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_inventory)
 ):
     try:
         url = upload_image(file)
@@ -215,7 +223,7 @@ def upload_admin_image(
 def create_product(
     product_in: ProductCreateUpdate,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_inventory)
 ):
     # Tạo slug tự động từ tên (giản lược)
     def slugify(text: str) -> str:
@@ -300,7 +308,7 @@ def create_product(
 def get_product_detail(
     product_id: str,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_inventory)
 ):
     product = db.query(Product).filter(Product.id == product_id).first()
     if not product:
@@ -325,7 +333,7 @@ def update_product(
     product_id: str,
     product_in: ProductCreateUpdate,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_inventory)
 ):
     product = db.query(Product).filter(Product.id == product_id).first()
     if not product:
@@ -382,7 +390,7 @@ def update_product(
 def delete_product(
     product_id: str,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_inventory)
 ):
     product = db.query(Product).filter(Product.id == product_id).first()
     if not product:

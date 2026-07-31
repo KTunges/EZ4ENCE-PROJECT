@@ -7,12 +7,12 @@ from app.database import get_db
 from app.models.order import Order
 from app.models.product import Product
 from app.models.user import User
-from app.routers.auth import get_current_admin
+from app.routers.auth import get_current_admin, get_current_super_admin
 
 router = APIRouter(
     prefix="/admin/dashboard",
     tags=["Admin Dashboard"],
-    dependencies=[Depends(get_current_admin)]
+    dependencies=[Depends(get_current_super_admin)]
 )
 
 @router.get("/stats")

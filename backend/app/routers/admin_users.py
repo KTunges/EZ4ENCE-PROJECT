@@ -5,12 +5,12 @@ from typing import List
 from app.database import get_db
 from app.models.user import User, Role
 from app.schemas.user import AdminUserResponse
-from app.routers.auth import get_current_admin
+from app.routers.auth import get_current_admin, get_current_sales
 
 router = APIRouter(prefix="/admin/users", tags=["Admin Users"])
 
 @router.get("", response_model=List[AdminUserResponse])
-def get_users(db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+def get_users(db: Session = Depends(get_db), admin: User = Depends(get_current_sales)):
     """
     Lấy danh sách tất cả tài khoản khách hàng (Role = USER).
     Tính toán thêm tổng số đơn hàng và tổng chi tiêu.
@@ -52,7 +52,7 @@ def get_users(db: Session = Depends(get_db), admin: User = Depends(get_current_a
     return result
 
 @router.put("/{user_id}/toggle-active")
-def toggle_user_active(user_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+def toggle_user_active(user_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_sales)):
     """
     Khóa hoặc Mở khóa tài khoản khách hàng.
     """
@@ -67,7 +67,7 @@ def toggle_user_active(user_id: str, db: Session = Depends(get_db), admin: User 
     return {"message": f"Tài khoản đã chuyển sang trạng thái: {status_str}", "is_active": user.is_active}
 
 @router.get("/{user_id}")
-def get_user_details(user_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+def get_user_details(user_id: str, db: Session = Depends(get_db), admin: User = Depends(get_current_sales)):
     """
     Lấy thông tin chi tiết của khách hàng bao gồm lịch sử đơn hàng và đánh giá.
     """
@@ -135,7 +135,7 @@ class QuickUserCreate(BaseModel):
 def create_customer(
     req: QuickUserCreate,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_sales)
 ):
     existing = db.query(User).filter(User.email == req.email).first()
     if existing:

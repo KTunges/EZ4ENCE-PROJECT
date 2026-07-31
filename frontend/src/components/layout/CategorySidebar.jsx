@@ -15,7 +15,7 @@ export const categories = [
     icon: <Gamepad2 size={18} />, label: 'Laptop Gaming', slug: 'Laptop Gaming',
     subMenu: [
       { title: 'Thương hiệu', items: ['ASUS ROG/TUF', 'Acer Nitro/Predator', 'MSI Gaming', 'Lenovo Legion', 'Dell Alienware/G-Series', 'HP Omen/Victus'] },
-      { title: 'Card Đồ Họa (VGA)', items: ['RTX 4050', 'RTX 4060', 'RTX 4070', 'RTX 4080', 'RTX 4090'] },
+      { title: 'Card Đồ Họa (VGA)', items: ['RTX 50 Series', 'RTX 40 Series', 'RTX 30 Series'] },
       { title: 'Tần số quét', items: ['120Hz', '144Hz', '165Hz', '240Hz', 'Trên 240Hz'] }
     ]
   },
@@ -34,8 +34,8 @@ export const categories = [
       { title: 'Bo Mạch Chủ AMD', items: ['X870', 'X670', 'B650', 'A620'] },
       { title: 'CPU Intel', items: ['Intel Core Ultra', 'Intel Core i9', 'Intel Core i7', 'Intel Core i5', 'Intel Core i3'] },
       { title: 'CPU AMD', items: ['AMD Ryzen 9', 'AMD Ryzen 7', 'AMD Ryzen 5'] },
-      { title: 'VGA NVIDIA', items: ['RTX 4090', 'RTX 4080 Super', 'RTX 4070 Ti Super', 'RTX 4070 Super', 'RTX 4060 Ti', 'RTX 4060', 'RTX 3060'] },
-      { title: 'VGA AMD', items: ['RX 7900 XTX', 'RX 7800 XT', 'RX 7700 XT', 'RX 7600'] }
+      { title: 'VGA NVIDIA', items: ['RTX 50 Series', 'RTX 40 Series', 'RTX 30 Series', 'GTX 16 Series'] },
+      { title: 'VGA AMD', items: ['RX 9070 XT', 'RX 7900 XTX', 'RX 7800 XT', 'RX 7700 XT', 'RX 7600'] }
     ]
   },
   {

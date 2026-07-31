@@ -4,7 +4,7 @@ from typing import List
 from app.database import get_db
 from app.models.review import Review
 from app.models.user import User
-from app.routers.auth import get_current_admin
+from app.routers.auth import get_current_admin, get_current_sales
 from app.schemas.review import AdminReviewResponse, ReviewReplyRequest, ReviewToggleHiddenRequest
 
 router = APIRouter(prefix="/admin/reviews", tags=["Admin Reviews"])
@@ -13,7 +13,7 @@ from sqlalchemy.orm import joinedload
 from app.models.product import ProductSKU
 
 @router.get("", response_model=List[AdminReviewResponse])
-def get_all_reviews(db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
+def get_all_reviews(db: Session = Depends(get_db), admin: User = Depends(get_current_sales)):
     reviews = db.query(Review).options(
         joinedload(Review.user),
         joinedload(Review.sku).joinedload(ProductSKU.product)
@@ -34,7 +34,7 @@ def reply_review(
     review_id: str,
     req: ReviewReplyRequest,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_sales)
 ):
     review = db.query(Review).filter(Review.id == review_id).first()
     if not review:
@@ -55,7 +55,7 @@ def toggle_hide_review(
     review_id: str,
     req: ReviewToggleHiddenRequest,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_sales)
 ):
     review = db.query(Review).filter(Review.id == review_id).first()
     if not review:

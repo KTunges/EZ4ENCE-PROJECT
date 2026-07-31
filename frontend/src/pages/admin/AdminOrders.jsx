@@ -3,8 +3,10 @@ import { Search, Eye, Trash2, ChevronDown, Filter, Plus, DownloadCloud } from 'l
 import { useNavigate } from 'react-router-dom';
 import { getAdminOrders, deleteOrder } from '../../services/adminApi';
 import { downloadReport } from '../../utils/exportUtils';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AdminOrders() {
+  const { adminUser } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,6 +52,10 @@ export default function AdminOrders() {
   }, []);
 
   const handleDelete = async (id) => {
+    if (adminUser?.staff_role !== 'QUAN_TRI_VIEN') {
+      window.toast.error("Bạn không có quyền xóa đơn hàng");
+      return;
+    }
     if (await window.customConfirm("Bạn có chắc chắn muốn xóa đơn hàng này? Việc này không thể hoàn tác.")) {
       try {
         await deleteOrder(id);
@@ -181,12 +187,14 @@ export default function AdminOrders() {
                   <td style={{ padding: '16px 12px' }}>{getStatusBadge(order.status)}</td>
                   <td style={{ padding: '16px 12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'flex-end' }}>
-                      <button onClick={() => navigate(`/admin/orders/${order.id}`)} style={{ padding: '6px', background: 'rgba(0, 210, 255, 0.1)', border: 'none', color: 'var(--cyan)', borderRadius: '6px', cursor: 'pointer' }} title="Xem chi tiết">
+                      <button onClick={() => navigate(`/admin/orders/${order.id}`)} style={{ padding: '6px', background: 'rgba(0, 210, 255, 0.1)', border: 'none', color: 'var(--cyan)', borderRadius: '6px', cursor: 'pointer' }} title="Chi tiết">
                         <Eye size={16} />
                       </button>
-                      <button onClick={() => handleDelete(order.id)} style={{ padding: '6px', background: 'rgba(255, 23, 68, 0.1)', border: 'none', color: '#ff1744', borderRadius: '6px', cursor: 'pointer' }} title="Xóa">
-                        <Trash2 size={16} />
-                      </button>
+                      {adminUser?.staff_role === 'QUAN_TRI_VIEN' && (
+                        <button onClick={() => handleDelete(order.id)} style={{ padding: '6px', background: 'rgba(255, 23, 68, 0.1)', border: 'none', color: '#ff1744', borderRadius: '6px', cursor: 'pointer' }} title="Xóa">
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

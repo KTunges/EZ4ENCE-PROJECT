@@ -12,8 +12,8 @@ from app.core import security
 router = APIRouter(prefix="/admin/staffs", tags=["Admin Staffs"])
 
 def check_superadmin(admin: User):
-    if admin.staff_role != "SUPER_ADMIN":
-        raise HTTPException(status_code=403, detail="Không có quyền truy cập. Yêu cầu quyền SUPER_ADMIN.")
+    if admin.staff_role != "QUAN_TRI_VIEN":
+        raise HTTPException(status_code=403, detail="Không có quyền truy cập. Yêu cầu quyền QUẢN TRỊ VIÊN.")
 
 @router.get("", response_model=List[UserResponse])
 def get_staffs(db: Session = Depends(get_db), admin: User = Depends(get_current_admin)):
@@ -56,11 +56,11 @@ def update_staff(staff_id: str, staff_data: StaffUpdate, db: Session = Depends(g
     if not staff:
         raise HTTPException(status_code=404, detail="Không tìm thấy tài khoản")
         
-    if staff.staff_role == "SUPER_ADMIN" and staff_data.staff_role and staff_data.staff_role != "SUPER_ADMIN":
-        # Check if there's any other SUPER_ADMIN left
-        superadmins_count = db.query(User).filter(User.role == Role.ADMIN, User.staff_role == "SUPER_ADMIN").count()
+    if staff.staff_role == "QUAN_TRI_VIEN" and staff_data.staff_role and staff_data.staff_role != "QUAN_TRI_VIEN":
+        # Check if there's any other QUAN_TRI_VIEN left
+        superadmins_count = db.query(User).filter(User.role == Role.ADMIN, User.staff_role == "QUAN_TRI_VIEN").count()
         if superadmins_count <= 1:
-            raise HTTPException(status_code=400, detail="Không thể xóa quyền SUPER_ADMIN của người dùng cuối cùng")
+            raise HTTPException(status_code=400, detail="Không thể xóa quyền QUẢN TRỊ VIÊN của người dùng cuối cùng")
 
     if staff_data.fullName is not None:
         staff.full_name = staff_data.fullName
@@ -84,10 +84,10 @@ def delete_staff(staff_id: str, db: Session = Depends(get_db), admin: User = Dep
     if not staff:
         raise HTTPException(status_code=404, detail="Không tìm thấy tài khoản")
         
-    if staff.staff_role == "SUPER_ADMIN":
-        superadmins_count = db.query(User).filter(User.role == Role.ADMIN, User.staff_role == "SUPER_ADMIN").count()
+    if staff.staff_role == "QUAN_TRI_VIEN":
+        superadmins_count = db.query(User).filter(User.role == Role.ADMIN, User.staff_role == "QUAN_TRI_VIEN").count()
         if superadmins_count <= 1:
-            raise HTTPException(status_code=400, detail="Không thể xóa tài khoản SUPER_ADMIN duy nhất")
+            raise HTTPException(status_code=400, detail="Không thể xóa tài khoản QUẢN TRỊ VIÊN duy nhất")
             
     db.delete(staff)
     db.commit()

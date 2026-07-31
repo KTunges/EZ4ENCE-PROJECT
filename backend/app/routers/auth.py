@@ -50,6 +50,26 @@ def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
         raise HTTPException(status_code=403, detail="Not authorized. Admin access required.")
     return current_user
 
+def get_current_super_admin(current_user: User = Depends(get_current_admin)) -> User:
+    if current_user.staff_role != "QUAN_TRI_VIEN":
+        raise HTTPException(status_code=403, detail="Quyền truy cập bị từ chối. Cần quyền QUẢN TRỊ VIÊN.")
+    return current_user
+
+def get_current_inventory(current_user: User = Depends(get_current_admin)) -> User:
+    if current_user.staff_role not in ["QUAN_TRI_VIEN", "THU_KHO"]:
+        raise HTTPException(status_code=403, detail="Quyền truy cập bị từ chối. Cần quyền THỦ KHO.")
+    return current_user
+
+def get_current_sales(current_user: User = Depends(get_current_admin)) -> User:
+    if current_user.staff_role not in ["QUAN_TRI_VIEN", "BAN_HANG"]:
+        raise HTTPException(status_code=403, detail="Quyền truy cập bị từ chối. Cần quyền BÁN HÀNG.")
+    return current_user
+
+def get_current_marketing(current_user: User = Depends(get_current_admin)) -> User:
+    if current_user.staff_role not in ["QUAN_TRI_VIEN", "MARKETING"]:
+        raise HTTPException(status_code=403, detail="Quyền truy cập bị từ chối. Cần quyền MARKETING.")
+    return current_user
+
 oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="api/auth/login-form", auto_error=False)
 
 def get_current_user_optional(token: str = Depends(oauth2_scheme_optional), db: Session = Depends(get_db)):

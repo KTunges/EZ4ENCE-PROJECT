@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, Edit, Trash2, X } from 'lucide-react';
 import { getBrands, createBrand, updateBrand, deleteBrand } from '../../services/adminApi';
+import { useAuth } from '../../context/AuthContext';
 
 const generateSlug = (text) => {
   return text.toString().toLowerCase()
@@ -12,6 +13,7 @@ const generateSlug = (text) => {
 };
 
 export default function AdminBrands() {
+  const { adminUser } = useAuth();
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -56,6 +58,10 @@ export default function AdminBrands() {
   };
 
   const handleDelete = async (id) => {
+    if (adminUser?.staff_role !== 'QUAN_TRI_VIEN') {
+      window.toast.error("Bạn không có quyền xóa thương hiệu");
+      return;
+    }
     if (await window.customConfirm("Bạn có chắc chắn muốn xóa thương hiệu này?")) {
       try {
         await deleteBrand(id);
@@ -95,19 +101,7 @@ export default function AdminBrands() {
     }
   };
 
-  useEffect(() => {
-    const fetchBrands = async () => {
-      try {
-        const data = await getBrands();
-        setBrands(data);
-      } catch (error) {
-        console.error("Lỗi lấy thương hiệu", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchBrands();
-  }, []);
+
 
   return (
     <div>
@@ -165,9 +159,11 @@ export default function AdminBrands() {
                       <button onClick={() => handleOpenEditModal(brand)} style={{ padding: '6px', background: 'rgba(0, 210, 255, 0.1)', border: 'none', color: 'var(--cyan)', borderRadius: '6px', cursor: 'pointer' }} title="Chỉnh sửa">
                         <Edit size={16} />
                       </button>
-                      <button onClick={() => handleDelete(brand.id)} style={{ padding: '6px', background: 'rgba(255, 23, 68, 0.1)', border: 'none', color: '#ff1744', borderRadius: '6px', cursor: 'pointer' }} title="Xóa">
-                        <Trash2 size={16} />
-                      </button>
+                      {adminUser?.staff_role === 'QUAN_TRI_VIEN' && (
+                        <button onClick={() => handleDelete(brand.id)} style={{ padding: '6px', background: 'rgba(255, 23, 68, 0.1)', border: 'none', color: '#ff1744', borderRadius: '6px', cursor: 'pointer' }} title="Xóa">
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

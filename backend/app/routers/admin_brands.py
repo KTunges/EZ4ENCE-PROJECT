@@ -7,7 +7,7 @@ from app.database import get_db
 from app.models.brand import Brand
 from app.models.user import User
 from app.schemas.brand import BrandCreate, BrandResponse
-from app.routers.auth import get_current_admin
+from app.routers.auth import get_current_admin, get_current_inventory
 from app.routers.brands import invalidate_brands_cache
 
 router = APIRouter(prefix="/admin/brands", tags=["Admin Brands"])
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/admin/brands", tags=["Admin Brands"])
 def create_brand(
     brand_in: BrandCreate,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_inventory)
 ):
     if db.query(Brand).filter(Brand.slug == brand_in.slug).first():
         raise HTTPException(status_code=400, detail="Brand with this slug already exists")
@@ -39,7 +39,7 @@ def update_brand(
     brand_id: str,
     brand_in: BrandCreate,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_inventory)
 ):
     brand = db.query(Brand).filter(Brand.id == brand_id).first()
     if not brand:
@@ -63,7 +63,7 @@ def update_brand(
 def delete_brand(
     brand_id: str,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_inventory)
 ):
     brand = db.query(Brand).filter(Brand.id == brand_id).first()
     if not brand:

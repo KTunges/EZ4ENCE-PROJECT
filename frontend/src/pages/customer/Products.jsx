@@ -170,35 +170,275 @@ const PRICE_RANGES = [
 
 const ITEMS_PER_PAGE = 12;
 
-const getRequiredCategorySlug = (selectedCategory, activeSubMenu) => {
-  if (!activeSubMenu || !activeSubMenu.includes(': ')) return null;
-  const columnContext = activeSubMenu.split(': ')[0].toLowerCase();
-  
-  if (['Main, CPU, VGA', 'Case, Nguồn, Tản', 'Ổ cứng, RAM, Thẻ nhớ', 'Chuột + Lót chuột', 'Loa, Micro, Webcam', 'Phần mềm, mạng', 'Handheld, Console', 'Ghế - Bàn', 'Linh Kiện Máy Tính'].includes(selectedCategory)) {
-     if (columnContext.includes('bo mạch') || columnContext.includes('mainboard') || columnContext.includes('bo mạch chủ')) return 'bo-mach-chu';
-     if (columnContext.includes('vi xử lý') || columnContext.includes('cpu')) return 'bo-vi-xu-ly';
-     if (columnContext.includes('card màn hình') || columnContext.includes('vga')) return 'card-man-hinh';
-     if (columnContext.includes('case') || columnContext.includes('vỏ')) return 'vo-may-tinh';
-     if (columnContext.includes('nguồn')) return 'nguon-may-tinh';
-     if (columnContext.includes('tản nhiệt') || columnContext.includes('fan')) return 'tan-nhiet';
-     if (columnContext.includes('ram')) return 'bo-nho-trong';
-     if (columnContext.includes('ổ cứng ssd') || columnContext.includes('dung lượng ssd')) return 'o-cung-ssd';
-     if (columnContext.includes('ổ cứng hdd') || columnContext.includes('dung lượng hdd')) return 'o-cung-hdd';
-     if (columnContext.includes('ổ cứng')) return 'o-cung-ssd';
-     if (columnContext.includes('thẻ nhớ') || columnContext.includes('usb')) return 'the-nho-usb';
-     if (columnContext.includes('thương hiệu chuột') || columnContext.includes('kết nối & loại') || columnContext === 'chuột') return 'chuot';
-     if (columnContext.includes('lót chuột')) return 'lot-chuot';
-     if (columnContext.includes('loa')) return 'loa';
-     if (columnContext.includes('micro')) return 'microphone';
-     if (columnContext.includes('webcam')) return 'webcam';
-     if (columnContext.includes('phần mềm')) return 'phan-mem';
-     if (columnContext.includes('mạng') || columnContext.includes('router') || columnContext.includes('wi-fi')) return 'thiet-bi-mang';
-     if (columnContext.includes('handheld') || columnContext.includes('cầm tay') || columnContext.includes('handheld pc')) return 'handheld';
-     if (columnContext.includes('playstation') || columnContext.includes('phụ kiện gaming')) return 'console';
-     if (columnContext.includes('ghế')) return 'ghe-ban';
-     if (columnContext.includes('bàn')) return 'ban-gaming';
+// ═══════════════════════════════════════════════════════════════════════════════
+// Hàm phân tích bộ lọc từ Sub-Menu (VD: "VGA NVIDIA: RTX 40 Series")
+// Trả về { category_slug, brand_slug, search, min_price, max_price }
+// ═══════════════════════════════════════════════════════════════════════════════
+const parseSubMenuFilter = (parentCategory, subValue) => {
+  if (!subValue || !subValue.includes(': ')) return {};
+
+  const colonIdx = subValue.indexOf(': ');
+  const title = subValue.substring(0, colonIdx).trim();
+  const item = subValue.substring(colonIdx + 2).trim();
+  const titleLower = title.toLowerCase();
+  const itemLower = item.toLowerCase();
+  const result = {};
+
+  // ── Helper: parse giá tiền ("Dưới 15 triệu", "15 - 20 triệu", "Trên 25 triệu") ──
+  const tryParsePrice = () => {
+    if (itemLower.includes('dưới')) {
+      const m = item.match(/(\d+)/);
+      if (m) result.max_price = parseInt(m[1]) * 1000000;
+      return true;
+    }
+    if (itemLower.includes('trên') || itemLower.includes('hi-end')) {
+      const m = item.match(/(\d+)/);
+      if (m) result.min_price = parseInt(m[1]) * 1000000;
+      return true;
+    }
+    const rm = item.match(/(\d+)\s*-\s*(\d+)/);
+    if (rm) {
+      result.min_price = parseInt(rm[1]) * 1000000;
+      result.max_price = parseInt(rm[2]) * 1000000;
+      return true;
+    }
+    return false;
+  };
+
+  // ═══ Nhóm Mức giá ═══
+  if (titleLower.includes('mức giá') || titleLower === 'theo mức giá') {
+    tryParsePrice();
+    return result;
   }
-  return null;
+
+  // ═══ LAPTOP ═══
+  if (parentCategory === 'Laptop') {
+    if (titleLower === 'thương hiệu') {
+      let brand = item.replace(/^Laptop\s+/i, '');
+      if (brand === 'Macbook') brand = 'Apple';
+      result.brand_slug = brand.toLowerCase();
+    } else if (titleLower === 'nhu cầu') {
+      result.search = item.replace(/^Laptop\s+/i, '');
+    }
+    return result;
+  }
+
+  // ═══ LAPTOP GAMING ═══
+  if (parentCategory === 'Laptop Gaming') {
+    if (titleLower === 'thương hiệu') {
+      const brandMap = {
+        'asus rog/tuf': 'asus', 'acer nitro/predator': 'acer',
+        'msi gaming': 'msi', 'lenovo legion': 'lenovo',
+        'dell alienware/g-series': 'dell', 'hp omen/victus': 'hp'
+      };
+      result.brand_slug = brandMap[itemLower] || item.split(' ')[0].toLowerCase();
+    } else if (titleLower.includes('card') || titleLower.includes('vga')) {
+      result.search = item.replace(' Series', '');
+    } else if (titleLower === 'tần số quét') {
+      result.search = item.replace('Trên ', '');
+    }
+    return result;
+  }
+
+  // ═══ PC EZ4ENCE ═══
+  if (parentCategory === 'PC EZ4ENCE') {
+    if (titleLower === 'theo nhu cầu' || titleLower === 'cấu hình nổi bật') {
+      result.search = item.replace(/^PC\s+/i, '');
+    } else if (titleLower === 'theo mức giá') {
+      tryParsePrice();
+    }
+    return result;
+  }
+
+  // ═══ MAIN, CPU, VGA ═══
+  if (parentCategory === 'Main, CPU, VGA') {
+    if (titleLower.includes('bo mạch chủ')) {
+      result.category_slug = 'bo-mach-chu';
+      result.search = item;
+    } else if (titleLower.includes('cpu')) {
+      result.category_slug = 'bo-vi-xu-ly';
+      result.search = item;
+    } else if (titleLower.includes('vga')) {
+      result.category_slug = 'card-man-hinh';
+      result.search = item.replace(' Series', '');
+    }
+    return result;
+  }
+
+  // ═══ CASE, NGUỒN, TẢN ═══
+  if (parentCategory === 'Case, Nguồn, Tản') {
+    const knownPsuBrands = ['corsair', 'asus', 'msi', 'gigabyte', 'deepcool'];
+    if (titleLower === 'vỏ case') {
+      result.category_slug = 'vo-may-tinh';
+      result.brand_slug = itemLower;
+    } else if (titleLower === 'nguồn máy tính') {
+      result.category_slug = 'nguon-may-tinh';
+      if (knownPsuBrands.includes(itemLower)) {
+        result.brand_slug = itemLower;
+      }
+      // Các dải công suất (500W - 650W) chỉ thu hẹp danh mục, không search
+    } else if (titleLower.includes('tản nhiệt aio')) {
+      result.category_slug = 'tan-nhiet';
+      result.search = item;
+    } else if (titleLower.includes('tản nhiệt khí') || titleLower.includes('fan')) {
+      result.category_slug = 'tan-nhiet';
+      result.search = item;
+    }
+    return result;
+  }
+
+  // ═══ Ổ CỨNG, RAM, THẺ NHỚ ═══
+  if (parentCategory === 'Ổ cứng, RAM, Thẻ nhớ') {
+    if (titleLower === 'dung lượng ram') {
+      result.category_slug = 'bo-nho-trong';
+      result.search = item;
+    } else if (titleLower.includes('loại ram')) {
+      result.category_slug = 'bo-nho-trong';
+      if (['ddr4', 'ddr5'].includes(itemLower)) {
+        result.search = item;
+      } else {
+        result.brand_slug = itemLower;
+      }
+    } else if (titleLower.includes('dung lượng ssd')) {
+      result.category_slug = 'o-cung-ssd';
+      if (!itemLower.includes('trên')) {
+        result.search = item;
+      }
+    } else if (titleLower.includes('loại ổ cứng')) {
+      if (itemLower.includes('nvme')) {
+        result.category_slug = 'o-cung-ssd';
+        result.search = 'NVMe';
+      } else if (itemLower.includes('sata')) {
+        result.category_slug = 'o-cung-ssd';
+        result.search = 'SATA';
+      } else if (itemLower.includes('hdd')) {
+        result.category_slug = 'o-cung-hdd';
+      } else {
+        result.brand_slug = itemLower;
+      }
+    }
+    return result;
+  }
+
+  // ═══ LOA, MICRO, WEBCAM ═══
+  if (parentCategory === 'Loa, Micro, Webcam') {
+    if (titleLower.includes('thương hiệu loa')) {
+      result.category_slug = 'loa';
+      result.brand_slug = itemLower;
+    } else if (titleLower === 'kiểu loa') {
+      result.category_slug = 'loa';
+      result.search = item;
+    } else if (titleLower === 'microphone') {
+      result.category_slug = 'microphone';
+      result.search = item.replace(/^Micro\s+/i, '');
+    } else if (titleLower === 'webcam') {
+      result.category_slug = 'webcam';
+      result.search = item;
+    }
+    return result;
+  }
+
+  // ═══ MÀN HÌNH ═══
+  if (parentCategory === 'Màn hình') {
+    if (titleLower === 'thương hiệu') {
+      result.brand_slug = itemLower;
+    } else {
+      result.search = item;
+    }
+    return result;
+  }
+
+  // ═══ BÀN PHÍM ═══
+  if (parentCategory === 'Bàn phím') {
+    if (titleLower === 'thương hiệu') {
+      result.brand_slug = itemLower;
+    } else {
+      result.search = item;
+    }
+    return result;
+  }
+
+  // ═══ CHUỘT + LÓT CHUỘT ═══
+  if (parentCategory === 'Chuột + Lót chuột') {
+    if (titleLower.includes('thương hiệu')) {
+      result.category_slug = 'chuot';
+      result.brand_slug = itemLower;
+    } else if (titleLower.includes('kết nối')) {
+      result.category_slug = 'chuot';
+      result.search = item;
+    } else if (titleLower.includes('lót chuột')) {
+      result.category_slug = 'lot-chuot';
+      result.search = item;
+    }
+    return result;
+  }
+
+  // ═══ TAI NGHE ═══
+  if (parentCategory === 'Tai nghe') {
+    if (titleLower.includes('thương hiệu')) {
+      result.brand_slug = itemLower;
+    } else {
+      result.search = item;
+    }
+    return result;
+  }
+
+  // ═══ GHẾ - BÀN ═══
+  if (parentCategory === 'Ghế - Bàn') {
+    if (titleLower.includes('ghế')) {
+      result.category_slug = 'ghe-ban';
+      result.brand_slug = itemLower;
+    } else if (titleLower.includes('bàn')) {
+      result.category_slug = 'ban-gaming';
+      result.search = item;
+    }
+    return result;
+  }
+
+  // ═══ PHẦN MỀM, MẠNG ═══
+  if (parentCategory === 'Phần mềm, mạng') {
+    const routerBrands = ['asus', 'tp-link'];
+    if (titleLower.includes('router')) {
+      result.category_slug = 'thiet-bi-mang';
+      if (routerBrands.includes(itemLower)) {
+        result.brand_slug = itemLower;
+      } else {
+        result.search = item;
+      }
+    } else if (titleLower.includes('card mạng') || titleLower.includes('usb')) {
+      result.category_slug = 'thiet-bi-mang';
+      result.search = item;
+    } else if (titleLower.includes('phần mềm')) {
+      result.category_slug = 'phan-mem';
+      result.search = item;
+    }
+    return result;
+  }
+
+  // ═══ HANDHELD, CONSOLE ═══
+  if (parentCategory === 'Handheld, Console') {
+    if (titleLower.includes('handheld')) {
+      result.category_slug = 'handheld';
+      result.search = item;
+    } else if (titleLower.includes('playstation')) {
+      result.category_slug = 'console';
+      result.search = item;
+    } else if (titleLower.includes('phụ kiện')) {
+      result.category_slug = 'console';
+      result.search = item;
+    }
+    return result;
+  }
+
+  // ═══ PHỤ KIỆN ═══
+  if (parentCategory === 'Phụ kiện') {
+    result.search = item;
+    return result;
+  }
+
+  // Fallback: dùng item làm search
+  result.search = item;
+  return result;
 };
 
 export default function Products() {
@@ -244,10 +484,13 @@ export default function Products() {
     params.append('limit', ITEMS_PER_PAGE.toString());
     params.append('page', currentPage.toString());
 
+    // ═══ Parse sub-menu filter ═══
+    const subFilters = activeSubMenu ? parseSubMenuFilter(selectedCategory, activeSubMenu) : {};
+
+    // ═══ Category slug ═══
     if (selectedCategory !== 'Tất cả') {
-      const requiredCategory = getRequiredCategorySlug(selectedCategory, activeSubMenu);
-      if (requiredCategory) {
-        params.append('category_slug', requiredCategory);
+      if (subFilters.category_slug) {
+        params.append('category_slug', subFilters.category_slug);
       } else {
         const slugs = CATEGORY_SLUG_MAP[selectedCategory];
         if (slugs && slugs.length > 0) {
@@ -256,17 +499,33 @@ export default function Products() {
       }
     }
 
-    if (selectedBrand !== 'Tất cả') params.append('brand_slug', selectedBrand.toLowerCase());
-    if (searchQuery.trim()) params.append('search', searchQuery.trim());
+    // ═══ Brand: bộ lọc thủ công ưu tiên > sub-menu brand ═══
+    if (selectedBrand !== 'Tất cả') {
+      params.append('brand_slug', selectedBrand.toLowerCase());
+    } else if (subFilters.brand_slug) {
+      params.append('brand_slug', subFilters.brand_slug);
+    }
+
+    // ═══ Search: kết hợp sub-menu search + user search ═══
+    const searchParts = [];
+    if (subFilters.search) searchParts.push(subFilters.search);
+    if (searchQuery.trim()) searchParts.push(searchQuery.trim());
+    if (searchParts.length > 0) params.append('search', searchParts.join(' '));
+
+    // ═══ Sort ═══
     if (sortBy) params.append('sort', sortBy);
-    
-    if (selectedPrice !== 'all') {
+
+    // ═══ Price: sub-menu price ưu tiên > bộ lọc thủ công ═══
+    if (subFilters.min_price || subFilters.max_price) {
+      if (subFilters.min_price) params.append('min_price', subFilters.min_price.toString());
+      if (subFilters.max_price) params.append('max_price', subFilters.max_price.toString());
+    } else if (selectedPrice !== 'all') {
       const [min, max] = selectedPrice.split('-').map(Number);
       params.append('min_price', min.toString());
       params.append('max_price', max.toString());
     }
 
-    // Dynamic specs filtering
+    // ═══ Dynamic specs filtering ═══
     Object.entries(activeSpecsFilters).forEach(([key, val]) => {
       if (val) params.append(key, val);
     });

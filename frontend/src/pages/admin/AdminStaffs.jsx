@@ -15,7 +15,7 @@ export default function AdminStaffs() {
     email: '',
     fullName: '',
     password: '',
-    staff_role: 'SALES',
+    staff_role: 'BAN_HANG',
     is_active: true
   });
 
@@ -35,7 +35,7 @@ export default function AdminStaffs() {
 
   const openAddModal = () => {
     setEditingId(null);
-    setFormData({ email: '', fullName: '', password: '', staff_role: 'SALES', is_active: true });
+    setFormData({ email: '', fullName: '', password: '', staff_role: 'BAN_HANG', is_active: true });
     setShowModal(true);
   };
 
@@ -45,7 +45,7 @@ export default function AdminStaffs() {
       email: staff.email, 
       fullName: staff.fullName || '', 
       password: '', // Leave blank unless changing
-      staff_role: staff.staff_role || 'SALES', 
+      staff_role: staff.staff_role || 'BAN_HANG', 
       is_active: staff.is_active 
     });
     setShowModal(true);
@@ -96,14 +96,15 @@ export default function AdminStaffs() {
 
   const getRoleColor = (role) => {
     switch (role) {
-      case 'SUPER_ADMIN': return { bg: 'rgba(239, 68, 68, 0.1)', text: '#ef4444', label: 'Trùm cuối' };
-      case 'SALES': return { bg: 'rgba(34, 197, 94, 0.1)', text: '#22c55e', label: 'Sale & CSKH' };
-      case 'INVENTORY': return { bg: 'rgba(245, 158, 11, 0.1)', text: '#f59e0b', label: 'Thủ kho' };
+      case 'QUAN_TRI_VIEN': return { bg: 'rgba(239, 68, 68, 0.1)', text: '#ef4444', label: 'Quản trị viên' };
+      case 'BAN_HANG': return { bg: 'rgba(34, 197, 94, 0.1)', text: '#22c55e', label: 'Sale & CSKH' };
+      case 'THU_KHO': return { bg: 'rgba(245, 158, 11, 0.1)', text: '#f59e0b', label: 'Thủ kho' };
+      case 'MARKETING': return { bg: 'rgba(139, 92, 246, 0.1)', text: '#8b5cf6', label: 'Marketing' };
       default: return { bg: 'rgba(100, 116, 139, 0.1)', text: '#64748b', label: role || 'Nhân viên' };
     }
   };
 
-  if (adminUser?.staff_role !== 'SUPER_ADMIN') {
+  if (adminUser?.staff_role !== 'QUAN_TRI_VIEN') {
     return (
       <div style={{ padding: '40px', textAlign: 'center' }}>
         <h2>Bạn không có quyền truy cập trang này.</h2>
@@ -231,9 +232,10 @@ export default function AdminStaffs() {
                   value={formData.staff_role} onChange={e => setFormData({...formData, staff_role: e.target.value})}
                   style={{ width: '100%', padding: '10px 14px', background: 'var(--bg)', border: '1px solid var(--border-hover)', borderRadius: '8px', color: 'var(--text)', outline: 'none' }}
                 >
-                  <option value="SALES">Sale & CSKH (Chỉ quản lý Đơn hàng, Khách hàng)</option>
-                  <option value="INVENTORY">Thủ kho (Quản lý Sản phẩm, Kho bãi, Đối tác)</option>
-                  <option value="SUPER_ADMIN">Trùm cuối (Toàn quyền hệ thống)</option>
+                  <option value="BAN_HANG">BÁN HÀNG (Quản lý Đơn hàng, Khách hàng, Chat)</option>
+                  <option value="THU_KHO">THỦ KHO (Quản lý Sản phẩm, Kho bãi, Đối tác)</option>
+                  <option value="MARKETING">MARKETING (Quản lý Flash Sale, Mã giảm giá, Tin tức)</option>
+                  <option value="QUAN_TRI_VIEN">QUẢN TRỊ VIÊN (Toàn quyền hệ thống)</option>
                 </select>
               </div>
 

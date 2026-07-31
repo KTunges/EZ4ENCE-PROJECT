@@ -9,7 +9,7 @@ from app.database import get_db
 from app.models.user import User
 from app.models.order import Order, OrderItem
 from app.models.product import Product, ProductSKU
-from app.routers.auth import get_current_admin
+from app.routers.auth import get_current_admin, get_current_super_admin
 
 router = APIRouter(prefix="/admin/reports", tags=["Admin Reports"])
 
@@ -40,7 +40,7 @@ def export_dataframe(df: pd.DataFrame, filename_prefix: str, format: str):
 def export_orders(
     format: str = Query("xlsx", pattern="^(csv|xlsx)$"),
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_super_admin)
 ):
     orders = db.query(Order).order_by(Order.created_at.desc()).all()
     
@@ -69,7 +69,7 @@ def export_orders(
 def export_products(
     format: str = Query("xlsx", regex="^(csv|xlsx)$"),
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_super_admin)
 ):
     products = db.query(Product).all()
     
@@ -101,7 +101,7 @@ def export_products(
 def export_revenue(
     format: str = Query("xlsx", pattern="^(csv|xlsx)$"),
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_super_admin)
 ):
     # Dữ liệu doanh thu có thể dựa trên các đơn hàng đã thanh toán hoặc giao thành công
     from app.models.order import OrderStatus, PaymentStatus

@@ -37,11 +37,12 @@ export default function AdminProductForm() {
     'PC / Laptop': [
       { name: 'cpu', label: 'CPU', options: ['Intel Core i3', 'Intel Core i5', 'Intel Core i7', 'Intel Core i9', 'Intel Core Ultra 5', 'Intel Core Ultra 7', 'Intel Core Ultra 9', 'AMD Ryzen 3', 'AMD Ryzen 5', 'AMD Ryzen 7', 'AMD Ryzen 9', 'Apple M1', 'Apple M2', 'Apple M3'] },
       { name: 'ram', label: 'RAM', options: ['4GB', '8GB', '16GB', '32GB', '64GB', '128GB'] },
-      { name: 'vga', label: 'VGA (Card Màn Hình)', options: ['NVIDIA RTX 4090', 'NVIDIA RTX 4080 Super', 'NVIDIA RTX 4080', 'NVIDIA RTX 4070 Ti Super', 'NVIDIA RTX 4070 Ti', 'NVIDIA RTX 4070 Super', 'NVIDIA RTX 4070', 'NVIDIA RTX 4060 Ti', 'NVIDIA RTX 4060', 'NVIDIA RTX 3060', 'NVIDIA RTX 3050', 'AMD Radeon RX 7900 XTX', 'AMD Radeon RX 7800 XT', 'AMD Radeon RX 7600', 'Intel Iris Xe Graphics', 'Intel UHD Graphics', 'Card Onboard'] },
+      { name: 'vga', label: 'VGA (Card Màn Hình)', options: ['NVIDIA RTX 5090', 'NVIDIA RTX 5080', 'NVIDIA RTX 5070', 'NVIDIA RTX 4090', 'NVIDIA RTX 4080 Super', 'NVIDIA RTX 4080', 'NVIDIA RTX 4070 Ti Super', 'NVIDIA RTX 4070 Ti', 'NVIDIA RTX 4070 Super', 'NVIDIA RTX 4070', 'NVIDIA RTX 4060 Ti', 'NVIDIA RTX 4060', 'NVIDIA RTX 3060', 'NVIDIA RTX 3050', 'AMD Radeon RX 9070 XT', 'AMD Radeon RX 7900 XTX', 'AMD Radeon RX 7800 XT', 'AMD Radeon RX 7600', 'Intel Iris Xe Graphics', 'Intel UHD Graphics', 'Card Onboard'] },
       { name: 'storage', label: 'Ổ cứng (SSD/HDD)', options: ['256GB SSD', '512GB SSD', '1TB SSD', '2TB SSD', '4TB SSD', '1TB HDD', '2TB HDD'] },
       { name: 'mainboard', label: 'Bo mạch chủ (Mainboard)', options: ['H610', 'B760', 'Z790', 'Z890', 'A620', 'B650', 'X670', 'X870'] },
       { name: 'psu', label: 'Nguồn (PSU)', options: ['450W', '500W', '550W', '650W', '750W', '850W', '1000W', '1200W'] },
       { name: 'case', label: 'Vỏ Case', options: ['Mid Tower', 'Full Tower', 'Mini ITX', 'Micro ATX'] },
+      { name: 'Tần số quét', label: 'Tần số quét (Màn hình Laptop)', options: ['60Hz', '120Hz', '144Hz', '165Hz', '240Hz', '300Hz', '360Hz', 'Không có'] },
     ],
     'CPU': [
       { name: 'Dòng CPU', label: 'Dòng CPU', options: ['Intel Core i3', 'Intel Core i5', 'Intel Core i7', 'Intel Core i9', 'Intel Core Ultra 5', 'Intel Core Ultra 7', 'Intel Core Ultra 9', 'AMD Ryzen 5', 'AMD Ryzen 7', 'AMD Ryzen 9', 'AMD Ryzen Threadripper'] },
@@ -49,18 +50,18 @@ export default function AdminProductForm() {
       { name: 'Số nhân', label: 'Số nhân', options: ['4 nhân', '6 nhân', '8 nhân', '10 nhân', '12 nhân', '14 nhân', '16 nhân', '20 nhân', '24 nhân'] },
       { name: 'Số luồng', label: 'Số luồng', options: ['8 luồng', '12 luồng', '16 luồng', '20 luồng', '24 luồng', '28 luồng', '32 luồng'] },
       { name: 'Xung nhịp', label: 'Xung nhịp cơ bản', options: ['2.5 GHz', '3.0 GHz', '3.5 GHz', '3.8 GHz', '4.0 GHz', '4.2 GHz', '4.5 GHz', '5.0 GHz', '5.5 GHz'] },
-      { name: 'Bộ nhớ đệm', label: 'Bộ nhớ đệm (Cache)', options: ['12MB', '16MB', '20MB', '24MB', '30MB', '32MB', '36MB', '64MB', '128MB'] },
+      { name: 'Bộ nhớ đệm', label: 'Bộ nhớ đệm (Cache)', options: ['12MB', '16MB', '20MB', '24MB', '30MB', '32MB', '36MB', '64MB', '96MB', '128MB'] },
     ],
     'VGA': [
-      { name: 'Chipset GPU', label: 'Chipset GPU', options: ['RTX 4060', 'RTX 4060 Ti', 'RTX 4070', 'RTX 4070 Super', 'RTX 4070 Ti', 'RTX 4070 Ti Super', 'RTX 4080 Super', 'RTX 4080', 'RTX 4090', 'RX 7600', 'RX 7700 XT', 'RX 7800 XT', 'RX 7900 GRE', 'RX 7900 XT', 'RX 7900 XTX'] },
-      { name: 'Dung lượng VRAM', label: 'Dung lượng VRAM', options: ['8GB GDDR6', '12GB GDDR6X', '16GB GDDR6X', '24GB GDDR6X', '16GB GDDR6', '20GB GDDR6X'] },
+      { name: 'Chipset GPU', label: 'Chipset GPU', options: ['RTX 5090', 'RTX 5080', 'RTX 5070 Ti', 'RTX 5070', 'RTX 5060 Ti', 'RTX 5060', 'RTX 4090', 'RTX 4080 Super', 'RTX 4080', 'RTX 4070 Ti Super', 'RTX 4070 Ti', 'RTX 4070 Super', 'RTX 4070', 'RTX 4060 Ti', 'RTX 4060', 'RTX 3060', 'RTX 3050', 'GTX 1660 Super', 'GTX 1650', 'RX 9070 XT', 'RX 7900 XTX', 'RX 7900 XT', 'RX 7900 GRE', 'RX 7800 XT', 'RX 7700 XT', 'RX 7600 XT', 'RX 7600'] },
+      { name: 'Dung lượng VRAM', label: 'Dung lượng VRAM', options: ['8GB GDDR6', '12GB GDDR6X', '16GB GDDR6X', '20GB GDDR6X', '24GB GDDR6X', '32GB GDDR7', '16GB GDDR6'] },
       { name: 'Cổng xuất hình', label: 'Cổng xuất hình', options: ['1x HDMI 2.1, 3x DisplayPort 1.4', '2x HDMI 2.1, 2x DisplayPort 2.1', '1x HDMI 2.1, 3x DisplayPort 2.1'] },
-      { name: 'Nguồn đề xuất', label: 'Nguồn đề xuất', options: ['550W', '650W', '750W', '850W', '1000W', '1200W'] },
-      { name: 'TDP', label: 'Công suất TDP (W)', options: ['115W', '160W', '200W', '220W', '250W', '285W', '320W', '350W', '450W'] },
+      { name: 'Nguồn đề xuất', label: 'Nguồn đề xuất', options: ['450W', '550W', '650W', '750W', '850W', '1000W', '1200W', '1500W'] },
+      { name: 'TDP', label: 'Công suất TDP (W)', options: ['115W', '160W', '200W', '220W', '250W', '285W', '320W', '350W', '450W', '600W'] },
     ],
     'Mainboard': [
       { name: 'Socket', label: 'Socket', options: ['LGA 1700', 'LGA 1851', 'AM5', 'AM4'] },
-      { name: 'Chipset', label: 'Chipset', options: ['H610', 'B660', 'H770', 'Z690', 'B760', 'H770', 'Z790', 'Z890', 'B850', 'X870', 'A620', 'B650', 'X670', 'X870E'] },
+      { name: 'Chipset', label: 'Chipset', options: ['H610', 'B660', 'H770', 'Z690', 'B760', 'H770', 'Z790', 'Z890', 'B850', 'X870', 'X870E', 'A620', 'B650', 'B650E', 'X670', 'X670E'] },
       { name: 'Kích thước', label: 'Kích thước (Form Factor)', options: ['E-ATX', 'ATX', 'Micro-ATX', 'Mini-ITX'] },
       { name: 'Số khe RAM', label: 'Số khe RAM', options: ['2 khe', '4 khe', '8 khe'] },
       { name: 'Hỗ trợ RAM', label: 'Hỗ trợ RAM', options: ['DDR4', 'DDR5', 'DDR4 / DDR5'] },
@@ -68,8 +69,8 @@ export default function AdminProductForm() {
     'RAM': [
       { name: 'Dung lượng', label: 'Dung lượng', options: ['8GB (1x8GB)', '16GB (1x16GB)', '16GB (2x8GB)', '32GB (2x16GB)', '32GB (1x32GB)', '64GB (2x32GB)', '64GB (4x16GB)'] },
       { name: 'Chuẩn RAM', label: 'Chuẩn RAM', options: ['DDR4', 'DDR5'] },
-      { name: 'Tốc độ Bus', label: 'Tốc độ Bus', options: ['3200 MHz', '3600 MHz', '4000 MHz', '4800 MHz', '5200 MHz', '5600 MHz', '6000 MHz', '6400 MHz', '7200 MHz'] },
-      { name: 'Độ trễ', label: 'Độ trễ (Cas)', options: ['CL14', 'CL16', 'CL18', 'CL30', 'CL32', 'CL34', 'CL36'] },
+      { name: 'Tốc độ Bus', label: 'Tốc độ Bus', options: ['3200 MHz', '3600 MHz', '4000 MHz', '4800 MHz', '5200 MHz', '5600 MHz', '6000 MHz', '6400 MHz', '7200 MHz', '8000 MHz'] },
+      { name: 'Độ trễ', label: 'Độ trễ (Cas)', options: ['CL14', 'CL16', 'CL18', 'CL30', 'CL32', 'CL34', 'CL36', 'CL40'] },
       { name: 'Tản nhiệt', label: 'Tản nhiệt', options: ['Không có tản nhiệt', 'Tản nhiệt nhôm', 'Tản nhiệt RGB', 'Tản nhiệt nước (Hybrid)'] },
     ],
     'SSD': [
@@ -80,32 +81,32 @@ export default function AdminProductForm() {
       { name: 'Tốc độ ghi', label: 'Tốc độ ghi (MB/s)', options: ['500 MB/s', '3,000 MB/s', '4,500 MB/s', '6,500 MB/s', '9,500 MB/s', '11,500 MB/s'] },
     ],
     'PSU': [
-      { name: 'Công suất', label: 'Công suất', options: ['450W', '500W', '550W', '600W', '650W', '750W', '850W', '1000W', '1200W', '1600W'] },
+      { name: 'Công suất', label: 'Công suất', options: ['450W', '500W', '550W', '600W', '650W', '750W', '850W', '1000W', '1200W', '1300W', '1600W'] },
       { name: 'Chuẩn 80 Plus', label: 'Chuẩn 80 Plus', options: ['80 Plus White', '80 Plus Bronze', '80 Plus Silver', '80 Plus Gold', '80 Plus Platinum', '80 Plus Titanium'] },
-      { name: 'Kích thước', label: 'Kích thước', options: ['ATX (150 x 86 x 140mm)', 'SFX (125 x 63.5 x 100mm)', 'SFX-L (130 x 63.5 x 130mm)'] },
+      { name: 'Kích thước', label: 'Kích thước', options: ['ATX', 'SFX', 'SFX-L'] },
       { name: 'Cáp', label: 'Loại cáp', options: ['Cáp cố định (Non-Modular)', 'Cáp bán rời (Semi-Modular)', 'Cáp rời hoàn toàn (Full-Modular)'] },
+      { name: 'Chuẩn PCIe', label: 'Hỗ trợ PCIe 5.0', options: ['Có (Cáp 16-pin)', 'Không'] },
     ],
     'Case': [
       { name: 'Mainboard hỗ trợ', label: 'Mainboard hỗ trợ', options: ['Mini-ITX', 'Micro-ATX, Mini-ITX', 'ATX, Micro-ATX, Mini-ITX', 'E-ATX, ATX, Micro-ATX, Mini-ITX'] },
       { name: 'Chất liệu', label: 'Chất liệu', options: ['Thép SPCC', 'Thép SPCC + Kính cường lực', 'Nhôm + Kính cường lực', 'Thép SPCC + Kính acrylic'] },
       { name: 'Kích thước', label: 'Kích thước Case', options: ['Mini-ITX Tower', 'Micro-ATX Tower', 'Mid Tower', 'Full Tower', 'Super Tower'] },
-      { name: 'Vị trí PSU', label: 'Vị trí PSU', options: ['Dưới (Bottom)', 'Trên (Top)'] },
+      { name: 'Vị trí PSU', label: 'Vị trí PSU', options: ['Dưới (Bottom)', 'Trên (Top)', 'Phía sau (Chamber kép)'] },
       { name: 'Số khe mở rộng', label: 'Số khe mở rộng', options: ['2 khe', '4 khe', '7 khe', '8 khe', '10 khe'] },
     ],
     'Tản nhiệt': [
-      { name: 'Loại tản nhiệt', label: 'Loại tản nhiệt', options: ['Tản nhiệt khí (Air Cooler)', 'Tản nhiệt nước AIO 120mm', 'Tản nhiệt nước AIO 240mm', 'Tản nhiệt nước AIO 280mm', 'Tản nhiệt nước AIO 360mm', 'Tản nhiệt nước Custom (CLCs)'] },
-      { name: 'Socket hỗ trợ', label: 'Socket hỗ trợ', options: ['LGA 1700 / AM5', 'LGA 1700 / LGA 1200 / AM5 / AM4', 'Đa socket (Universal)'] },
+      { name: 'Loại tản nhiệt', label: 'Loại tản nhiệt', options: ['Tản nhiệt khí (Air Cooler)', 'Tản nhiệt nước AIO 120mm', 'Tản nhiệt nước AIO 240mm', 'Tản nhiệt nước AIO 280mm', 'Tản nhiệt nước AIO 360mm', 'Tản nhiệt nước AIO 420mm', 'Tản nhiệt nước Custom'] },
+      { name: 'Socket hỗ trợ', label: 'Socket hỗ trợ', options: ['LGA 1700 / AM5', 'LGA 1851 / LGA 1700 / AM5', 'LGA 1700 / LGA 1200 / AM5 / AM4', 'Đa socket (Universal)'] },
       { name: 'Kích thước Fan', label: 'Kích thước Fan', options: ['92mm', '120mm', '140mm', '2x 120mm', '3x 120mm', '2x 140mm', '3x 140mm'] },
       { name: 'TDP hỗ trợ', label: 'TDP tối đa hỗ trợ', options: ['Dưới 150W', '150W - 250W', '250W - 350W', 'Trên 350W'] },
     ],
     'Chuột': [
-      { name: 'Mắt đọc', label: 'Mắt đọc (Sensor)', options: ['Optical (Quang học)', 'Laser', 'PixArt PAW3212', 'PixArt PAW3370', 'PixArt PAW3395', 'PixArt PAW3950', 'Logitech HERO 25K', 'Logitech HERO 2 40K', 'Razer Focus Pro 30K', 'Razer Focus X 6250 DPI'] },
-      { name: 'DPI', label: 'DPI tối đa', options: ['6,200 DPI', '8,000 DPI', '12,000 DPI', '16,000 DPI', '20,000 DPI', '25,600 DPI', '30,000 DPI', '40,000 DPI'] },
-      { name: 'Kết nối', label: 'Chuẩn kết nối', options: ['Có dây (Wired - USB)', 'Có dây (Wired - Type-C)', 'Không dây (Wireless 2.4Ghz)', 'Bluetooth 5.1', 'Bluetooth 5.2', 'Wireless 2.4Ghz + Bluetooth'] },
-      { name: 'Trọng lượng', label: 'Trọng lượng', options: ['Dưới 60g (Ultralight)', '60g - 70g (Superlight)', '70g - 90g (Nhẹ)', '90g - 110g (Trung bình)', 'Trên 110g'] },
-      { name: 'Switch', label: 'Loại Switch nút bấm', options: ['Huano 60M', 'Kailh GM 8.0', 'Omron D2FC', 'Optical Switch (Razer)', 'Optical Switch (ASUS)', 'LK Optical', 'TTC Gold'] },
-      { name: 'Polling Rate', label: 'Polling Rate (Hz)', options: ['125 Hz', '500 Hz', '1000 Hz', '4000 Hz', '8000 Hz'] },
-      { name: 'Pin', label: 'Thời lượng Pin', options: ['Dưới 50 giờ', '50 - 100 giờ', '100 - 200 giờ', 'Trên 200 giờ'] },
+      { name: 'Mắt đọc', label: 'Mắt đọc (Sensor)', options: ['Optical (Quang học)', 'Laser', 'PixArt PAW3395', 'PixArt PAW3950', 'Logitech HERO 25K', 'Logitech HERO 2 40K', 'Razer Focus Pro 30K', 'Razer Focus X 6250 DPI'] },
+      { name: 'DPI', label: 'DPI tối đa', options: ['6,200 DPI', '8,000 DPI', '12,000 DPI', '16,000 DPI', '20,000 DPI', '25,600 DPI', '30,000 DPI', '40,000 DPI', '42,000 DPI'] },
+      { name: 'Kết nối', label: 'Chuẩn kết nối', options: ['Có dây (USB)', 'Không dây 2.4Ghz', 'Bluetooth', 'Wireless 2.4Ghz + Bluetooth', 'Có dây + Wireless 2.4Ghz + Bluetooth'] },
+      { name: 'Trọng lượng', label: 'Trọng lượng', options: ['Dưới 50g', '50g - 60g (Ultralight)', '60g - 70g (Superlight)', '70g - 90g (Nhẹ)', '90g - 110g', 'Trên 110g'] },
+      { name: 'Switch', label: 'Loại Switch', options: ['Huano 60M', 'Kailh GM 8.0', 'Omron D2FC', 'Optical Switch (Razer)', 'Optical Switch (ASUS)', 'TTC Gold'] },
+      { name: 'Polling Rate', label: 'Polling Rate (Hz)', options: ['1000 Hz', '4000 Hz', '8000 Hz'] },
     ],
     'Lót chuột': [
       { name: 'Kích thước', label: 'Kích thước', options: ['Nhỏ (320 x 270 mm)', 'Vừa (450 x 400 mm)', 'Lớn (900 x 400 mm)', 'XL (900 x 450 mm)', 'XXL (1200 x 600 mm)'] },
@@ -114,54 +115,85 @@ export default function AdminProductForm() {
       { name: 'Viền', label: 'Loại viền', options: ['Không có viền', 'Viền may chắc chắn', 'Viền silicon'] },
     ],
     'Bàn phím': [
-      { name: 'Loại Switch', label: 'Loại Switch', options: ['Akko CS Jelly Pink', 'Akko CS Jelly Purple', 'Gateron Yellow', 'Gateron Red', 'Gateron Brown', 'Gateron Blue', 'Cherry MX Red', 'Cherry MX Blue', 'Cherry MX Brown', 'Kailh Box Red', 'TTC Red', 'Blue Switch', 'Red Switch', 'Brown Switch', 'Silver Switch', 'Silent Red Switch', 'Optical Switch', 'Membrane (Giả cơ)'] },
-      { name: 'Kích thước', label: 'Kích thước (Layout)', options: ['Fullsize 100% (104 phím)', 'TKL 87% (87 phím)', '75% (83 phím)', '65% (68 phím)', '60% (61 phím)', '40%'] },
-      { name: 'Kết nối', label: 'Chuẩn kết nối', options: ['Có dây (USB-A)', 'Có dây (Type-C)', '3 Modes (USB + 2.4Ghz + Bluetooth)', 'Không dây 2.4Ghz', 'Bluetooth 5.0', 'Bluetooth 5.1', 'Bluetooth 5.3'] },
-      { name: 'Keycap', label: 'Chất liệu Keycap', options: ['ABS Double-shot', 'PBT Double-shot', 'PBT Dye-sub', 'PBT Pudding'] },
-      { name: 'LED', label: 'Đèn nền (LED)', options: ['RGB Per-key', 'RGB Underglow', 'RGB Full', 'Đơn sắc Trắng', 'Đơn sắc Xanh', 'Không có LED'] },
-      { name: 'Gasket Mount', label: 'Kiểu gắn PCB', options: ['Tray Mount', 'Top Mount', 'Bottom Mount', 'Gasket Mount', 'Leaf Spring Mount'] },
-      { name: 'Pin', label: 'Thời lượng Pin', options: ['Dưới 1000 mAh', '1000 mAh - 2000 mAh', '2000 mAh - 5000 mAh', 'Trên 5000 mAh'] },
+      { name: 'Loại Switch', label: 'Loại Switch', options: ['Akko CS', 'Gateron Yellow/Red/Brown', 'Cherry MX Red/Blue/Brown', 'Kailh Box', 'TTC', 'Blue Switch', 'Red Switch', 'Brown Switch', 'Silver Switch', 'Silent Switch', 'Optical Switch', 'Magnetic Switch (Từ tính)', 'Membrane'] },
+      { name: 'Kích thước', label: 'Kích thước (Layout)', options: ['Fullsize 100% (104/108 phím)', 'TKL 87% (87 phím)', '75% (83/84 phím)', '65% (68 phím)', '60% (61 phím)', 'Alice Layout'] },
+      { name: 'Kết nối', label: 'Chuẩn kết nối', options: ['Có dây (Type-C)', '3 Modes (Cáp + 2.4Ghz + Bluetooth)', 'Không dây 2.4Ghz', 'Bluetooth'] },
+      { name: 'Keycap', label: 'Chất liệu Keycap', options: ['ABS Double-shot', 'PBT Double-shot', 'PBT Dye-sub', 'PC (Trong suốt)'] },
+      { name: 'LED', label: 'Đèn nền (LED)', options: ['RGB Per-key', 'RGB Underglow', 'Đơn sắc Trắng', 'Đơn sắc Xanh', 'Không có LED'] },
+      { name: 'Mạch', label: 'Cấu trúc', options: ['Tray Mount', 'Top Mount', 'Gasket Mount', 'Leaf Spring Mount'] },
+      { name: 'Pin', label: 'Dung lượng Pin', options: ['Dưới 2000 mAh', '2000 mAh - 4000 mAh', '4000 mAh - 8000 mAh', 'Trên 8000 mAh'] },
     ],
     'Tai nghe': [
-      { name: 'Kiểu dáng', label: 'Kiểu dáng', options: ['Over-ear / Circumaural (Chụp tai)', 'On-ear / Supra-aural (Áp tai)', 'In-ear (Nhét tai)', 'True Wireless (TWS)', 'Neckband (Đeo cổ)'] },
-      { name: 'Kết nối', label: 'Chuẩn kết nối', options: ['Jack 3.5mm', 'USB-A', 'USB-C', 'Không dây 2.4Ghz', 'Bluetooth 5.0', 'Bluetooth 5.2', 'Bluetooth 5.3', 'Multi-device (Kết nối nhiều thiết bị)'] },
-      { name: 'Microphone', label: 'Microphone', options: ['Không có Mic', 'Có Mic tháo rời', 'Có Mic gắn liền có thể lật lên', 'Có Mic tích hợp (Boom Arm)', 'Mic trong tai (TWS)'] },
-      { name: 'Tần số đáp ứng', label: 'Tần số đáp ứng', options: ['20Hz - 20kHz', '15Hz - 20kHz', '12Hz - 28kHz', '5Hz - 40kHz'] },
-      { name: 'Trở kháng', label: 'Trở kháng (Ohm)', options: ['16 Ohm', '32 Ohm', '50 Ohm', '64 Ohm', '150 Ohm', '250 Ohm'] },
-      { name: 'Driver', label: 'Kích thước Driver', options: ['6mm', '10mm', '13mm', '40mm', '50mm', '53mm'] },
-      { name: 'Pin', label: 'Thời lượng Pin', options: ['Không có pin (có dây)', 'Dưới 10 giờ', '10 - 20 giờ', '20 - 40 giờ', 'Trên 40 giờ'] },
+      { name: 'Kiểu dáng', label: 'Kiểu dáng', options: ['Over-ear (Chụp tai)', 'On-ear (Áp tai)', 'In-ear (Nhét tai)', 'True Wireless (TWS)', 'Neckband (Đeo cổ)'] },
+      { name: 'Kết nối', label: 'Chuẩn kết nối', options: ['Jack 3.5mm', 'USB-A', 'USB-C', 'Không dây 2.4Ghz', 'Bluetooth', 'Multi-device (Kết nối nhiều thiết bị)'] },
+      { name: 'Microphone', label: 'Microphone', options: ['Không có Mic', 'Có Mic tháo rời', 'Có Mic gắn liền', 'Có Mic chống ồn (ANC)', 'Mic trong tai (TWS)'] },
+      { name: 'Tần số đáp ứng', label: 'Tần số đáp ứng', options: ['20Hz - 20kHz', '15Hz - 20kHz', '12Hz - 28kHz', '10Hz - 40kHz (Hi-Res)'] },
+      { name: 'Chống ồn', label: 'Tính năng chống ồn', options: ['Không', 'Chống ồn chủ động (ANC)', 'Chống ồn bị động'] },
     ],
     'Loa': [
-      { name: 'Công suất', label: 'Công suất (W RMS)', options: ['5W', '10W', '15W', '20W', '30W', '50W', '100W', '200W', 'Trên 200W'] },
-      { name: 'Kết nối', label: 'Chuẩn kết nối', options: ['Bluetooth 5.0', 'Bluetooth 5.1', 'Bluetooth 5.3', 'Jack 3.5mm', 'USB', 'Optical (Toslink)', 'RCA', 'Bluetooth + AUX'] },
-      { name: 'Cấu hình', label: 'Cấu hình loa', options: ['2.0 (2 loa)', '2.1 (2 loa + sub)', '5.1 (Surround)', '7.1 (Surround)', 'Đơn (1 loa)'] },
-      { name: 'Kích thước', label: 'Kích thước loa sub', options: ['Không có sub', 'Sub 3 inch', 'Sub 4 inch', 'Sub 5.5 inch', 'Sub 6.5 inch', 'Sub 8 inch'] },
-      { name: 'Dải tần', label: 'Dải tần', options: ['50Hz - 20kHz', '35Hz - 20kHz', '20Hz - 20kHz'] },
+      { name: 'Công suất', label: 'Công suất (W RMS)', options: ['5W', '10W', '20W', '30W', '50W', '100W', '200W', 'Trên 200W'] },
+      { name: 'Kết nối', label: 'Chuẩn kết nối', options: ['Bluetooth', 'Jack 3.5mm', 'USB', 'Optical (Toslink)', 'RCA', 'Bluetooth + AUX'] },
+      { name: 'Cấu hình', label: 'Cấu hình loa', options: ['2.0 (2 loa)', '2.1 (2 loa + sub)', '5.1 (Surround)', '7.1 (Surround)', 'Soundbar'] },
+      { name: 'Pin', label: 'Thời lượng Pin', options: ['Cắm điện trực tiếp', 'Dưới 5 giờ', '5 - 10 giờ', '10 - 20 giờ', 'Trên 20 giờ'] },
+    ],
+    'Microphone': [
+      { name: 'Loại Micro', label: 'Loại Micro', options: ['Condenser (Thu âm nhạy)', 'Dynamic (Chống ồn tốt)', 'Lavalier (Cài áo)', 'Shotgun'] },
+      { name: 'Định hướng thu', label: 'Mô hình thu âm (Polar Pattern)', options: ['Cardioid (Đơn hướng)', 'Omnidirectional (Đa hướng)', 'Bidirectional (Hai hướng)', 'Stereo', 'Đa mô hình (Multi-pattern)'] },
+      { name: 'Kết nối', label: 'Chuẩn kết nối', options: ['USB Type-C', 'USB Type-A', 'XLR', 'XLR + USB', 'Jack 3.5mm'] },
+      { name: 'Tần số đáp ứng', label: 'Tần số đáp ứng', options: ['20Hz - 20kHz', '50Hz - 16kHz', '50Hz - 20kHz'] },
+    ],
+    'Webcam': [
+      { name: 'Độ phân giải', label: 'Độ phân giải quay Video', options: ['720p (HD)', '1080p (Full HD)', '1440p (2K)', '4K (Ultra HD)'] },
+      { name: 'Tốc độ khung hình', label: 'Tốc độ khung hình (FPS)', options: ['30 FPS', '60 FPS', '1080p @ 60FPS / 4K @ 30FPS'] },
+      { name: 'Góc nhìn', label: 'Góc nhìn (FOV)', options: ['65 độ', '78 độ', '90 độ', 'Khung hình siêu rộng (Ultra-wide)'] },
+      { name: 'Microphone', label: 'Microphone tích hợp', options: ['Có (Mono)', 'Có (Stereo)', 'Có (Khử tiếng ồn)', 'Không'] },
+      { name: 'Tự động lấy nét', label: 'Tự động lấy nét (Autofocus)', options: ['Có', 'Không (Fixed focus)'] },
     ],
     'Màn hình': [
-      { name: 'Kích thước', label: 'Kích thước', options: ['21.5 inch', '23.8 inch', '24 inch', '24.5 inch', '27 inch', '31.5 inch', '32 inch', '34 inch Ultrawide', '38 inch Ultrawide', '42 inch', '45 inch Ultrawide', '49 inch Super Ultrawide'] },
-      { name: 'Độ phân giải', label: 'Độ phân giải', options: ['FHD 1080p (1920x1080)', 'WFHD (2560x1080)', 'QHD 1440p (2560x1440)', 'QHD+ (3440x1440) Ultrawide', '4K UHD (3840x2160)', '4K UWQHD (5120x2160)', '8K (7680x4320)'] },
-      { name: 'Tần số quét', label: 'Tần số quét (Hz)', options: ['60Hz', '75Hz', '100Hz', '120Hz', '144Hz', '160Hz', '165Hz', '170Hz', '180Hz', '240Hz', '260Hz', '280Hz', '360Hz', '540Hz'] },
-      { name: 'Tấm nền', label: 'Loại tấm nền', options: ['IPS', 'Fast IPS', 'Nano IPS', 'VA', 'TN', 'OLED', 'AMOLED', 'Mini-LED', 'QLED', 'WOLED'] },
-      { name: 'Độ sáng', label: 'Độ sáng (Nits)', options: ['250 nits', '300 nits', '350 nits', '400 nits', 'HDR400 (400 nits)', 'HDR600 (600 nits)', 'HDR1000 (1000 nits)', 'HDR1400 (1400 nits)'] },
-      { name: 'Cổng kết nối', label: 'Cổng kết nối', options: ['1x HDMI 2.0, 1x DisplayPort 1.4', '1x HDMI 2.1, 1x DisplayPort 1.4', '2x HDMI 2.0, 1x DisplayPort 1.4', '2x HDMI 2.1, 2x DisplayPort 1.4', '1x HDMI 2.1, 2x DisplayPort 2.1', '1x HDMI 2.1, 1x DisplayPort 1.4, 1x USB-C'] },
+      { name: 'Kích thước', label: 'Kích thước', options: ['24 inch', '24.5 inch', '27 inch', '31.5 inch', '32 inch', '34 inch Ultrawide', '38 inch Ultrawide', '42 inch', '49 inch Super Ultrawide'] },
+      { name: 'Độ phân giải', label: 'Độ phân giải', options: ['FHD 1080p (1920x1080)', 'QHD 1440p (2560x1440)', 'QHD+ (3440x1440) Ultrawide', '4K UHD (3840x2160)', '4K UWQHD (5120x2160)', '8K (7680x4320)'] },
+      { name: 'Tần số quét', label: 'Tần số quét (Hz)', options: ['60Hz', '75Hz', '100Hz', '144Hz', '165Hz', '180Hz', '240Hz', '360Hz', '480Hz', '540Hz'] },
+      { name: 'Tấm nền', label: 'Loại tấm nền', options: ['IPS', 'Fast IPS', 'VA', 'TN', 'OLED', 'QD-OLED', 'WOLED', 'Mini-LED'] },
+      { name: 'Độ sáng', label: 'Độ sáng (Nits)', options: ['250 nits', '300 nits', '400 nits (HDR400)', '600 nits (HDR600)', '1000 nits (HDR1000)', '1400 nits (HDR1400)'] },
       { name: 'Thời gian phản hồi', label: 'Thời gian phản hồi (ms)', options: ['0.03ms (GtG)', '0.1ms (GtG)', '0.5ms (GtG)', '1ms (GtG)', '1ms (MPRT)', '4ms (GtG)'] },
     ],
     'Ghế / Bàn': [
       { name: 'Loại', label: 'Loại', options: ['Ghế Gaming', 'Ghế công thái học (Ergonomic)', 'Bàn Gaming', 'Bàn nâng hạ điện (Standing Desk)'] },
-      { name: 'Chất liệu bề mặt', label: 'Chất liệu bề mặt', options: ['Da PU', 'Da thật (Full Grain Leather)', 'Vải lưới (Mesh)', 'Vải nỉ (Fabric)', 'Gỗ MDF', 'Mặt kính cường lực'] },
-      { name: 'Khung', label: 'Chất liệu khung', options: ['Khung thép', 'Khung nhôm', 'Khung hợp kim'] },
-      { name: 'Trọng tải tối đa', label: 'Trọng tải tối đa', options: ['Dưới 100 kg', '100 kg', '120 kg', '150 kg', '180 kg', '200 kg', 'Trên 200 kg'] },
-      { name: 'Kê tay', label: 'Kê tay (Armrest)', options: ['Không có kê tay', 'Kê tay cố định 1D', 'Kê tay 2D', 'Kê tay 3D', 'Kê tay 4D (có thể xoay)'] },
-      { name: 'Kích thước', label: 'Kích thước bàn (cm)', options: ['80 x 60 cm', '100 x 60 cm', '120 x 60 cm', '140 x 70 cm', '160 x 70 cm', '180 x 80 cm', '200 x 80 cm'] },
+      { name: 'Chất liệu bề mặt', label: 'Chất liệu bề mặt', options: ['Da PU', 'Da thật', 'Vải lưới (Mesh)', 'Vải nỉ (Fabric)', 'Gỗ MDF', 'Mặt kính cường lực'] },
+      { name: 'Khung', label: 'Chất liệu khung', options: ['Khung thép', 'Khung nhôm', 'Khung hợp kim', 'Nhựa chịu lực'] },
+      { name: 'Trọng tải tối đa', label: 'Trọng tải tối đa', options: ['Dưới 100 kg', '100 kg', '120 kg', '150 kg', '180 kg', '200 kg'] },
+      { name: 'Kê tay', label: 'Kê tay (Chỉ dành cho ghế)', options: ['Không có', 'Kê tay 1D', 'Kê tay 2D', 'Kê tay 3D', 'Kê tay 4D'] },
+      { name: 'Kích thước', label: 'Kích thước (cm)', options: ['80 x 60 cm', '100 x 60 cm', '120 x 60 cm', '140 x 70 cm', '160 x 70 cm', '180 x 80 cm', '200 x 80 cm'] },
     ],
     'Console': [
-      { name: 'Hãng / Dòng máy', label: 'Hãng / Dòng máy', options: ['PlayStation 5 Standard', 'PlayStation 5 Digital Edition', 'PlayStation 5 Slim', 'Xbox Series X', 'Xbox Series S', 'Nintendo Switch OLED', 'Nintendo Switch Lite', 'Steam Deck OLED', 'ASUS ROG Ally X', 'Lenovo Legion Go'] },
-      { name: 'Dung lượng', label: 'Dung lượng (Bộ nhớ)', options: ['256GB', '512GB', '1TB', '2TB', 'Có thể mở rộng'] },
-      { name: 'Độ phân giải', label: 'Độ phân giải tối đa', options: ['720p (HD)', '1080p (Full HD)', '1440p (QHD)', '4K (Ultra HD)', '8K (hỗ trợ qua output)'] },
-      { name: 'FPS tối đa', label: 'FPS tối đa', options: ['30 FPS', '60 FPS', '120 FPS', '144 FPS'] },
-      { name: 'Kết nối', label: 'Kết nối mạng', options: ['Wi-Fi 5 (802.11ac)', 'Wi-Fi 6 (802.11ax)', 'Wi-Fi 6E', 'Wi-Fi 6 + Ethernet Gigabit', 'Wi-Fi 6E + Bluetooth 5.1'] },
-      { name: 'Loại đĩa', label: 'Ổ đĩa', options: ['Không có ổ đĩa (Digital)', 'Ổ đĩa Blu-ray 4K', 'Ổ đĩa Blu-ray thông thường'] },
+      { name: 'Hãng / Dòng máy', label: 'Hãng / Dòng máy', options: ['PlayStation 5 Pro', 'PlayStation 5 Slim', 'PlayStation 5 Standard', 'Xbox Series X', 'Xbox Series S', 'Nintendo Switch OLED', 'Nintendo Switch V2'] },
+      { name: 'Dung lượng', label: 'Dung lượng (Bộ nhớ)', options: ['512GB', '825GB', '1TB', '2TB'] },
+      { name: 'Độ phân giải', label: 'Độ phân giải tối đa', options: ['1080p', '1440p', '4K', '8K'] },
+      { name: 'FPS tối đa', label: 'FPS tối đa', options: ['60 FPS', '120 FPS'] },
+      { name: 'Loại đĩa', label: 'Ổ đĩa', options: ['Không có ổ đĩa (Digital)', 'Ổ đĩa Blu-ray 4K'] },
+    ],
+    'Handheld': [
+      { name: 'Dòng máy', label: 'Dòng máy', options: ['Steam Deck OLED', 'Steam Deck LCD', 'ASUS ROG Ally X', 'ASUS ROG Ally', 'Lenovo Legion Go', 'Nintendo Switch Lite'] },
+      { name: 'Vi xử lý', label: 'Vi xử lý (APU)', options: ['AMD Z1 Extreme', 'AMD Z1', 'Custom AMD APU', 'NVIDIA Tegra X1'] },
+      { name: 'Màn hình', label: 'Màn hình', options: ['7 inch 120Hz', '7 inch 60Hz', '7.4 inch OLED 90Hz', '8.8 inch 144Hz', '5.5 inch 60Hz'] },
+      { name: 'RAM', label: 'Bộ nhớ RAM', options: ['16GB LPDDR5', '24GB LPDDR5X'] },
+      { name: 'Lưu trữ', label: 'Lưu trữ', options: ['256GB SSD', '512GB SSD', '1TB SSD'] },
+    ],
+    'Thiết bị mạng': [
+      { name: 'Loại thiết bị', label: 'Loại thiết bị', options: ['Router Wi-Fi', 'Mesh Wi-Fi', 'Switch mạng', 'Card mạng (PCIe/USB)', 'Bộ kích sóng (Repeater)'] },
+      { name: 'Chuẩn Wi-Fi', label: 'Chuẩn Wi-Fi', options: ['Wi-Fi 5 (AC)', 'Wi-Fi 6 (AX)', 'Wi-Fi 6E (AXE)', 'Wi-Fi 7 (BE)', 'Không có Wi-Fi'] },
+      { name: 'Băng tần', label: 'Băng tần hỗ trợ', options: ['Băng tần kép (Dual-band)', 'Ba băng tần (Tri-band)', 'Bốn băng tần (Quad-band)'] },
+      { name: 'Cổng kết nối', label: 'Cổng LAN/WAN', options: ['Gigabit (1000Mbps)', '2.5G Gigabit', '10G Gigabit'] },
+    ],
+    'Phần mềm': [
+      { name: 'Loại phần mềm', label: 'Loại phần mềm', options: ['Hệ điều hành', 'Phần mềm diệt Virus', 'Phần mềm văn phòng', 'Phần mềm đồ họa'] },
+      { name: 'Thời hạn', label: 'Thời hạn bản quyền', options: ['1 Năm', '2 Năm', '3 Năm', 'Vĩnh viễn (Lifetime)'] },
+      { name: 'Số thiết bị', label: 'Số lượng thiết bị hỗ trợ', options: ['1 Thiết bị', '3 Thiết bị', '5 Thiết bị', '10 Thiết bị'] },
+    ],
+    'Phụ kiện': [
+      { name: 'Loại phụ kiện', label: 'Loại phụ kiện', options: ['Cáp kết nối', 'Hub USB / Dock', 'Giá đỡ điện thoại / Tablet', 'Tay cầm chơi game (Gamepad)', 'Balo / Túi chống sốc', 'Keo tản nhiệt', 'Dây Riser / Khung dựng VGA'] },
+      { name: 'Kết nối', label: 'Giao tiếp / Kết nối', options: ['USB-C', 'USB-A', 'HDMI', 'DisplayPort', 'Không dây (Bluetooth/2.4Ghz)', 'Không có'] },
+      { name: 'Chất liệu', label: 'Chất liệu chính', options: ['Nhựa ABS', 'Nhôm', 'Bọc dù', 'Vải nylon', 'Cao su'] },
     ]
   };
 
@@ -169,12 +201,9 @@ export default function AdminProductForm() {
     if (!catName) return 'PC / Laptop';
     const lower = catName.toLowerCase();
     
-    // Linh kiện tách biệt (Check first to avoid overlaps like "Vỏ máy tính", "Nguồn máy tính")
+    // Linh kiện tách biệt
     if (lower.includes('vga') || lower.includes('card màn hình')) return 'VGA';
-    
-    // Màn hình (phải để dưới Card màn hình để tránh bị trùng chữ "màn hình")
     if (lower.includes('màn hình')) return 'Màn hình';
-    
     if (lower.includes('cpu') || lower.includes('vi xử lý')) return 'CPU';
     if (lower.includes('main') || lower.includes('bo mạch')) return 'Mainboard';
     if (lower.includes('ram') || lower.includes('bộ nhớ trong')) return 'RAM';
@@ -183,19 +212,27 @@ export default function AdminProductForm() {
     if (lower.includes('case') || lower.includes('vỏ')) return 'Case';
     if (lower.includes('tản nhiệt')) return 'Tản nhiệt';
 
-    // Laptop / PC (Check after components to avoid "Vỏ máy tính" -> PC)
+    // Laptop / PC
     if (lower.includes('laptop') || lower.includes('pc') || lower.includes('máy tính')) return 'PC / Laptop';
     
     // Console / Handheld
-    if (lower.includes('console') || lower.includes('handheld')) return 'Console';
+    if (lower.includes('handheld') || lower.includes('cầm tay')) return 'Handheld';
+    if (lower.includes('console') || lower.includes('playstation') || lower.includes('xbox')) return 'Console';
     
-    // Gaming Gear
+    // Gaming Gear & Phụ kiện
     if (lower.includes('chuột') && !lower.includes('lót')) return 'Chuột';
     if (lower.includes('lót chuột')) return 'Lót chuột';
     if (lower.includes('phím')) return 'Bàn phím';
     if (lower.includes('tai nghe')) return 'Tai nghe';
-    if (lower.includes('loa') || lower.includes('micro') || lower.includes('webcam')) return 'Loa';
+    if (lower.includes('micro')) return 'Microphone';
+    if (lower.includes('webcam')) return 'Webcam';
+    if (lower.includes('loa')) return 'Loa';
     if (lower.includes('ghế') || lower.includes('bàn')) return 'Ghế / Bàn';
+    
+    // Mạng & Phần mềm
+    if (lower.includes('mạng') || lower.includes('router') || lower.includes('wi-fi')) return 'Thiết bị mạng';
+    if (lower.includes('phần mềm') || lower.includes('software')) return 'Phần mềm';
+    if (lower.includes('phụ kiện')) return 'Phụ kiện';
     
     return 'Mặc định';
   };

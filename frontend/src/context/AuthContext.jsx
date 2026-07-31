@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }) => {
 
       if (res.ok) {
         const userData = await res.json();
-        if (userData.role === 'ADMIN' || userData.role === 'SUPER_ADMIN') {
+        if (userData.role === 'ADMIN') {
           setAdminUser(userData);
         } else {
           adminLogout();

@@ -8,12 +8,12 @@ import uuid
 from app.database import get_db
 from app.models.flash_sale import FlashSale, FlashSaleItem
 from app.schemas.flash_sale import FlashSaleResponse, FlashSaleCreate, FlashSaleUpdate, FlashSaleItemResponse
-from app.routers.auth import get_current_admin
+from app.routers.auth import get_current_admin, get_current_marketing
 
 router = APIRouter(
     prefix="/admin/flash-sales",
     tags=["admin_flash_sales"],
-    dependencies=[Depends(get_current_admin)]
+    dependencies=[Depends(get_current_marketing)]
 )
 
 @router.get("", response_model=List[FlashSaleResponse])
@@ -34,6 +34,15 @@ def get_admin_flash_sales(db: Session = Depends(get_db)):
 def create_flash_sale(sale_in: FlashSaleCreate, db: Session = Depends(get_db)):
     if sale_in.start_time >= sale_in.end_time:
         raise HTTPException(status_code=400, detail="Start time must be before end time")
+        
+    if sale_in.is_active:
+        overlapping_sale = db.query(FlashSale).filter(
+            FlashSale.is_active == True,
+            FlashSale.start_time < sale_in.end_time,
+            FlashSale.end_time > sale_in.start_time
+        ).first()
+        if overlapping_sale:
+            raise HTTPException(status_code=400, detail=f"Trùng lặp thời gian với chiến dịch '{overlapping_sale.name}' đang hoạt động")
         
     db_sale = FlashSale(
         id=str(uuid.uuid4()),
@@ -72,6 +81,16 @@ def update_flash_sale(sale_id: str, sale_in: FlashSaleUpdate, db: Session = Depe
         
     if db_sale.start_time >= db_sale.end_time:
         raise HTTPException(status_code=400, detail="Start time must be before end time")
+        
+    if db_sale.is_active:
+        overlapping_sale = db.query(FlashSale).filter(
+            FlashSale.id != db_sale.id,
+            FlashSale.is_active == True,
+            FlashSale.start_time < db_sale.end_time,
+            FlashSale.end_time > db_sale.start_time
+        ).first()
+        if overlapping_sale:
+            raise HTTPException(status_code=400, detail=f"Trùng lặp thời gian với chiến dịch '{overlapping_sale.name}' đang hoạt động")
         
     db.commit()
     db.refresh(db_sale)

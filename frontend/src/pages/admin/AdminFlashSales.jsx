@@ -99,7 +99,7 @@ export default function AdminFlashSales() {
       addToast(sale.is_active ? 'Đã tắt chiến dịch' : 'Đã bật chiến dịch', 'success');
       fetchSales();
     } catch (error) {
-      addToast('Lỗi cập nhật trạng thái', 'error');
+      addToast(error.response?.data?.detail || 'Lỗi cập nhật trạng thái', 'error');
     }
   };
 

@@ -139,16 +139,18 @@ export default function AdminLayout() {
   };
 
   const hasAccess = (path, isDev = false) => {
-    if (isDev) return false; // Dev items are always false
-    if (!adminUser || !adminUser.staff_role) return false; // Should not happen if logged in
-    if (adminUser.staff_role === 'SUPER_ADMIN') return true;
-    if (path === '/admin/dashboard') return true; // Everyone can see dashboard
+    if (isDev) return false;
+    if (!adminUser || !adminUser.staff_role) return false;
+    if (adminUser.staff_role === 'QUAN_TRI_VIEN') return true;
     
-    if (adminUser.staff_role === 'SALES') {
-      return ['/admin/orders', '/admin/customers', '/admin/chat'].includes(path);
+    if (adminUser.staff_role === 'BAN_HANG') {
+      return ['/admin/orders', '/admin/customers', '/admin/reviews', '/admin/chat'].includes(path);
     }
-    if (adminUser.staff_role === 'INVENTORY') {
+    if (adminUser.staff_role === 'THU_KHO') {
       return ['/admin/products', '/admin/categories', '/admin/brands', '/admin/inventory', '/admin/suppliers', '/admin/receipts'].includes(path);
+    }
+    if (adminUser.staff_role === 'MARKETING') {
+      return ['/admin/flash-sales', '/admin/coupons', '/admin/banners', '/admin/news', '/admin/email'].includes(path);
     }
     return false;
   };
@@ -178,8 +180,7 @@ export default function AdminLayout() {
     { section: 'KHÁCH HÀNG', items: [
       { id: 'customers', label: 'Khách hàng', icon: <Users size={18} />, path: '/admin/customers', active: hasAccess('/admin/customers') },
       { id: 'reviews', label: 'Đánh giá/Bình luận', icon: <Star size={18} />, path: '/admin/reviews', active: hasAccess('/admin/reviews') },
-      { id: 'chat', label: 'Live Chat', icon: <MessageSquare size={18} />, path: '/admin/chat', active: hasAccess('/admin/chat') },
-      { id: 'returns', label: 'Đổi/Trả hàng', icon: <RefreshCcw size={18} />, path: '/admin/returns', active: hasAccess('/admin/returns', true) }
+      { id: 'chat', label: 'Live Chat', icon: <MessageSquare size={18} />, path: '/admin/chat', active: hasAccess('/admin/chat') }
     ]},
     { section: 'HỆ THỐNG', items: [
       { id: 'staffs', label: 'Nhân viên (Staff)', icon: <UserCog size={18} />, path: '/admin/staffs', active: hasAccess('/admin/staffs') }
@@ -334,7 +335,7 @@ export default function AdminLayout() {
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--text)', letterSpacing: '0.5px' }}>{adminUser?.fullName || 'Admin'}</div>
                 <div style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'right' }}>
-                  {adminUser?.staff_role === 'SUPER_ADMIN' ? 'Super Admin' : adminUser?.staff_role || 'System Admin'}
+                  {{'QUAN_TRI_VIEN': 'Quản trị viên', 'BAN_HANG': 'Bán hàng', 'THU_KHO': 'Thủ kho', 'MARKETING': 'Marketing'}[adminUser?.staff_role] || 'Nhân viên'}
                 </div>
               </div>
               <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '16px', boxShadow: '0 4px 10px rgba(14, 165, 233, 0.3)' }}>

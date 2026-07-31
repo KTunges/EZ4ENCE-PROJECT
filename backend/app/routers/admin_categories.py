@@ -7,7 +7,7 @@ from app.database import get_db
 from app.models.category import Category
 from app.models.user import User
 from app.schemas.category import CategoryCreate, CategoryResponse
-from app.routers.auth import get_current_admin
+from app.routers.auth import get_current_admin, get_current_inventory
 from app.routers.categories import invalidate_categories_cache
 
 router = APIRouter(prefix="/admin/categories", tags=["Admin Categories"])
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/admin/categories", tags=["Admin Categories"])
 def create_category(
     category_in: CategoryCreate,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_inventory)
 ):
     # Check if slug exists
     if db.query(Category).filter(Category.slug == category_in.slug).first():
@@ -41,7 +41,7 @@ def update_category(
     category_id: str,
     category_in: CategoryCreate,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_inventory)
 ):
     cat = db.query(Category).filter(Category.id == category_id).first()
     if not cat:
@@ -67,7 +67,7 @@ def update_category(
 def delete_category(
     category_id: str,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin)
+    admin: User = Depends(get_current_inventory)
 ):
     cat = db.query(Category).filter(Category.id == category_id).first()
     if not cat:

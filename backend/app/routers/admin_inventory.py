@@ -15,13 +15,13 @@ from app.schemas.inventory import (
     StockReceiptResponse, StockReceiptCreate,
     InventorySKUResponse, SKUHistoryResponse
 )
-from app.routers.auth import get_current_admin
+from app.routers.auth import get_current_admin, get_current_inventory
 from app.models.user import User
 
 router = APIRouter(
     prefix="/admin/inventory",
     tags=["Admin Inventory"],
-    dependencies=[Depends(get_current_admin)]
+    dependencies=[Depends(get_current_inventory)]
 )
 
 # =======================
@@ -147,7 +147,7 @@ def get_all_receipts(db: Session = Depends(get_db)):
     return db.query(StockReceipt).order_by(StockReceipt.created_at.desc()).all()
 
 @router.post("/receipts", response_model=StockReceiptResponse, status_code=status.HTTP_201_CREATED)
-def create_receipt(receipt_in: StockReceiptCreate, current_admin: User = Depends(get_current_admin), db: Session = Depends(get_db)):
+def create_receipt(receipt_in: StockReceiptCreate, current_admin: User = Depends(get_current_inventory), db: Session = Depends(get_db)):
     # Generate receipt code
     date_str = datetime.now().strftime("%Y%m%d")
     count = db.query(StockReceipt).filter(StockReceipt.created_at >= datetime.now().replace(hour=0, minute=0, second=0)).count()

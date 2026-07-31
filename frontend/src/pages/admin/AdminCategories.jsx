@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, Edit, Trash2, X } from 'lucide-react';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../../services/adminApi';
+import { useAuth } from '../../context/AuthContext';
 
 const generateSlug = (text) => {
   return text.toString().toLowerCase()
@@ -12,6 +13,7 @@ const generateSlug = (text) => {
 };
 
 export default function AdminCategories() {
+  const { adminUser } = useAuth();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -56,6 +58,10 @@ export default function AdminCategories() {
   };
 
   const handleDelete = async (id) => {
+    if (adminUser?.staff_role !== 'QUAN_TRI_VIEN') {
+      window.toast.error("Bạn không có quyền xóa danh mục");
+      return;
+    }
     if (await window.customConfirm("Bạn có chắc chắn muốn xóa danh mục này?")) {
       try {
         await deleteCategory(id);
@@ -95,21 +101,7 @@ export default function AdminCategories() {
     }
   };
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const data = await getCategories();
-        // data có thể là tree, cần flatten nếu muốn hiển thị table đơn giản, 
-        // hoặc cứ map trực tiếp nếu backend trả list
-        setCategories(data);
-      } catch (error) {
-        console.error("Lỗi lấy danh mục", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCategories();
-  }, []);
+
 
   return (
     <div>
@@ -167,9 +159,11 @@ export default function AdminCategories() {
                       <button onClick={() => handleOpenEditModal(cat)} style={{ padding: '6px', background: 'rgba(0, 210, 255, 0.1)', border: 'none', color: 'var(--cyan)', borderRadius: '6px', cursor: 'pointer' }} title="Chỉnh sửa">
                         <Edit size={16} />
                       </button>
-                      <button onClick={() => handleDelete(cat.id)} style={{ padding: '6px', background: 'rgba(255, 23, 68, 0.1)', border: 'none', color: '#ff1744', borderRadius: '6px', cursor: 'pointer' }} title="Xóa">
-                        <Trash2 size={16} />
-                      </button>
+                      {adminUser?.staff_role === 'QUAN_TRI_VIEN' && (
+                        <button onClick={() => handleDelete(cat.id)} style={{ padding: '6px', background: 'rgba(255, 23, 68, 0.1)', border: 'none', color: '#ff1744', borderRadius: '6px', cursor: 'pointer' }} title="Xóa">
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

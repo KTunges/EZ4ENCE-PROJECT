@@ -6,12 +6,12 @@ import uuid
 from app.database import get_db
 from app.models.news import News
 from app.schemas.news import NewsResponse, NewsCreate, NewsUpdate
-from app.routers.auth import get_current_admin
+from app.routers.auth import get_current_admin, get_current_marketing
 
 router = APIRouter(
     prefix="/admin/news",
     tags=["Admin News"],
-    dependencies=[Depends(get_current_admin)]
+    dependencies=[Depends(get_current_marketing)]
 )
 
 @router.get("", response_model=List[NewsResponse])

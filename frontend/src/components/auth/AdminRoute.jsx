@@ -8,14 +8,17 @@ export default function AdminRoute({ children }) {
 
   const hasAccess = (path, user) => {
     if (!user || !user.staff_role) return false;
-    if (user.staff_role === 'SUPER_ADMIN') return true;
-    if (path === '/admin' || path === '/admin/' || path.startsWith('/admin/dashboard')) return true;
+    if (user.staff_role === 'QUAN_TRI_VIEN') return true;
+    if (path === '/admin' || path === '/admin/' || path.startsWith('/admin/dashboard')) return user.staff_role === 'QUAN_TRI_VIEN';
 
-    if (user.staff_role === 'SALES') {
-      return ['/admin/orders', '/admin/customers'].some(p => path.startsWith(p));
+    if (user.staff_role === 'BAN_HANG') {
+      return ['/admin/orders', '/admin/customers', '/admin/reviews', '/admin/chat'].some(p => path.startsWith(p));
     }
-    if (user.staff_role === 'INVENTORY') {
-      return ['/admin/products', '/admin/categories', '/admin/brands', '/admin/inventory', '/admin/suppliers', '/admin/stock'].some(p => path.startsWith(p));
+    if (user.staff_role === 'THU_KHO') {
+      return ['/admin/products', '/admin/categories', '/admin/brands', '/admin/inventory', '/admin/suppliers', '/admin/receipts'].some(p => path.startsWith(p));
+    }
+    if (user.staff_role === 'MARKETING') {
+      return ['/admin/flash-sales', '/admin/coupons', '/admin/banners', '/admin/news', '/admin/email'].some(p => path.startsWith(p));
     }
     return false;
   };
