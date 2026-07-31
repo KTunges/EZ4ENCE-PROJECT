@@ -14,6 +14,7 @@ from app.services.mailchimp_service import sync_user_to_mailchimp
 import string
 import random
 import smtplib
+import socket
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from google.oauth2 import id_token
@@ -144,7 +145,9 @@ def send_otp_email_task(email: str, otp: str):
             """
             msg.attach(MIMEText(html_body, 'html'))
             
-            server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT, timeout=10)
+            # Force IPv4 to avoid [Errno 101] Network is unreachable on Render (no IPv6 support)
+            smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, settings.SMTP_PORT, socket.AF_INET)[0][4][0])
+            server = smtplib.SMTP(smtp_ip, settings.SMTP_PORT, timeout=10)
             server.starttls()
             server.login(settings.SMTP_EMAIL, settings.SMTP_PASSWORD)
             server.sendmail(settings.SMTP_EMAIL, email, msg.as_string())
@@ -235,7 +238,9 @@ def send_verification_otp_email_task(email: str, otp: str):
             """
             msg.attach(MIMEText(html_body, 'html'))
             
-            server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT, timeout=10)
+            # Force IPv4 to fix [Errno 101] on Render
+            smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, settings.SMTP_PORT, socket.AF_INET)[0][4][0])
+            server = smtplib.SMTP(smtp_ip, settings.SMTP_PORT, timeout=10)
             server.starttls()
             server.login(settings.SMTP_EMAIL, settings.SMTP_PASSWORD)
             server.sendmail(settings.SMTP_EMAIL, email, msg.as_string())
@@ -490,7 +495,9 @@ def send_forgot_password_otp_email_task(email: str, otp: str):
             """
             msg.attach(MIMEText(html_body, 'html'))
             
-            server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT, timeout=10)
+            # Force IPv4 to fix [Errno 101] on Render
+            smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, settings.SMTP_PORT, socket.AF_INET)[0][4][0])
+            server = smtplib.SMTP(smtp_ip, settings.SMTP_PORT, timeout=10)
             server.starttls()
             server.login(settings.SMTP_EMAIL, settings.SMTP_PASSWORD)
             server.sendmail(settings.SMTP_EMAIL, email, msg.as_string())

@@ -1,4 +1,5 @@
 import smtplib
+import socket
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import logging
@@ -170,7 +171,9 @@ def send_order_confirmation_email(order, user, address_model):
         
         msg.attach(MIMEText(html_content, 'html'))
         
-        with smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT) as server:
+        # Force IPv4 to fix [Errno 101] on Render
+        smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, settings.SMTP_PORT, socket.AF_INET)[0][4][0])
+        with smtplib.SMTP(smtp_ip, settings.SMTP_PORT) as server:
             server.starttls()
             server.login(sender_email, sender_password)
             server.send_message(msg)
@@ -284,7 +287,9 @@ def send_order_status_email(order, user, address_model, new_status: str, cancel_
         
         msg.attach(MIMEText(html_content, 'html'))
         
-        with smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT) as server:
+        # Force IPv4 to fix [Errno 101] on Render
+        smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, settings.SMTP_PORT, socket.AF_INET)[0][4][0])
+        with smtplib.SMTP(smtp_ip, settings.SMTP_PORT) as server:
             server.starttls()
             server.login(sender_email, sender_password)
             server.send_message(msg)
