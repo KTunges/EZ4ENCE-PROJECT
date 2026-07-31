@@ -65,16 +65,17 @@ Dự án hoạt động theo mô hình **Client-Server (Frontend - Backend tách
 ---
 
 ## Tech Stack
-
+ 
 | Layer | Công Nghệ | Mô Tả |
 |---|---|---|
 | **Frontend** | React 19, Vite 8, React Router DOM | SPA, định tuyến, Code Splitting |
 | **UI / 3D** | Vanilla CSS, Framer Motion, Three.js | Animation, 3D, hiệu ứng Cyberpunk |
-| **Backend** | Python, FastAPI, Uvicorn | RESTful API bất đồng bộ, Swagger |
+| **Backend** | Python, FastAPI, Uvicorn, Pydantic | RESTful API bất đồng bộ, Swagger, Validation |
 | **Database** | PostgreSQL, SQLAlchemy, Alembic | ORM, Migration |
 | **Cloud** | Netlify, Render, Supabase | Hosting, Deployment |
-| **Dịch Vụ** | Cloudinary, VNPAY, PayPal, Mailchimp, Groq AI | Ảnh, Thanh toán, Email, AI |
-| **CI/CD** | GitHub Actions | Lint Check, Unit Test tự động |
+| **Real-time & Notify** | WebSockets (Live Chat), HTTP Short Polling (Thông báo) | Tin nhắn thời gian thực và thông báo định kỳ (mỗi 30s) qua REST API |
+| **Dịch Vụ & Bảo Mật** | Cloudinary, VNPAY, PayPal, Mailchimp, Groq AI, SMTP (Email/OTP) | Lưu trữ ảnh, Thanh toán, Email Marketing, AI Build PC, Mail xác thực & OTP |
+| **CI/CD** | GitHub Actions, ESLint, Pytest | Kiểm tra cú pháp và Unit Test tự động |
 
 ---
 

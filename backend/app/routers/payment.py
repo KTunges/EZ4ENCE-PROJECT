@@ -126,9 +126,11 @@ def capture_paypal_order(req: PayPalCaptureRequest, background_tasks: Background
             # Dùng db_order_id (ID thật trong DB), fallback sang paypal_order_id
             lookup_id = req.db_order_id or req.paypal_order_id
             order = db.query(Order).filter(Order.id == lookup_id).first()
+            total_amount = 0
             if order:
                 order.payment_status = PaymentStatus.PAID
                 order.payment_transaction_id = capture_id
+                total_amount = order.total_amount
                 
                 from app.models.order import OrderStatusHistory, OrderStatus
                 import uuid
@@ -144,7 +146,7 @@ def capture_paypal_order(req: PayPalCaptureRequest, background_tasks: Background
                 # Send confirmation email
                 background_tasks.add_task(send_order_confirmation_email, order, order.user, order.shipping_address)
                 
-            return {"success": True, "data": data}
+            return {"success": True, "total": total_amount, "data": data}
         
     logger.error(f"Failed to capture PayPal order: {response.text}")
     raise HTTPException(status_code=400, detail="Failed to capture payment")

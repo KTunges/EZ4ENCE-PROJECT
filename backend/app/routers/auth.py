@@ -14,6 +14,7 @@ from app.services.mailchimp_service import sync_user_to_mailchimp
 import string
 import random
 import smtplib
+import socket
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from google.oauth2 import id_token
@@ -144,8 +145,9 @@ def send_otp_email_task(email: str, otp: str):
             """
             msg.attach(MIMEText(html_body, 'html'))
             
-            server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT, timeout=10)
-            server.starttls()
+            # Use SMTP_SSL (port 465) to bypass Render blocking port 587
+            smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, 465, socket.AF_INET)[0][4][0])
+            server = smtplib.SMTP_SSL(smtp_ip, 465, timeout=15)
             server.login(settings.SMTP_EMAIL, settings.SMTP_PASSWORD)
             server.sendmail(settings.SMTP_EMAIL, email, msg.as_string())
             server.quit()
@@ -235,8 +237,9 @@ def send_verification_otp_email_task(email: str, otp: str):
             """
             msg.attach(MIMEText(html_body, 'html'))
             
-            server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT, timeout=10)
-            server.starttls()
+            # Use SMTP_SSL (port 465) to bypass Render blocking port 587
+            smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, 465, socket.AF_INET)[0][4][0])
+            server = smtplib.SMTP_SSL(smtp_ip, 465, timeout=15)
             server.login(settings.SMTP_EMAIL, settings.SMTP_PASSWORD)
             server.sendmail(settings.SMTP_EMAIL, email, msg.as_string())
             server.quit()
@@ -490,8 +493,9 @@ def send_forgot_password_otp_email_task(email: str, otp: str):
             """
             msg.attach(MIMEText(html_body, 'html'))
             
-            server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT, timeout=10)
-            server.starttls()
+            # Use SMTP_SSL (port 465) to bypass Render blocking port 587
+            smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, 465, socket.AF_INET)[0][4][0])
+            server = smtplib.SMTP_SSL(smtp_ip, 465, timeout=15)
             server.login(settings.SMTP_EMAIL, settings.SMTP_PASSWORD)
             server.sendmail(settings.SMTP_EMAIL, email, msg.as_string())
             server.quit()
