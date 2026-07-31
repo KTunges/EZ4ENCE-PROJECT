@@ -171,10 +171,9 @@ def send_order_confirmation_email(order, user, address_model):
         
         msg.attach(MIMEText(html_content, 'html'))
         
-        # Force IPv4 to fix [Errno 101] on Render
-        smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, settings.SMTP_PORT, socket.AF_INET)[0][4][0])
-        with smtplib.SMTP(smtp_ip, settings.SMTP_PORT) as server:
-            server.starttls()
+        # Use SMTP_SSL (port 465) to bypass Render blocking port 587
+        smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, 465, socket.AF_INET)[0][4][0])
+        with smtplib.SMTP_SSL(smtp_ip, 465, timeout=15) as server:
             server.login(sender_email, sender_password)
             server.send_message(msg)
             
@@ -287,10 +286,9 @@ def send_order_status_email(order, user, address_model, new_status: str, cancel_
         
         msg.attach(MIMEText(html_content, 'html'))
         
-        # Force IPv4 to fix [Errno 101] on Render
-        smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, settings.SMTP_PORT, socket.AF_INET)[0][4][0])
-        with smtplib.SMTP(smtp_ip, settings.SMTP_PORT) as server:
-            server.starttls()
+        # Use SMTP_SSL (port 465) to bypass Render blocking port 587
+        smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, 465, socket.AF_INET)[0][4][0])
+        with smtplib.SMTP_SSL(smtp_ip, 465, timeout=15) as server:
             server.login(sender_email, sender_password)
             server.send_message(msg)
             

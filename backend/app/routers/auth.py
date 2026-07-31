@@ -145,10 +145,9 @@ def send_otp_email_task(email: str, otp: str):
             """
             msg.attach(MIMEText(html_body, 'html'))
             
-            # Force IPv4 to avoid [Errno 101] Network is unreachable on Render (no IPv6 support)
-            smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, settings.SMTP_PORT, socket.AF_INET)[0][4][0])
-            server = smtplib.SMTP(smtp_ip, settings.SMTP_PORT, timeout=10)
-            server.starttls()
+            # Use SMTP_SSL (port 465) to bypass Render blocking port 587
+            smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, 465, socket.AF_INET)[0][4][0])
+            server = smtplib.SMTP_SSL(smtp_ip, 465, timeout=15)
             server.login(settings.SMTP_EMAIL, settings.SMTP_PASSWORD)
             server.sendmail(settings.SMTP_EMAIL, email, msg.as_string())
             server.quit()
@@ -238,10 +237,9 @@ def send_verification_otp_email_task(email: str, otp: str):
             """
             msg.attach(MIMEText(html_body, 'html'))
             
-            # Force IPv4 to fix [Errno 101] on Render
-            smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, settings.SMTP_PORT, socket.AF_INET)[0][4][0])
-            server = smtplib.SMTP(smtp_ip, settings.SMTP_PORT, timeout=10)
-            server.starttls()
+            # Use SMTP_SSL (port 465) to bypass Render blocking port 587
+            smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, 465, socket.AF_INET)[0][4][0])
+            server = smtplib.SMTP_SSL(smtp_ip, 465, timeout=15)
             server.login(settings.SMTP_EMAIL, settings.SMTP_PASSWORD)
             server.sendmail(settings.SMTP_EMAIL, email, msg.as_string())
             server.quit()
@@ -495,10 +493,9 @@ def send_forgot_password_otp_email_task(email: str, otp: str):
             """
             msg.attach(MIMEText(html_body, 'html'))
             
-            # Force IPv4 to fix [Errno 101] on Render
-            smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, settings.SMTP_PORT, socket.AF_INET)[0][4][0])
-            server = smtplib.SMTP(smtp_ip, settings.SMTP_PORT, timeout=10)
-            server.starttls()
+            # Use SMTP_SSL (port 465) to bypass Render blocking port 587
+            smtp_ip = str(socket.getaddrinfo(settings.SMTP_SERVER, 465, socket.AF_INET)[0][4][0])
+            server = smtplib.SMTP_SSL(smtp_ip, 465, timeout=15)
             server.login(settings.SMTP_EMAIL, settings.SMTP_PASSWORD)
             server.sendmail(settings.SMTP_EMAIL, email, msg.as_string())
             server.quit()

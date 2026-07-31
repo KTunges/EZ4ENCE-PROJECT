@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, ArrowRight, ShieldCheck, KeyRound, ArrowLeft } from 'lucide-react';
+import { Lock, Mail, ArrowRight, ShieldCheck, KeyRound, ArrowLeft, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminLogin() {
@@ -18,6 +18,15 @@ export default function AdminLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [isResending, setIsResending] = useState(false);
+
+  // Countdown timer for resend OTP
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
 
   const handleStep1 = async (e) => {
     e.preventDefault();
@@ -28,6 +37,7 @@ export default function AdminLogin() {
       await adminLoginStep1(email, password);
       setStep(2);
       setSuccessMsg('Mã OTP đã được gửi. Vui lòng kiểm tra Email.');
+      setResendCooldown(60);
     } catch (err) {
       setError(err.message || 'Đăng nhập thất bại.');
     } finally {
@@ -137,6 +147,35 @@ export default function AdminLogin() {
               ) : (
                 <>XÁC NHẬN ĐĂNG NHẬP <ShieldCheck size={18} /></>
               )}
+            </button>
+
+            <button 
+              type="button"
+              disabled={resendCooldown > 0 || isResending}
+              onClick={async () => {
+                setIsResending(true);
+                setError('');
+                try {
+                  await adminLoginStep1(email, password);
+                  setSuccessMsg('Mã OTP mới đã được gửi lại thành công!');
+                  setOtp('');
+                  setResendCooldown(60);
+                } catch (err) {
+                  setError(err.message || 'Gửi lại mã thất bại.');
+                } finally {
+                  setIsResending(false);
+                }
+              }}
+              style={{ 
+                background: 'transparent', border: '1px dashed #cbd5e1', color: resendCooldown > 0 ? '#94a3b8' : '#0056b3', 
+                fontSize: '14px', cursor: resendCooldown > 0 ? 'not-allowed' : 'pointer', fontWeight: '600', 
+                padding: '10px 16px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                width: '100%', transition: 'all 0.2s',
+                opacity: resendCooldown > 0 ? 0.6 : 1
+              }}
+            >
+              <RefreshCw size={15} style={{ animation: isResending ? 'spin 1s linear infinite' : 'none' }} />
+              {isResending ? 'Đang gửi...' : resendCooldown > 0 ? `Gửi lại mã sau ${resendCooldown}s` : 'Gửi lại mã OTP'}
             </button>
             
             <button 
