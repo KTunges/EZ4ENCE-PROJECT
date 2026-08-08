@@ -14,6 +14,15 @@ class BannerBase(BaseModel):
 class BannerCreate(BannerBase):
     pass
 
+class BannerUpdate(BaseModel):
+    title: Optional[str] = None
+    image_url: Optional[str] = None
+    link_url: Optional[str] = None
+    position: Optional[str] = None
+    is_active: Optional[bool] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+
 class BannerResponse(BannerBase):
     id: str
     created_at: datetime

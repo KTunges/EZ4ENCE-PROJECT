@@ -98,8 +98,8 @@ export default function AdminProducts() {
   };
 
   const getStatusBadge = (isPub) => {
-    if (isPub) return <span style={{ padding: '4px 10px', background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>Đang hiển thị</span>;
-    return <span style={{ padding: '4px 10px', background: 'rgba(100, 116, 139, 0.1)', color: 'var(--text-muted)', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>Đã ẩn</span>;
+    if (isPub) return <span style={{ padding: '4px 10px', background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>Đang hiển thị</span>;
+    return <span style={{ padding: '4px 10px', background: 'rgba(100, 116, 139, 0.1)', color: 'var(--text-muted)', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>Đã ẩn</span>;
   };
 
   // Permissions

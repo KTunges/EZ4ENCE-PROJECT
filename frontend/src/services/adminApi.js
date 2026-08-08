@@ -183,8 +183,11 @@ export const deletePromotion = async (id) => {
 
 export const getAdminBanners = async () => { const r = await adminApi.get('/admin/marketing/banners'); return r.data; };
 export const createBanner = async (data) => { const r = await adminApi.post('/admin/marketing/banners', data); return r.data; };
+export const updateBanner = async (id, data) => { const r = await adminApi.put(`/admin/marketing/banners/${id}`, data); return r.data; };
 export const toggleBannerStatus = async (id) => { const r = await adminApi.put(`/admin/marketing/banners/${id}/toggle`); return r.data; };
 export const deleteBanner = async (id) => { const r = await adminApi.delete(`/admin/marketing/banners/${id}`); return r.data; };
+export const getPositionLimits = async () => { const r = await adminApi.get('/admin/marketing/position-limits'); return r.data; };
+export const getLinkTargets = async (type, q) => { const r = await adminApi.get('/admin/marketing/link-targets', { params: { type, q } }); return r.data; };
 
 export const getAdminNews = async () => { const r = await adminApi.get('/admin/news'); return r.data; };
 export const createNews = async (data) => { const r = await adminApi.post('/admin/news', data); return r.data; };
