@@ -651,6 +651,13 @@ export default function Checkout() {
                                 selected_cart_item_ids: selectedItems.length > 0 ? selectedItems : null
                               };
 
+                              if (buyNowItem) {
+                                payload.buy_now_item = {
+                                  sku_id: buyNowItem.sku_id,
+                                  quantity: buyNowItem.quantity
+                                };
+                              }
+
                               // Tạo đơn EZ4GEAR
                               const orderRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/orders`, {
                                 method: "POST",

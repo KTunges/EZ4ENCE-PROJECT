@@ -1,0 +1,8 @@
+﻿feat: Nâng cấp hệ thống Marketing Automation và Tài liệu Báo cáo
+- Tích hợp API Mailchimp nâng cao cho dịch vụ gửi thư tự động
+- Cập nhật giao diện quản lý chiến dịch Mailchimp dành cho Quản trị viên
+- Cập nhật sơ đồ Use Case chuẩn UML vào file báo cáo đồ án
+
+fix: Khắc phục lỗi logic thanh toán cổng quốc tế
+- Xử lý lỗi PayPal từ chối thanh toán khi sử dụng tính năng 'Mua Ngay'
+- Bổ sung trường dữ liệu buy_now_item vào payload của PayPal Checkout API
