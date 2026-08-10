@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserCog, Plus, Trash2, Edit, ShieldCheck, Mail, Lock, CheckCircle, XCircle } from 'lucide-react';
-import adminApi from '../../services/adminApi';
+import { getStaffs, createStaff, updateStaff, deleteStaff } from '../../services/adminApi';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminStaffs() {
@@ -22,7 +22,7 @@ export default function AdminStaffs() {
   const fetchStaffs = async () => {
     try {
       setLoading(true);
-      const res = await adminApi.getStaffs();
+      const res = await getStaffs();
       setStaffs(res.data || res);
     } catch (error) {
       console.error('Lỗi lấy dữ liệu nhân sự:', error);
@@ -41,11 +41,15 @@ export default function AdminStaffs() {
 
   const openEditModal = (staff) => {
     setEditingId(staff.id);
+    let role = staff.staff_role;
+    if (!['BAN_HANG', 'THU_KHO', 'MARKETING', 'QUAN_TRI_VIEN'].includes(role)) {
+      role = 'QUAN_TRI_VIEN';
+    }
     setFormData({ 
       email: staff.email, 
       fullName: staff.fullName || '', 
       password: '', // Leave blank unless changing
-      staff_role: staff.staff_role || 'BAN_HANG', 
+      staff_role: role, 
       is_active: staff.is_active 
     });
     setShowModal(true);
@@ -54,7 +58,7 @@ export default function AdminStaffs() {
   const handleDelete = async (id) => {
     if (await window.customConfirm('Bạn có chắc muốn xóa tài khoản nhân viên này vĩnh viễn?')) {
       try {
-        await adminApi.deleteStaff(id);
+        await deleteStaff(id);
         fetchStaffs();
       } catch (error) {
         window.toast.error(error.response?.data?.detail || 'Lỗi khi xóa nhân viên');
@@ -81,9 +85,9 @@ export default function AdminStaffs() {
           is_active: formData.is_active 
         };
         if (formData.password) payload.password = formData.password;
-        await adminApi.updateStaff(editingId, payload);
+        await updateStaff(editingId, payload);
       } else {
-        await adminApi.createStaff(formData);
+        await createStaff(formData);
       }
       setShowModal(false);
       fetchStaffs();
@@ -95,12 +99,15 @@ export default function AdminStaffs() {
   };
 
   const getRoleColor = (role) => {
+    if (!['BAN_HANG', 'THU_KHO', 'MARKETING', 'QUAN_TRI_VIEN'].includes(role)) {
+      role = 'QUAN_TRI_VIEN';
+    }
     switch (role) {
       case 'QUAN_TRI_VIEN': return { bg: 'rgba(239, 68, 68, 0.1)', text: '#ef4444', label: 'Quản trị viên' };
       case 'BAN_HANG': return { bg: 'rgba(34, 197, 94, 0.1)', text: '#22c55e', label: 'Sale & CSKH' };
       case 'THU_KHO': return { bg: 'rgba(245, 158, 11, 0.1)', text: '#f59e0b', label: 'Thủ kho' };
       case 'MARKETING': return { bg: 'rgba(139, 92, 246, 0.1)', text: '#8b5cf6', label: 'Marketing' };
-      default: return { bg: 'rgba(100, 116, 139, 0.1)', text: '#64748b', label: role || 'Nhân viên' };
+      default: return { bg: 'rgba(239, 68, 68, 0.1)', text: '#ef4444', label: 'Quản trị viên' };
     }
   };
 

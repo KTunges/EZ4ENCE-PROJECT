@@ -26,6 +26,7 @@ class UserResponse(UserBase):
     is_email_verified: bool
     provider: str
     avatar: Optional[str] = None
+    is_active: bool = True
     createdAt: datetime = Field(
         ..., 
         validation_alias=AliasChoices("createdAt", "created_at"), 
@@ -41,7 +42,6 @@ class UserResponse(UserBase):
 
 class AdminUserResponse(UserResponse):
     phone: Optional[str] = None
-    is_active: bool
     total_orders: int = 0
     total_spent: int = 0
 
