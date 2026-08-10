@@ -52,8 +52,16 @@ export default function AdminLogin() {
     setIsLoading(true);
 
     try {
-      await adminLoginStep2(email, otp);
-      navigate('/admin/dashboard');
+      const user = await adminLoginStep2(email, otp);
+      if (user.staff_role === 'BAN_HANG') {
+        navigate('/admin/orders');
+      } else if (user.staff_role === 'THU_KHO') {
+        navigate('/admin/products');
+      } else if (user.staff_role === 'MARKETING') {
+        navigate('/admin/flash-sales');
+      } else {
+        navigate('/admin/dashboard');
+      }
     } catch (err) {
       setError(err.message || 'Xác thực OTP thất bại.');
     } finally {

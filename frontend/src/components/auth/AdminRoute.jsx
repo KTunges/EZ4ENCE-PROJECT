@@ -1,6 +1,6 @@
 import { useAuth } from '../../context/AuthContext';
 import { ShieldAlert, LogIn } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
 
 export default function AdminRoute({ children }) {
   const { adminUser, isAdminAuthenticated, isAdminLoading } = useAuth();
@@ -58,6 +58,13 @@ export default function AdminRoute({ children }) {
   }
 
   if (!hasAccess(location.pathname, adminUser)) {
+    // Nếu vào trang dashboard mà không có quyền, tự động chuyển hướng về trang của họ
+    if (location.pathname === '/admin' || location.pathname === '/admin/' || location.pathname.startsWith('/admin/dashboard')) {
+      if (adminUser.staff_role === 'BAN_HANG') return <Navigate to="/admin/orders" replace />;
+      if (adminUser.staff_role === 'THU_KHO') return <Navigate to="/admin/products" replace />;
+      if (adminUser.staff_role === 'MARKETING') return <Navigate to="/admin/flash-sales" replace />;
+    }
+
     return (
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f8fafc', color: 'var(--text)', textAlign: 'center', padding: '20px' }}>
         <ShieldAlert size={64} color="#ef4444" style={{ marginBottom: '20px' }} />
